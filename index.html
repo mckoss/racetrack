@@ -15,13 +15,12 @@
 </head>
 
 <body>
-    <canvas id="track" width="800" height="800"></canvas>
+    <canvas id="track"></canvas>
 
     <script type="module">
-        import { Racetrack } from './src/racetrack.ts';
-        const cubings = [];
+        import { Racetrack, U_TRACK } from './src/racetrack.ts';
 
-        new Racetrack(document.getElementById(`track`));
+        new Racetrack(document.getElementById(`track`), U_TRACK);
     </script>
 </body>
 
