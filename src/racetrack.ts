@@ -1,4 +1,4 @@
-import { Point } from './points';
+import { Point, linePoints } from './points';
 export { Racetrack, U_TRACK };
 
 // Definition of a specific track
@@ -15,8 +15,8 @@ interface Track {
 const U_TRACK:Track = {
     dim: [400, 400],
     grid: 20,
-    startLine: [[20, 10], [20, 110]],
-    finishLine: [[20, 290], [20, 390]],
+    startLine: [[20, 11], [20, 109]],
+    finishLine: [[20, 291], [20, 389]],
     trackWidth: 100,
     path: [[20, 60], [340, 60], [340, 340], [20, 340]],
 }
