@@ -6,7 +6,7 @@ type Point = [number, number];
 
 // Generator for a sequence of points along a line. The line is defined by two
 // points, p1 and p2. The points are only those that are on the grid with
-// spacing grid.  We use a modified Bresenham algorithm to generate the points.
+// spacing grid.
 // The results are returned in grid-space coordinates (points scaled by 1/grid).
 function* linePoints(p1: Point, p2: Point, grid: number): Generator<Point> {
     let [x1, y1] = p1;
@@ -36,8 +36,12 @@ function* linePoints(p1: Point, p2: Point, grid: number): Generator<Point> {
             break;
         }
         ix += sx;
-        if (2 * sx * (dy * ix - dx * iy) > dx) {
-            iy += sy;
-        }
+        iy = f(ix);
+    }
+
+    function f(ix: number): number {
+        const x = ix * grid;
+        const y = (x - x1) * dy / dx * sx * sy + y1;
+        return Math.round(y / grid);
     }
 }

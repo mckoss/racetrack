@@ -77,9 +77,42 @@ suite('Points', () => {
             const points = Array.from(linePoints(reflect(t.p1), reflect(t.p2), t.grid));
             assert.equal(JSON.stringify(points), JSON.stringify(t.expected.map(reflect)));
         });
+        test(`linePoints: ${t.name} (mirror-origin)`, () => {
+            let mapper = mirrorOrigin;
+            if (t.name === 'scaled-grid-rounded') {
+                mapper = (p: Point) => {
+                    p = mirrorOrigin(p);
+                    return [p[0] + 1, p[1] + 1];
+                };
+            }
+            const points = Array.from(linePoints(mirrorOrigin(t.p1), mirrorOrigin(t.p2), t.grid));
+            assert.equal(JSON.stringify(points), JSON.stringify(t.expected.map(mapper)));
+        });
+        test(`linePoints: ${t.name} (mirror-x)`, () => {
+            let mapper = mirrorX;
+            if (t.name === 'scaled-grid-rounded') {
+                mapper = (p: Point) => {
+                    p = mirrorX(p);
+                    if (p[1] == -1) {
+                        return [p[0], 0];
+                    }
+                    return p;
+                };
+            }
+            const points = Array.from(linePoints(mirrorX(t.p1), mirrorX(t.p2), t.grid));
+            assert.equal(JSON.stringify(points), JSON.stringify(t.expected.map(mapper)));
+        });
     }
 });
 
 function reflect(p: Point): Point {
     return [p[1], p[0]];
+}
+
+function mirrorOrigin(p: Point): Point {
+    return [-p[0], -p[1]];
+}
+
+function mirrorX(p: Point): Point {
+    return [p[0], -p[1]];
 }
