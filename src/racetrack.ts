@@ -1,7 +1,5 @@
+import { Point } from './points';
 export { Racetrack, U_TRACK };
-
-// x, y coordinates
-type Point = [number, number];
 
 // Definition of a specific track
 interface Track {
