@@ -13,7 +13,7 @@
       "noUnusedParameters": true,
       "noImplicitReturns": true,
       "skipLibCheck": true,
-      "outDir": "scripts",
+      "outDir": "public/scripts",
       "sourceMap": true,
       "inlineSources": true,
     },
