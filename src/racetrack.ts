@@ -82,6 +82,7 @@ class Racetrack {
     }
 
     drawDots() {
+        this.ctx.lineWidth = this.track.trackWidth;
         for (let y = this.track.grid; y < this.track.dim[1]; y += this.track.grid) {
             for (let x = this.track.grid; x < this.track.dim[0]; x += this.track.grid) {
                 const inPath = this.ctx.isPointInStroke(this.path, x, y);
