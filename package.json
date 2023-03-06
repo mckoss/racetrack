@@ -6,7 +6,7 @@
     "main": "index.js",
     "scripts": {
         "dev": "vite",
-        "build": "tsc && vite build && cp -R scripts dist && cp test/mocha* dist",
+        "build": "tsc && vite build && cp -R scripts dist && cp test/mocha* dist/test",
         "preview": "vite preview",
         "test": "tsc && mocha --ui tdd scripts/tests",
         "coverage": "c8 --reporter=text --reporter=html npm test"
