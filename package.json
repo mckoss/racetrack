@@ -21,7 +21,6 @@
         "url": "https://github.com/mckoss/racetrack/issues"
     },
     "homepage": "https://github.com/mckoss/racetrack#readme",
-    "dependencies": {},
     "devDependencies": {
         "@types/chai": "^4.3.4",
         "@types/mocha": "^10.0.1",

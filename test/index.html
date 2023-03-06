@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <title>Mocha</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="mocha.css" />
+    <!-- After running npx mocha test init, this file created. with local
+        css and js files.  Defined a GLOBAL suite and test entry point. -->
+    <script src="mocha.js"></script>
+</head>
+
+<body>
+    <h1>Racetrack Tests</h1>
+    <div id="mocha"></div>
+    <script>
+        mocha.setup('tdd');
+    </script>
+
+    <script type="module" src="../src/tests/test-points.ts"></script>
+    <script type="module" src="../src/tests/test-racetrack.ts"></script>
+
+    <!-- This must be module type to have it run AFTER defining the test
+         suites above. -->
+    <script type="module">
+        mocha.run();
+    </script>
+</body>
+
+</html>
