@@ -1,4 +1,4 @@
-import { Point, linePoints } from './points';
+import { Point } from './points';
 export { Racetrack, U_TRACK };
 
 // Definition of a specific track
