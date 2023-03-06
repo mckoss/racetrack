@@ -36,7 +36,7 @@ function* linePoints(p1: Point, p2: Point, grid: number): Generator<Point> {
             break;
         }
         ix += sx;
-        if (sx * (2 * dy * ix - 2 * dx * iy - dx) > 0) {
+        if (2 * sx * (dy * ix - dx * iy) > dx) {
             iy += sy;
         }
     }

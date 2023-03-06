@@ -41,13 +41,6 @@ suite('Points', () => {
             expected: [[0, 0], [1, 1], [2, 2], [3, 3], [4, 4], [5, 5]],
         },
         {
-            name: 'diagonal-reverse',
-            p1: [5, 5],
-            p2: [0, 0],
-            grid: 1,
-            expected: [[5, 5], [4, 4], [3, 3], [2, 2], [1, 1], [0, 0]],
-        },
-        {
             name: 'scaled-grid',
             p1: [0, 0],
             p2: [6, 6],
@@ -76,5 +69,17 @@ suite('Points', () => {
             const points = Array.from(linePoints(t.p1, t.p2, t.grid));
             assert.equal(JSON.stringify(points), JSON.stringify(t.expected));
         });
+        test(`linePoints: ${t.name} (reversed)`, () => {
+            const points = Array.from(linePoints(t.p2, t.p1, t.grid));
+            assert.equal(JSON.stringify(points), JSON.stringify([...t.expected].reverse()));
+        });
+        test(`linePoints: ${t.name} (reflected)`, () => {
+            const points = Array.from(linePoints(reflect(t.p1), reflect(t.p2), t.grid));
+            assert.equal(JSON.stringify(points), JSON.stringify(t.expected.map(reflect)));
+        });
     }
 });
+
+function reflect(p: Point): Point {
+    return [p[1], p[0]];
+}
