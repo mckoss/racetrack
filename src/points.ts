@@ -7,7 +7,6 @@ type Point = [number, number];
 // Generator for a sequence of points along a line. The line is defined by two
 // points, p1 and p2. The points are only those that are on the grid with
 // spacing grid.
-// The results are returned in grid-space coordinates (points scaled by 1/grid).
 function* linePoints(p1: Point, p2: Point, grid: number): Generator<Point> {
     let [x1, y1] = p1;
     let [x2, y2] = p2;
@@ -31,7 +30,7 @@ function* linePoints(p1: Point, p2: Point, grid: number): Generator<Point> {
     let ix2 = Math.round(x2 / grid);
 
     while (true) {
-        yield swapped ? [iy, ix] : [ix, iy];
+        yield swapped ? [iy * grid, ix * grid] : [ix * grid, iy * grid];
         if (ix === ix2) {
             break;
         }

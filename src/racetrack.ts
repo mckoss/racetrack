@@ -1,4 +1,4 @@
-import { Point } from './points';
+import { Point, linePoints } from './points.js';
 export { Racetrack, U_TRACK };
 
 // Definition of a specific track
@@ -15,8 +15,8 @@ interface Track {
 const U_TRACK:Track = {
     dim: [400, 400],
     grid: 20,
-    startLine: [[20, 11], [20, 109]],
-    finishLine: [[20, 291], [20, 389]],
+    startLine: [[20, 10], [20, 110]],
+    finishLine: [[20, 290], [20, 390]],
     trackWidth: 100,
     path: [[20, 60], [340, 60], [340, 340], [20, 340]],
 }
@@ -40,8 +40,8 @@ class Racetrack {
 
         this.clearStage();
         this.drawTrackPath();
-        this.drawStartFinish();
         this.drawDots();
+        this.drawStartFinish();
     }
 
     clearStage() {
@@ -77,16 +77,35 @@ class Racetrack {
         this.ctx.moveTo(this.track.finishLine[0][0], this.track.finishLine[0][1]);
         this.ctx.lineTo(this.track.finishLine[1][0], this.track.finishLine[1][1]);
         this.ctx.stroke();
+
+        for (let point of this.linePoints(...this.track.startLine)) {
+            this.dot(point[0], point[1], 'green');
+        }
+
+        for (let point of this.linePoints(...this.track.finishLine)) {
+            this.dot(point[0], point[1], 'darkred');
+        }
     }
 
     drawDots() {
-        this.ctx.lineWidth = this.track.trackWidth;
+        for (let point of this.gridPoints()) {
+            const [x, y] = point;
+            this.dot(x, y, this.isPointInTrack(point) ? 'white' : 'red');
+        }
+    }
+
+    *gridPoints(): Generator<Point> {
         for (let y = this.track.grid; y < this.track.dim[1]; y += this.track.grid) {
             for (let x = this.track.grid; x < this.track.dim[0]; x += this.track.grid) {
-                const inPath = this.ctx.isPointInStroke(this.path, x, y);
-                this.dot(x, y, inPath ? 'white' : 'red');
+                yield [x, y];
             }
         }
+    }
+
+    isPointInTrack(point: Point): boolean {
+        this.ctx.lineWidth = this.track.trackWidth;
+        const [x, y] = point;
+        return this.ctx.isPointInStroke(this.path, x, y);
     }
 
     dot(x: number, y: number, color: string) {
@@ -94,5 +113,15 @@ class Racetrack {
         this.ctx.beginPath();
         this.ctx.ellipse(x, y, 4, 4, 0, 0, 2 * Math.PI);
         this.ctx.fill();
+    }
+
+    // Return grid points that are inside the track
+    *linePoints(start: Point, end: Point): Generator<Point> {
+        const points = linePoints(start, end, this.track.grid);
+        for (let point of points) {
+            if (this.isPointInTrack(point)) {
+                yield point;
+            }
+        }
     }
 }

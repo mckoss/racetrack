@@ -1,7 +1,6 @@
 import { assert } from 'chai';
 
 import { Racetrack, U_TRACK } from '../racetrack.js';
-import { linePoints } from '../points.js';
 
 suite('Racetrack', () => {
     if (typeof document === 'undefined') {
@@ -18,8 +17,8 @@ suite('Racetrack', () => {
     });
 
     test('finish line points', () => {
-        const expected = Array.from(range(15, 20)).map(x => [1, x]);
-        const points = Array.from(linePoints(...U_TRACK.finishLine, U_TRACK.grid));
+        const expected = Array.from(range(15, 20)).map(x => [20, x * 20]);
+        const points = Array.from(rt.linePoints(...U_TRACK.finishLine));
         assert.equal(points.length, expected.length);
         assert.deepEqual(points, expected);
     });

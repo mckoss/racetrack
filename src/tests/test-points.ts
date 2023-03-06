@@ -45,14 +45,14 @@ suite('Points', () => {
             p1: [0, 0],
             p2: [6, 6],
             grid: 2,
-            expected: [[0, 0], [1, 1], [2, 2], [3, 3]],
+            expected: [[0, 0], [2, 2], [4, 4], [6, 6]],
         },
         {
             name: 'scaled-grid-rounded',
             p1: [1, 1],
             p2: [5, 5],
             grid: 2,
-            expected: [[1, 1], [2, 2], [3, 3]],
+            expected: [[2, 2], [4, 4], [6, 6]],
         },
         {
             name: 'low-angle',
@@ -82,7 +82,7 @@ suite('Points', () => {
             if (t.name === 'scaled-grid-rounded') {
                 mapper = (p: Point) => {
                     p = mirrorOrigin(p);
-                    return [p[0] + 1, p[1] + 1];
+                    return [p[0] + 2, p[1] + 2];
                 };
             }
             const points = Array.from(linePoints(mirrorOrigin(t.p1), mirrorOrigin(t.p2), t.grid));
@@ -93,7 +93,7 @@ suite('Points', () => {
             if (t.name === 'scaled-grid-rounded') {
                 mapper = (p: Point) => {
                     p = mirrorX(p);
-                    if (p[1] == -1) {
+                    if (p[1] == -2) {
                         return [p[0], 0];
                     }
                     return p;
