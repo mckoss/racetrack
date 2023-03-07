@@ -1,4 +1,4 @@
-import { Point, linePoints, add, scale, id, pointFromId, neighbors } from './points.js';
+import { Point, linePoints, add, sub, scale, id, pointFromId, neighbors } from './points.js';
 export { Racetrack, U_TRACK };
 
 interface CarState {
@@ -8,7 +8,14 @@ interface CarState {
     velocity: Point;
 }
 
-type CarUpdate = (state: CarState) => Point;
+interface MoveOption {
+    move: Point;
+    position: Point;
+    distanceToFinish: number | undefined;
+    status: 'ok' | 'crashed' | 'finished';
+}
+
+type CarUpdate = (state: CarState, options: MoveOption[]) => Point;
 
 interface DriveResult {
     status: 'ok' | 'crashed' | 'finished';
@@ -223,6 +230,34 @@ class Racetrack {
         };
     }
 
+    moveOptions(car: CarState): MoveOption[] {
+        const options: MoveOption[] = [];
+        const v = scale(this.track.grid, car.velocity);
+        const centerPoint = add(car.position, v);
+
+        const self = this;
+        pushOption([0, 0], centerPoint);
+
+        for (let point of neighbors(centerPoint, this.track.grid)) {
+            const move = scale(1 / this.track.grid, sub(point, centerPoint));
+            pushOption(move, point);
+        }
+
+        return options;
+
+        function pushOption(move: Point, endPoint: Point) {
+            const result = self.driveLine(car.position, endPoint);
+            const position = result.position;
+            let distanceToFinish = self.finishDistances.get(id(position))!;
+            options.push({
+                move,
+                status: result.status,
+                position,
+                distanceToFinish,
+            });
+        }
+    }
+
     isFinishPoint(point: Point): boolean {
         return this.finishPositions.has(id(point));
     }
@@ -261,7 +296,7 @@ class Racetrack {
             }
             car.step = this.stepNumber;
             const update = this.updates[i];
-            let delta = update(car);
+            let delta = update(car, this.moveOptions(car));
             if (!delta) {
                 console.warn(`Car ${i} is not responding.`);
                 delta = [0, 0];

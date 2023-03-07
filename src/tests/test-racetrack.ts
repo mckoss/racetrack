@@ -31,13 +31,24 @@ suite('Racetrack', () => {
     });
 
     test('finishing race', () => {
-        rt.race((state) => {
+        rt.race((state, options) => {
+            assert.isAtLeast(state.step, 1);
+            assert.equal(options.length, 9);
             if (state.step < 5) {
+                assert.deepEqual(options[5].move, [1, 0]);
+                assert.isAtLeast(options[5].distanceToFinish!, 27);
+                assert.equal(options[5].status, 'ok');
                 return [1, 0];
             }
             if (state.step < 9) {
+                assert.deepEqual(options[6].move, [-1, 1]);
+                assert.isAtLeast(options[6].distanceToFinish!, 17);
+                assert.equal(options[6].status, 'ok');
                 return [-1, 1];
             }
+            assert.deepEqual(options[1].move, [-1, -1]);
+            assert.isAtLeast(options[1].distanceToFinish!, 0);
+            assert.equal(options[1].status, state.step < 14 ? 'ok' : 'finished');
             return [-1, -1];
         });
         assert.equal(rt.cars.length, 1);

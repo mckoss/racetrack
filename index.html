@@ -22,18 +22,19 @@
 
         const rt = new Racetrack(document.getElementById(`track`), U_TRACK);
 
-        rt.race((state) => {
+        rt.race((state, options) => {
             return [1, 1];
         });
 
-        rt.race((state) => {
+        rt.race((state, options) => {
+            console.log(options);
             if (state.step < 5) {
                 return [1, 0];
             }
             return [-1, 1];
         });
 
-        rt.race((state) => {
+        rt.race((state, options) => {
             if (state.step < 5) {
                 return [1, 0];
             }
@@ -43,7 +44,7 @@
             return [-1, -1];
         });
 
-        rt.race((state) => {
+        rt.race((state, options) => {
             if (state.step < 4) {
                 return [1, 0];
             }

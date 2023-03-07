@@ -1,4 +1,4 @@
-export { linePoints, add, scale, id, pointFromId, neighbors };
+export { linePoints, add, sub, scale, id, pointFromId, neighbors };
 export type { Point };
 
 // x, y coordinates
@@ -47,6 +47,10 @@ function* linePoints(p1: Point, p2: Point, grid: number): Generator<Point> {
 
 function add(a: Point, b: Point): Point {
     return [a[0] + b[0], a[1] + b[1]];
+}
+
+function sub(a: Point, b: Point): Point {
+    return [a[0] - b[0], a[1] - b[1]];
 }
 
 function scale(factor: number, [x, y]: Point): Point {
