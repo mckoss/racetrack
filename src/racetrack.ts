@@ -45,6 +45,7 @@ class Racetrack {
     path: Path2D = new Path2D();
     polePositions: Generator<Point>;
     finishPositions: Set<string>;
+    trackPositions: Set<string> = new Set();
     stepNumber = 0;
 
     updates: CarUpdate[] = [];
@@ -79,6 +80,15 @@ class Racetrack {
         this.path.moveTo(this.track.path[0][0], this.track.path[0][1]);
         for (let i = 1; i < this.track.path.length; i++) {
             this.path.lineTo(this.track.path[i][0], this.track.path[i][1]);
+        }
+
+        // Cache the track positions
+        this.ctx.lineWidth = this.track.trackWidth;
+        for (let point of this.gridPoints()) {
+            const [x, y] = point;
+            if (this.ctx.isPointInStroke(this.path, x, y)) {
+                this.trackPositions.add(id(point));
+            }
         }
     }
 
@@ -129,9 +139,7 @@ class Racetrack {
     }
 
     isPointInTrack(point: Point): boolean {
-        this.ctx.lineWidth = this.track.trackWidth;
-        const [x, y] = point;
-        return this.ctx.isPointInStroke(this.path, x, y);
+        return this.trackPositions.has(id(point));
     }
 
     dot(x: number, y: number, color: string) {
