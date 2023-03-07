@@ -1,4 +1,4 @@
-import { Point, linePoints, add, scale } from './points.js';
+import { Point, linePoints, add, scale, id } from './points.js';
 export { Racetrack, U_TRACK };
 
 interface CarState {
@@ -44,6 +44,7 @@ class Racetrack {
     ctx: CanvasRenderingContext2D;
     path: Path2D = new Path2D();
     polePositions: Generator<Point>;
+    finishPositions: Set<string>;
     stepNumber = 0;
 
     updates: CarUpdate[] = [];
@@ -61,6 +62,7 @@ class Racetrack {
         this.calculateTrackPath();
 
         this.polePositions = this.linePoints(...this.track.startLine);
+        this.finishPositions = new Set(Array.from(this.linePoints(...this.track.finishLine)).map(id));
 
         this.clearStage();
         this.drawTrackPath();
@@ -152,6 +154,12 @@ class Racetrack {
     driveLine(start: Point, end: Point): DriveResult {
         const points = linePoints(start, end, this.track.grid);
         for (let point of points) {
+            if (this.idFinishPoint(point)) {
+                return {
+                    status: 'finished',
+                    position: point,
+                };
+            }
             if (!this.isPointInTrack(point)) {
                 return {
                     status: 'crashed',
@@ -163,6 +171,10 @@ class Racetrack {
             status: 'ok',
             position: end,
         };
+    }
+
+    idFinishPoint(point: Point): boolean {
+        return this.finishPositions.has(id(point));
     }
 
     race(update: CarUpdate) {

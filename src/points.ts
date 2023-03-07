@@ -1,4 +1,4 @@
-export { linePoints, add, scale };
+export { linePoints, add, scale, id };
 export type { Point };
 
 // x, y coordinates
@@ -51,4 +51,8 @@ function add(a: Point, b: Point): Point {
 
 function scale(factor: number, [x, y]: Point): Point {
     return [x * factor, y * factor];
+}
+
+function id([x, y]: Point): string {
+    return `${x}-${y}`;
 }
