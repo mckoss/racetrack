@@ -16,6 +16,13 @@ suite('Racetrack', () => {
         assert.equal(rt.track, U_TRACK);
     });
 
+    test('isPointInTrack', () => {
+        assert.isFalse(rt.isPointInTrack([0, 0]));
+        assert.isTrue(rt.isPointInTrack([20, 20]));
+        assert.isTrue(rt.isPointInTrack([40, 40]));
+        assert.isFalse(rt.isPointInTrack([380, 20]));
+    });
+
     test('finish line points', () => {
         const expected = Array.from(range(15, 20)).map(x => [20, x * 20]);
         const points = Array.from(rt.linePoints(...U_TRACK.finishLine));

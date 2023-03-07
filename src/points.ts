@@ -1,4 +1,4 @@
-export { linePoints, add, scale, id };
+export { linePoints, add, scale, id, pointFromId, neighbors };
 export type { Point };
 
 // x, y coordinates
@@ -53,6 +53,21 @@ function scale(factor: number, [x, y]: Point): Point {
     return [x * factor, y * factor];
 }
 
-function id([x, y]: Point): string {
-    return `${x}-${y}`;
+function id(p: Point): string {
+    return JSON.stringify(p);
+}
+
+function pointFromId(id: string): Point {
+    return JSON.parse(id);
+}
+
+function* neighbors(p: Point, grid: number): Generator<Point> {
+    for (let dy of [-grid, 0, grid]) {
+        for (let dx of [-grid, 0, grid]) {
+            if (dx === 0 && dy === 0) {
+                continue;
+            }
+            yield add(p, [dx, dy]);
+        }
+    }
 }

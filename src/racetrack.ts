@@ -1,4 +1,4 @@
-import { Point, linePoints, add, scale, id } from './points.js';
+import { Point, linePoints, add, scale, id, pointFromId, neighbors } from './points.js';
 export { Racetrack, U_TRACK };
 
 interface CarState {
@@ -46,8 +46,9 @@ class Racetrack {
     polePositions: Generator<Point>;
     finishPositions: Set<string>;
     trackPositions: Set<string> = new Set();
-    stepNumber = 0;
+    finishDistances: Map<string, number> = new Map();
 
+    stepNumber = 0;
     updates: CarUpdate[] = [];
     cars: CarState[] = [];
     histories: Point[][] = [];
@@ -64,6 +65,7 @@ class Racetrack {
 
         this.polePositions = this.linePoints(...this.track.startLine);
         this.finishPositions = new Set(Array.from(this.linePoints(...this.track.finishLine)).map(id));
+        this.calculateFinishDistances();
 
         this.clearStage();
         this.drawTrackPath();
@@ -84,11 +86,38 @@ class Racetrack {
 
         // Cache the track positions
         this.ctx.lineWidth = this.track.trackWidth;
+        this.ctx.lineCap = 'butt';
+        this.ctx.lineJoin = 'round';
         for (let point of this.gridPoints()) {
             const [x, y] = point;
             if (this.ctx.isPointInStroke(this.path, x, y)) {
                 this.trackPositions.add(id(point));
             }
+        }
+    }
+
+    calculateFinishDistances() {
+        let distance = 0;
+        let currentPositions = new Set(this.finishPositions);
+
+        for (let pos of currentPositions) {
+            this.finishDistances.set(pos, distance);
+        }
+
+        while (currentPositions.size > 0) {
+            distance += 1;
+            const nextPositions = new Set<string>();
+            for (let pos of currentPositions) {
+                const point = pointFromId(pos);
+                for (let neighbor of neighbors(point, this.track.grid)) {
+                    const posN = id(neighbor);
+                    if (this.trackPositions.has(posN) && !this.finishDistances.has(posN)) {
+                        this.finishDistances.set(posN, distance);
+                        nextPositions.add(posN);
+                    }
+                }
+            }
+            currentPositions = nextPositions;
         }
     }
 
@@ -127,6 +156,19 @@ class Racetrack {
         for (let point of this.gridPoints()) {
             const [x, y] = point;
             this.dot(x, y, this.isPointInTrack(point) ? 'white' : 'red');
+        }
+
+        // Add distances to reach the finish line to the grid.
+        this.ctx.fillStyle = 'black';
+        this.ctx.font = '12px sans-serif';
+        this.ctx.textAlign = 'center';
+        this.ctx.textBaseline = 'middle';
+        for (let point of this.gridPoints()) {
+            const [x, y] = point;
+            const pos = id(point);
+            if (this.finishDistances.has(pos)) {
+                this.ctx.fillText(this.finishDistances.get(pos)!.toString(), x, y);
+            }
         }
     }
 
