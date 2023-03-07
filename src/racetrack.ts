@@ -162,7 +162,7 @@ class Racetrack {
     driveLine(start: Point, end: Point): DriveResult {
         const points = linePoints(start, end, this.track.grid);
         for (let point of points) {
-            if (this.idFinishPoint(point)) {
+            if (this.isFinishPoint(point)) {
                 return {
                     status: 'finished',
                     position: point,
@@ -181,7 +181,7 @@ class Racetrack {
         };
     }
 
-    idFinishPoint(point: Point): boolean {
+    isFinishPoint(point: Point): boolean {
         return this.finishPositions.has(id(point));
     }
 
