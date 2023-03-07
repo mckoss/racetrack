@@ -1,5 +1,12 @@
-import { Point, linePoints } from './points.js';
+import { Point, linePoints, add, scale } from './points.js';
 export { Racetrack, U_TRACK };
+
+interface CarState {
+    position: Point;
+    velocity: Point;
+}
+
+type CarUpdate = (state: CarState) => Point;
 
 // Definition of a specific track
 interface Track {
@@ -21,12 +28,19 @@ const U_TRACK:Track = {
     path: [[20, 60], [340, 60], [340, 340], [20, 340]],
 }
 
+const CAR_COLORS = ['red', 'blue', 'green', 'yellow', 'orange', 'purple', 'pink', 'brown', 'black', 'white'];
+
 // UI for Playing Racetrack game
 class Racetrack {
     canvas: HTMLCanvasElement;
     track: Track;
     ctx: CanvasRenderingContext2D;
     path: Path2D = new Path2D();
+    polePositions: Generator<Point>;
+
+    updates: CarUpdate[] = [];
+    cars: CarState[] = [];
+    histories: Point[][] = [];
 
     constructor(canvas: HTMLCanvasElement, track: Track) {
         this.canvas = canvas;
@@ -37,6 +51,8 @@ class Racetrack {
         this.canvas.height = this.track.dim[1];
 
         this.calculateTrackPath();
+
+        this.polePositions = this.linePoints(...this.track.startLine);
 
         this.clearStage();
         this.drawTrackPath();
@@ -121,6 +137,52 @@ class Racetrack {
         for (let point of points) {
             if (this.isPointInTrack(point)) {
                 yield point;
+            }
+        }
+    }
+
+    race(update: CarUpdate) {
+        this.updates.push(update);
+        const start = this.polePositions.next().value;
+        this.cars.push({
+            position: start,
+            velocity: [0, 0],
+        });
+        this.histories.push([start]);
+    }
+
+    // Step through all cars and update positions
+    step() {
+        for (let i = 0; i < this.cars.length; i++) {
+            const car = this.cars[i];
+            const update = this.updates[i];
+            const delta = update(car);
+            car.velocity = add(car.velocity, delta);
+            const v = scale(this.track.grid, car.velocity);
+            const startPosition = car.position;
+            car.position = add(startPosition, v);
+            this.histories[i].push(car.position);
+            console.log(`Car ${i} moved from ${startPosition} to ${car.position} with velocity ${car.velocity}`);
+            console.log(this.histories);
+            this.drawTracks();
+        }
+    }
+
+    drawTracks() {
+        for (let i = 0; i < this.cars.length; i++) {
+            const history = this.histories[i];
+
+            this.ctx.strokeStyle = CAR_COLORS[i];
+            this.ctx.lineWidth = 3;
+            this.ctx.beginPath();
+            this.ctx.moveTo(...history[0]);
+            for (let i = 1; i < history.length; i++) {
+                this.ctx.lineTo(...history[i]);
+            }
+            this.ctx.stroke();
+
+            for (let p of history) {
+                this.dot(...p, CAR_COLORS[i]);
             }
         }
     }

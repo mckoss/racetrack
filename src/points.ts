@@ -1,4 +1,4 @@
-export { linePoints };
+export { linePoints, add, scale };
 export type { Point };
 
 // x, y coordinates
@@ -43,4 +43,12 @@ function* linePoints(p1: Point, p2: Point, grid: number): Generator<Point> {
         const y = (x - x1) * dy / dx * sx * sy + y1;
         return Math.round(y / grid);
     }
+}
+
+function add(a: Point, b: Point): Point {
+    return [a[0] + b[0], a[1] + b[1]];
+}
+
+function scale(factor: number, [x, y]: Point): Point {
+    return [x * factor, y * factor];
 }

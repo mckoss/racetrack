@@ -20,7 +20,19 @@
     <script type="module">
         import { Racetrack, U_TRACK } from './src/racetrack.ts';
 
-        new Racetrack(document.getElementById(`track`), U_TRACK);
+        const rt = new Racetrack(document.getElementById(`track`), U_TRACK);
+
+        rt.race((state) => {
+            return [1, 1];
+        });
+
+        rt.race((state) => {
+            return [1, 0];
+        });
+
+        rt.step();
+        rt.step();
+        rt.step();
     </script>
 </body>
 
