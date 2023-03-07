@@ -211,7 +211,6 @@ class Racetrack {
             }
             car.step = this.stepNumber;
             const update = this.updates[i];
-            console.log(JSON.stringify(car));
             let delta = update(car);
             if (!delta) {
                 console.warn(`Car ${i} is not responding.`);
@@ -226,7 +225,6 @@ class Racetrack {
             const startPosition = car.position;
             const endPosition = add(startPosition, v);
             const result = this.driveLine(startPosition, endPosition);
-            console.log(result);
             car.position = result.position;
             this.histories[i].push(car.position);
             if (result.status !== 'ok') {
@@ -246,7 +244,6 @@ class Racetrack {
             this.step();
         }
         console.log(`Race finished in ${this.stepNumber} steps.`);
-        console.log(this.histories)
     }
 
     isDone(): boolean {
