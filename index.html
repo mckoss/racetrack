@@ -37,10 +37,10 @@
             if (state.step < 5) {
                 return [1, 0];
             }
-            if (state.step > 8) {
-                return [-1, -1];
+            if (state.step < 9) {
+                return [-1, 1];
             }
-            return [-1, 1];
+            return [-1, -1];
         });
 
         rt.race((state) => {

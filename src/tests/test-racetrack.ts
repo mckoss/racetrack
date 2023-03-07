@@ -22,6 +22,22 @@ suite('Racetrack', () => {
         assert.equal(points.length, expected.length);
         assert.deepEqual(points, expected);
     });
+
+    test('finishing race', () => {
+        rt.race((state) => {
+            if (state.step < 5) {
+                return [1, 0];
+            }
+            if (state.step < 9) {
+                return [-1, 1];
+            }
+            return [-1, -1];
+        });
+        assert.equal(rt.cars.length, 1);
+        rt.run();
+        assert.equal(rt.stepNumber, 14);
+        assert.equal(rt.cars[0].status, 'finished');
+    });
 });
 
 function *range(start: number, end: number): Generator<number> {
