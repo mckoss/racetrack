@@ -2,11 +2,18 @@ import { Point, linePoints, add, scale } from './points.js';
 export { Racetrack, U_TRACK };
 
 interface CarState {
+    status: 'running' | 'crashed' | 'finished' | 'error';
+    step: number;
     position: Point;
     velocity: Point;
 }
 
 type CarUpdate = (state: CarState) => Point;
+
+interface DriveResult {
+    status: 'ok' | 'crashed' | 'finished';
+    position: Point;
+}
 
 // Definition of a specific track
 interface Track {
@@ -28,7 +35,7 @@ const U_TRACK:Track = {
     path: [[20, 60], [340, 60], [340, 340], [20, 340]],
 }
 
-const CAR_COLORS = ['red', 'blue', 'green', 'yellow', 'orange', 'purple', 'pink', 'brown', 'black', 'white'];
+const CAR_COLORS = ['red', 'blue', 'green', 'orange', 'purple', 'pink', 'brown', 'black', 'white'];
 
 // UI for Playing Racetrack game
 class Racetrack {
@@ -37,6 +44,7 @@ class Racetrack {
     ctx: CanvasRenderingContext2D;
     path: Path2D = new Path2D();
     polePositions: Generator<Point>;
+    stepNumber = 0;
 
     updates: CarUpdate[] = [];
     cars: CarState[] = [];
@@ -127,7 +135,7 @@ class Racetrack {
     dot(x: number, y: number, color: string) {
         this.ctx.fillStyle = color;
         this.ctx.beginPath();
-        this.ctx.ellipse(x, y, 4, 4, 0, 0, 2 * Math.PI);
+        this.ctx.ellipse(x, y, 5, 5, 0, 0, 2 * Math.PI);
         this.ctx.fill();
     }
 
@@ -141,10 +149,40 @@ class Racetrack {
         }
     }
 
+    driveLine(start: Point, end: Point): DriveResult {
+        const points = linePoints(start, end, this.track.grid);
+        for (let point of points) {
+            if (!this.isPointInTrack(point)) {
+                return {
+                    status: 'crashed',
+                    position: point,
+                };
+            }
+        }
+        return {
+            status: 'ok',
+            position: end,
+        };
+    }
+
     race(update: CarUpdate) {
         this.updates.push(update);
         const start = this.polePositions.next().value;
+        if (!start) {
+            console.error("Ran out of starting positions.");
+            this.cars.push({
+                status: 'error',
+                step: 0,
+                position: [0, 0],
+                velocity: [0, 0],
+            });
+            this.histories.push([]);
+            return;
+        }
+
         this.cars.push({
+            status: 'running',
+            step: 0,
             position: start,
             velocity: [0, 0],
         });
@@ -153,27 +191,68 @@ class Racetrack {
 
     // Step through all cars and update positions
     step() {
+        this.stepNumber += 1;
         for (let i = 0; i < this.cars.length; i++) {
             const car = this.cars[i];
+            if (car.status !== 'running') {
+                continue;
+            }
+            car.step = this.stepNumber;
             const update = this.updates[i];
-            const delta = update(car);
+            console.log(JSON.stringify(car));
+            let delta = update(car);
+            if (!delta) {
+                console.warn(`Car ${i} is not responding.`);
+                delta = [0, 0];
+            } else if (!valid(delta[0]) || !valid(delta[1])) {
+                console.error(`Invalid acceleration from car ${i}: ${delta}`);
+                car.status = 'error';
+                continue;
+            }
             car.velocity = add(car.velocity, delta);
             const v = scale(this.track.grid, car.velocity);
             const startPosition = car.position;
-            car.position = add(startPosition, v);
+            const endPosition = add(startPosition, v);
+            const result = this.driveLine(startPosition, endPosition);
+            console.log(result);
+            car.position = result.position;
             this.histories[i].push(car.position);
-            console.log(`Car ${i} moved from ${startPosition} to ${car.position} with velocity ${car.velocity}`);
-            console.log(this.histories);
-            this.drawTracks();
+            if (result.status !== 'ok') {
+                car.status = result.status;
+            }
         }
+
+        this.drawTracks();
+
+        function valid(d: number): boolean {
+            return [-1, 0, 1].includes(d);
+        }
+    }
+
+    run() {
+        while (!this.isDone()) {
+            this.step();
+        }
+        console.log(`Race finished in ${this.stepNumber} steps.`);
+        console.log(this.histories)
+    }
+
+    isDone(): boolean {
+        for (let car of this.cars) {
+            if (car.status === 'running') {
+                return false;
+            }
+        }
+        return true;
     }
 
     drawTracks() {
         for (let i = 0; i < this.cars.length; i++) {
+            const car = this.cars[i];
             const history = this.histories[i];
 
             this.ctx.strokeStyle = CAR_COLORS[i];
-            this.ctx.lineWidth = 3;
+            this.ctx.lineWidth = 2;
             this.ctx.beginPath();
             this.ctx.moveTo(...history[0]);
             for (let i = 1; i < history.length; i++) {
@@ -183,6 +262,14 @@ class Racetrack {
 
             for (let p of history) {
                 this.dot(...p, CAR_COLORS[i]);
+            }
+
+            if (car.status === 'crashed') {
+                this.dot(...car.position, 'yellow');
+            }
+
+            if (car.status === 'error') {
+                this.dot(...car.position, 'red');
             }
         }
     }

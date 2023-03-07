@@ -27,12 +27,31 @@
         });
 
         rt.race((state) => {
-            return [1, 0];
+            if (state.step < 5) {
+                return [1, 0];
+            }
+            return [-1, 1];
         });
 
-        rt.step();
-        rt.step();
-        rt.step();
+        rt.race((state) => {
+            if (state.step < 5) {
+                return [1, 0];
+            }
+            if (state.step > 8) {
+                return [-1, -1];
+            }
+            return [-1, 1];
+        });
+
+        rt.race((state) => {
+            if (state.step < 4) {
+                return [1, 0];
+            }
+            return [-2, 1];
+        })
+
+        rt.run();
+
     </script>
 </body>
 
