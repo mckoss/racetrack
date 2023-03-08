@@ -12,13 +12,13 @@ race cars begin on the starting line, and attempt to reach the finish line
 
 As a driver, the only control you have is to adjust your current acceleration in
 the *x* and *y* directions.  In this implementation, you can choose any
-combination of -1, 0, and +1 acceleratiokn for each of *x* and *y*.
+combination of -1, 0, and +1 acceleration for each of *x* and *y*.
 
-At each step, the simulator will calculate your new position on the grid and
-velocity on the track, and ask you so choose your next move.  Eventually, you
+At each step, the simulator will calculate your new position and
+velocity on the grid, and ask you to choose your next move.  Eventually, you
 will either crash (leave the track) or finish (cross the finish line).
 
-*If you want to play online manually, check out [Vector
+*If you want to play a similar simulator online manually, check out [Vector
 Racer](http://www.harmmade.com/vectorracer/) - not affiliated with this
 project.*
 
@@ -29,23 +29,27 @@ CodePen](https://codepen.io/mckoss/pen/RwYVmGO).
 
 ![Sample Track](docs/sample-track.png)
 
-Here you can see a number of different strategies racing against each other (only one of which succeeding).
+Here you can see a number of different strategies racing against each other (only one of which is succeeding).
 
 # How to Program a Racer
 
-If you use CodePen, there is only minimal boilerplate to
-program a race.
+If you use CodePen, there is only minimal boilerplate required to program a race.
 
 ```
 // Import the racetrack library into CodePen
+
 import { Racetrack, U_TRACK } from 'https://mckoss.com/racetrack/scripts/racetrack.js';
 
 // Attach the a new Racetrack simulation to a <canvas> element
+
 const rt = new Racetrack(document.getElementById('stage'), U_TRACK);
 
 // This is where you register your racer.  The callback function
 // will be called once for each step of the race.
+
 rt.race((state, options) => {
+  // Return a move as an [x, y] array.
+  // This strategy just keeps on accelerating in the x direction.
   return [1, 0];
 });
 ```
@@ -67,7 +71,8 @@ The car state:
 
 ```step``` starts and 1 and increments by one for each step of the race.
 
-```position``` is your car's current ```[x, y]``` coordinate on the racetrack.  Units here are in pixels in the canvas *(I should probably make this grid coordinates)*.
+```position``` is your car's current ```[x, y]``` coordinate on the racetrack.  Units here are in pixels in the canvas *(I should probably
+make this grid coordinates)*.
 
 ```velocity``` is is your car's current volocity.  Note that the units are relative to the grid points, not to pixels.
 
