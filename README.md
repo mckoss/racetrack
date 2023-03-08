@@ -29,29 +29,30 @@ CodePen](https://codepen.io/mckoss/pen/RwYVmGO).
 
 ![Sample Track](docs/sample-track.png)
 
-Here you can see a number of different strategies racing against each other (only one of which is succeeding).
+Here you can see a number of different strategies racing against each other
+(only one of which is succeeding).
 
 # How to Program a Racer
 
 If you use CodePen, there is only minimal boilerplate required to program a race.
 
 ```
-// Import the racetrack library into CodePen
-
+// Import the racetrack library (and sample track) into CodePen
 import { Racetrack, U_TRACK } from 'https://mckoss.com/racetrack/scripts/racetrack.js';
 
 // Attach the a new Racetrack simulation to a <canvas> element
-
 const rt = new Racetrack(document.getElementById('stage'), U_TRACK);
 
 // This is where you register your racer.  The callback function
 // will be called once for each step of the race.
-
 rt.race((state, options) => {
   // Return a move as an [x, y] array.
   // This strategy just keeps on accelerating in the x direction.
   return [1, 0];
 });
+
+// Start the race
+rt.run();
 ```
 
 You are provided with two pieces of information at each step:
@@ -71,14 +72,17 @@ The car state:
 
 ```step``` starts and 1 and increments by one for each step of the race.
 
-```position``` is your car's current ```[x, y]``` coordinate on the racetrack.  Units here are in pixels in the canvas *(I should probably
-make this grid coordinates)*.
+```position``` is your car's current ```[x, y]``` coordinate on the racetrack.
+Units here are in pixels in the canvas *(I should probably make this grid
+coordinates)*.
 
-```velocity``` is is your car's current volocity.  Note that the units are relative to the grid points, not to pixels.
+```velocity``` is is your car's current volocity.  Note that the units are
+relative to the grid points, not to pixels.
 
 A ```Point``` is just a two-element array with an ```[x, y]``` coordinate.
 
-```options``` are an array of the 9 distinct moves you could make and information about the outcomes.
+```options``` is an array of the 9 distinct moves you could make and information
+about the outcomes.
 
 ```
 [
@@ -92,20 +96,21 @@ A ```Point``` is just a two-element array with an ```[x, y]``` coordinate.
 ]
 ```
 
-For each ```option``` you see what the ```move``` needed to
-get there (one of [0, 0], [-1, -1], [-1, 0], ... etc.)).
+For each ```option``` you see what the ```move``` needed to get there (one of
+[0, 0], [-1, -1], [-1, 0], ... etc.)).
 
 The ```position``` you will end up.
 
-The ```distanceToFinish``` (the total number of grid points to the finish line, taking the shortest path).  These are
-the number displayed in the grid, above.
+The ```distanceToFinish``` (the total number of grid points to the finish line,
+taking the shortest path).  These are the number displayed in the grid, above.
 
-And a ```status``` about whether that move will make you crash or cross the finish line.
+And a ```status``` about whether that move will make you crash or cross the
+finish line.
 
 ## Future Update
 
-I will be updating the options list to also provide some distance
-measures to walls from your current position.
+I will be updating the options list to also provide some distance measures to
+walls from your current position.
 
 # Designing your own Tracks
 
@@ -127,7 +132,8 @@ interface Track {
 
 ```grid``` The spacing of the grid (number of pixels between grid points).
 
-```startline``` The pixel coordinates of a line segment defining the starting line.
+```startline``` The pixel coordinates of a line segment defining the starting
+line.
 
 ```finishLine``` Same for the finishing line.
 
