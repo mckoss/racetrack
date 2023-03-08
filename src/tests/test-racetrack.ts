@@ -2,14 +2,27 @@ import { assert } from 'chai';
 
 import { Racetrack, U_TRACK } from '../racetrack.js';
 
-suite('Racetrack', () => {
+suite('Racetrack', function() {
     if (typeof document === 'undefined') {
         console.log(`Racetrack tests can only be run in a browser environment`)
         return;
     }
 
-    const canvas = document.createElement('canvas');
-    const rt = new Racetrack(canvas, U_TRACK);
+    let canvas: HTMLCanvasElement;
+    let rt: Racetrack;
+
+    // Arrow functions hide the `this` context, so we need to use a regular
+    // function here.
+    setup(function() {
+        canvas = document.createElement('canvas');
+        rt = new Racetrack(canvas, U_TRACK);
+        const title = document.createElement('h2');
+
+        // Append the racetrack canvas to the page in case we want to look at it.
+        title.textContent = `${this.currentTest!.title}:`;
+        document.body.appendChild(title);
+        document.body.appendChild(canvas);
+    });
 
     test('constructor', () => {
         assert.equal(rt.canvas, canvas);
@@ -30,7 +43,7 @@ suite('Racetrack', () => {
         assert.deepEqual(points, expected);
     });
 
-    test('finishing race', () => {
+    test('running race', () => {
         rt.race((state, options) => {
             assert.isAtLeast(state.step, 1);
             assert.equal(options.length, 9);
