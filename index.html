@@ -19,12 +19,12 @@
 
     <script type="module">
         import { Racetrack, U_TRACK, BIG_OVAL, OVAL } from './src/racetrack.ts';
+        import { MJLRacer1 } from "./src/racers/mjl-racer1.ts";
 
         const rt = new Racetrack(document.getElementById(`track`), OVAL);
-
-        rt.race((state, options) => {
-            return [1, 1];
-        });
+        
+        const mjl1 = new MJLRacer1(rt);
+        rt.race(mjl1.update.bind(mjl1));
 
         rt.race((state, options) => {
             console.log(options);
