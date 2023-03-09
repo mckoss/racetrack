@@ -1,10 +1,19 @@
 #!/bin/bash
 set -e
 
-echo "Starting web server..."
+echo "Building..."
+npm run build
 
-nohup http-server -c-1 . -p 8080 > /dev/null 2>&1 &
-mocha --ui tdd src/test*.js scripts/test*.js
+echo "Starting web server..."
+nohup npx http-server -c-1 dist -p 8080 > /dev/null 2>&1 &
+
+echo "Testing..."
+set +e
+npx mocha --ui tdd public/scripts/tests
+result=$?
 
 echo "Stopping web server..."
 kill $(lsof -t -i:8080)
+
+# Exit with error result if test failed.
+exit $result

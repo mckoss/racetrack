@@ -39,7 +39,12 @@
     <!-- This must be module type to have it run AFTER defining the test
          suites above. -->
     <script type="module">
-        mocha.run();
+        // Only run mocha tests in the interactive browser case.
+        // Otherwise, our puppeteer script will run it in order to
+        // extract the statistics.
+        if (!navigator.webdriver) {
+            mocha.run();
+        }
     </script>
 </body>
 
