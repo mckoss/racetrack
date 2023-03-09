@@ -1,0 +1,10 @@
+#!/bin/bash
+set -e
+
+echo "Starting web server..."
+
+nohup http-server -c-1 . -p 8080 > /dev/null 2>&1 &
+mocha --ui tdd src/test*.js scripts/test*.js
+
+echo "Stopping web server..."
+kill $(lsof -t -i:8080)
