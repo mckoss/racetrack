@@ -22,6 +22,14 @@ suite('Headless browser tests', () => {
             width: 1080,
             height: 1080
         });
+
+        // Listen for console events on the page
+        console.log("Listening to the page console...");
+        page.on('console', (message) => {
+            // Strip out the %s placeholders in the console message.
+            console.log(message.text().replace(/%s */g, ''));
+        });
+
         await page.goto(`${HOST}/test/`);
     });
 
