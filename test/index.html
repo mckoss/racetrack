@@ -38,8 +38,14 @@
 
     <!-- This must be module type to have it run AFTER defining the test
          suites above. -->
+
     <script type="module">
-        mocha.run();
+        if (navigator.webdriver) {
+            // Send report to console.
+            mocha.reporter('spec');
+        } else {
+            mocha.run();
+        }
     </script>
 </body>
 

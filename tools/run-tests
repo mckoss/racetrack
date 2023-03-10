@@ -1,0 +1,16 @@
+#!/bin/bash
+set -e
+
+echo "Starting web server..."
+nohup npx http-server -c-1 dist -p 8080 > /dev/null 2>&1 &
+
+echo "Testing..."
+set +e
+npx mocha --ui tdd public/scripts/tests
+result=$?
+
+echo "Stopping web server..."
+kill $(lsof -t -i:8080)
+
+# Exit with error result if test failed.
+exit $result
