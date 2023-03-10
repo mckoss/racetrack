@@ -1,4 +1,4 @@
-import { Point, linePoints, add, sub, scale, id, pointFromId, neighbors } from './points.js';
+import { Point, linePoints, add, sub, scale, round, ceil, id, pointFromId, neighbors } from './points.js';
 export { Racetrack, U_TRACK };
 
 interface CarState {
@@ -51,6 +51,9 @@ class Racetrack {
     ctx: CanvasRenderingContext2D;
     path: Path2D = new Path2D();
     polePositions: Generator<Point>;
+
+    // Positions are all in grid units (not pixel coordinates)
+    // String keys use the id() function of a Point
     finishPositions: Set<string>;
     trackPositions: Set<string> = new Set();
     finishDistances: Map<string, number> = new Map();
@@ -70,8 +73,10 @@ class Racetrack {
 
         this.calculateTrackPath();
 
-        this.polePositions = this.linePoints(...this.track.startLine);
-        this.finishPositions = new Set(Array.from(this.linePoints(...this.track.finishLine)).map(id));
+        const startGrid = this.pixelsToGrid(this.track.startLine) as [Point, Point]
+        const finishGrid = this.pixelsToGrid(this.track.finishLine) as [Point, Point]
+        this.polePositions = this.linePoints(...startGrid);
+        this.finishPositions = new Set(Array.from(this.linePoints(...finishGrid)).map(id));
         this.calculateFinishDistances();
 
         this.clearStage();
@@ -96,7 +101,7 @@ class Racetrack {
         this.ctx.lineCap = 'butt';
         this.ctx.lineJoin = 'round';
         for (let point of this.gridPoints()) {
-            const [x, y] = point;
+            const [x, y] = scale(this.track.grid, point);
             if (this.ctx.isPointInStroke(this.path, x, y)) {
                 this.trackPositions.add(id(point));
             }
@@ -116,7 +121,7 @@ class Racetrack {
             const nextPositions = new Set<string>();
             for (let pos of currentPositions) {
                 const point = pointFromId(pos);
-                for (let neighbor of neighbors(point, this.track.grid)) {
+                for (let neighbor of neighbors(point)) {
                     const posN = id(neighbor);
                     if (this.trackPositions.has(posN) && !this.finishDistances.has(posN)) {
                         this.finishDistances.set(posN, distance);
@@ -161,7 +166,7 @@ class Racetrack {
 
     drawDots() {
         for (let point of this.gridPoints()) {
-            const [x, y] = point;
+            const [x, y] = scale(this.track.grid, point);
             this.dot(x, y, this.isPointInTrack(point) ? 'white' : 'red');
         }
 
@@ -171,7 +176,7 @@ class Racetrack {
         this.ctx.textAlign = 'center';
         this.ctx.textBaseline = 'middle';
         for (let point of this.gridPoints()) {
-            const [x, y] = point;
+            const [x, y] = scale(this.track.grid, point);
             const pos = id(point);
             if (this.finishDistances.has(pos)) {
                 this.ctx.fillText(this.finishDistances.get(pos)!.toString(), x, y);
@@ -180,8 +185,9 @@ class Racetrack {
     }
 
     *gridPoints(): Generator<Point> {
-        for (let y = this.track.grid; y < this.track.dim[1]; y += this.track.grid) {
-            for (let x = this.track.grid; x < this.track.dim[0]; x += this.track.grid) {
+        let [xMax, yMax] = ceil(scale(1 / this.track.grid, this.track.dim));
+        for (let y = 1; y < yMax; y++) {
+            for (let x = 1; x < xMax; x++) {
                 yield [x, y];
             }
         }
@@ -200,7 +206,7 @@ class Racetrack {
 
     // Return grid points that are inside the track
     *linePoints(start: Point, end: Point): Generator<Point> {
-        const points = linePoints(start, end, this.track.grid);
+        const points = linePoints(start, end);
         for (let point of points) {
             if (this.isPointInTrack(point)) {
                 yield point;
@@ -208,8 +214,16 @@ class Racetrack {
         }
     }
 
+    pixelsToGrid(points: Point[]): Point[] {
+        return points.map((p) => round(scale(1 / this.track.grid, p)));
+    }
+
+    gridToPixels(points: Point[]): Point[] {
+        return points.map((p) => scale(this.track.grid, p));
+    }
+
     driveLine(start: Point, end: Point): DriveResult {
-        const points = linePoints(start, end, this.track.grid);
+        const points = linePoints(start, end);
         for (let point of points) {
             if (this.isFinishPoint(point)) {
                 return {
@@ -232,14 +246,13 @@ class Racetrack {
 
     moveOptions(car: CarState): MoveOption[] {
         const options: MoveOption[] = [];
-        const v = scale(this.track.grid, car.velocity);
-        const centerPoint = add(car.position, v);
+        const centerPoint = add(car.position, car.velocity);
 
         const self = this;
         pushOption([0, 0], centerPoint);
 
-        for (let point of neighbors(centerPoint, this.track.grid)) {
-            const move = scale(1 / this.track.grid, sub(point, centerPoint));
+        for (let point of neighbors(centerPoint)) {
+            const move = sub(point, centerPoint);
             pushOption(move, point);
         }
 
@@ -306,9 +319,8 @@ class Racetrack {
                 continue;
             }
             car.velocity = add(car.velocity, delta);
-            const v = scale(this.track.grid, car.velocity);
             const startPosition = car.position;
-            const endPosition = add(startPosition, v);
+            const endPosition = add(startPosition, car.velocity);
             const result = this.driveLine(startPosition, endPosition);
             car.position = result.position;
             this.histories[i].push(car.position);
@@ -343,7 +355,7 @@ class Racetrack {
     drawTracks() {
         for (let i = 0; i < this.cars.length; i++) {
             const car = this.cars[i];
-            const history = this.histories[i];
+            const history = this.gridToPixels(this.histories[i])
 
             this.ctx.strokeStyle = CAR_COLORS[i];
             this.ctx.lineWidth = 2;

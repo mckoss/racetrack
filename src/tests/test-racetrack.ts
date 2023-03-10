@@ -1,8 +1,9 @@
 import { assert } from 'chai';
 
 import { Racetrack, U_TRACK } from '../racetrack.js';
+import { Point } from '../points.js';
 
-suite('Racetrack', function() {
+suite('Racetrack', function () {
     if (typeof document === 'undefined') {
         console.log(`Racetrack tests can only be run in a browser environment`)
         return;
@@ -13,7 +14,7 @@ suite('Racetrack', function() {
 
     // Arrow functions hide the `this` context, so we need to use a regular
     // function here.
-    setup(function() {
+    setup(function () {
         canvas = document.createElement('canvas');
         rt = new Racetrack(canvas, U_TRACK);
         const title = document.createElement('h2');
@@ -31,22 +32,40 @@ suite('Racetrack', function() {
 
     test('isPointInTrack', () => {
         assert.isFalse(rt.isPointInTrack([0, 0]));
-        assert.isTrue(rt.isPointInTrack([20, 20]));
-        assert.isTrue(rt.isPointInTrack([40, 40]));
-        assert.isFalse(rt.isPointInTrack([380, 20]));
+        assert.isTrue(rt.isPointInTrack([1, 1]));
+        assert.isTrue(rt.isPointInTrack([2, 2]));
+        assert.isFalse(rt.isPointInTrack([19, 1]));
     });
 
     test('finish line points', () => {
-        const expected = Array.from(range(15, 20)).map(x => [20, x * 20]);
-        const points = Array.from(rt.linePoints(...U_TRACK.finishLine));
+        const expected = Array.from(range(15, 20)).map(x => [1, x]);
+        const gridPoints = rt.pixelsToGrid(U_TRACK.finishLine) as [Point, Point];
+        const points = Array.from(rt.linePoints(...gridPoints));
         assert.equal(points.length, expected.length);
         assert.deepEqual(points, expected);
     });
 
     test('running race', () => {
         rt.race((state, options) => {
+            console.log(`step ${state.step}: ${JSON.stringify(state)}`);
             assert.isAtLeast(state.step, 1);
             assert.equal(options.length, 9);
+            if (state.step == 1) {
+                assert.deepEqual(state, {
+                    status: 'running',
+                    step: 1,
+                    position: [1, 1],
+                    velocity: [0, 0],
+                });
+            }
+            if (state.step == 2) {
+                assert.deepEqual(state, {
+                    status: 'running',
+                    step: 2,
+                    position: [2, 1],
+                    velocity: [1, 0],
+                });
+            }
             if (state.step < 5) {
                 assert.deepEqual(options[5].move, [1, 0]);
                 assert.isAtLeast(options[5].distanceToFinish!, 27);
@@ -71,7 +90,7 @@ suite('Racetrack', function() {
     });
 });
 
-function *range(start: number, end: number): Generator<number> {
+function* range(start: number, end: number): Generator<number> {
     for (let i = start; i < end; i++) {
         yield i;
     }

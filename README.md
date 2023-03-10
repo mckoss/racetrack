@@ -73,8 +73,7 @@ The car state:
 ```step``` starts and 1 and increments by one for each step of the race.
 
 ```position``` is your car's current ```[x, y]``` coordinate on the racetrack.
-Units here are in pixels in the canvas *(I should probably make this grid
-coordinates)*.
+Units here are in grid coordinates (not pixels).
 
 ```velocity``` is is your car's current volocity.  Note that the units are
 relative to the grid points, not to pixels.

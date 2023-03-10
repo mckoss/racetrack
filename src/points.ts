@@ -1,4 +1,4 @@
-export { linePoints, add, sub, scale, id, pointFromId, neighbors };
+export { linePoints, add, sub, scale, ceil, round, id, pointFromId, neighbors };
 export type { Point };
 
 // x, y coordinates
@@ -7,7 +7,7 @@ type Point = [number, number];
 // Generator for a sequence of points along a line. The line is defined by two
 // points, p1 and p2. The points are only those that are on the grid with
 // spacing grid.
-function* linePoints(p1: Point, p2: Point, grid: number): Generator<Point> {
+function* linePoints(p1: Point, p2: Point, grid = 1): Generator<Point> {
     let [x1, y1] = p1;
     let [x2, y2] = p2;
     let dx = Math.abs(x2 - x1);
@@ -57,6 +57,14 @@ function scale(factor: number, [x, y]: Point): Point {
     return [x * factor, y * factor];
 }
 
+function round([x, y]: Point): Point {
+    return [Math.round(x), Math.round(y)];
+}
+
+function ceil([x, y]: Point): Point {
+    return [Math.ceil(x), Math.ceil(y)];
+}
+
 function id(p: Point): string {
     return JSON.stringify(p);
 }
@@ -65,7 +73,7 @@ function pointFromId(id: string): Point {
     return JSON.parse(id);
 }
 
-function* neighbors(p: Point, grid: number): Generator<Point> {
+function* neighbors(p: Point, grid = 1): Generator<Point> {
     for (let dy of [-grid, 0, grid]) {
         for (let dx of [-grid, 0, grid]) {
             if (dx === 0 && dy === 0) {
