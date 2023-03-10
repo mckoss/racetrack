@@ -18,9 +18,9 @@
     <canvas id="track"></canvas>
 
     <script type="module">
-        import { Racetrack, U_TRACK } from './src/racetrack.ts';
+        import { Racetrack, U_TRACK, BIG_OVAL, OVAL } from './src/racetrack.ts';
 
-        const rt = new Racetrack(document.getElementById(`track`), U_TRACK);
+        const rt = new Racetrack(document.getElementById(`track`), OVAL);
 
         rt.race((state, options) => {
             return [1, 1];
