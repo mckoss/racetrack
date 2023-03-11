@@ -2,6 +2,7 @@ import { Point } from "./points";
 
 // Definition of a specific track
 export interface Track {
+    name: string;
     dim: Point,
     grid: number;
     startLine: [Point, Point];
@@ -12,6 +13,7 @@ export interface Track {
 }
 
 export const U_TRACK:Track = {
+    name: "U-Track",
     dim: [400, 400],
     grid: 20,
     startLine: [[20, 10], [20, 110]],
@@ -21,6 +23,7 @@ export const U_TRACK:Track = {
 }
 
 export const OVAL:Track = {
+    name: "Oval",
     dim: [800, 400],
     grid: 20,
     startLine: [[400, 10], [400, 110]],
@@ -30,6 +33,7 @@ export const OVAL:Track = {
 }
 
 export const BIG_OVAL:Track = {
+    name: "Big Oval",
     dim: [800, 400],
     grid: 10,
     startLine: [[400, 20], [400, 60]],
