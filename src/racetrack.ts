@@ -3,6 +3,8 @@ import { Point, linePoints, add, sub, scale, round, ceil, isZero, scaleToBox,
 import { Track, U_TRACK, OVAL, BIG_OVAL } from './tracks.js';
 export { Racetrack, U_TRACK, OVAL, BIG_OVAL };
 
+export type { CarState, MoveOption, CarUpdate };
+
 interface CarState {
     status: 'running' | 'crashed' | 'finished' | 'error';
     step: number;
@@ -26,6 +28,8 @@ interface DriveResult {
 }
 
 const CAR_COLORS = ['red', 'blue', 'green', 'orange', 'purple', 'pink', 'brown', 'black', 'white'];
+
+const MAX_RACE_DURATION = 500;
 
 // UI for Playing Racetrack game
 class Racetrack {
@@ -305,7 +309,7 @@ class Racetrack {
                 console.warn(`Car ${i} is not responding.`);
                 delta = [0, 0];
             } else if (!valid(delta[0]) || !valid(delta[1])) {
-                console.error(`Invalid acceleration from car ${i}: ${delta}`);
+                console.error(`Car ${i+1}: Invalid move: ${delta} at ${car.position}`);
                 car.status = 'error';
                 continue;
             }
@@ -317,6 +321,7 @@ class Racetrack {
             this.histories[i].push(car.position);
             if (result.status !== 'ok') {
                 car.status = result.status;
+                console.log(`Car ${i+1} ${result.status} after ${this.stepNumber} steps at ${result.position}`);
             } else if (!isZero(car.velocity)) {
                 // Imagine the car coasts at it's current velocity until it
                 // leaves the track.
@@ -339,13 +344,18 @@ class Racetrack {
     }
 
     run() {
-        while (!this.isDone()) {
+        while (!this.isRaceDone()) {
             this.step();
         }
         console.log(`Race finished in ${this.stepNumber} steps.`);
     }
 
-    isDone(): boolean {
+    isRaceDone(): boolean {
+        if (this.stepNumber >= MAX_RACE_DURATION) {
+            console.warn("Race timed out.");
+            return true;
+        }
+
         for (let car of this.cars) {
             if (car.status === 'running') {
                 return false;

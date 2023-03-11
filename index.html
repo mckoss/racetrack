@@ -20,14 +20,16 @@
     <script type="module">
         import { Racetrack, U_TRACK, BIG_OVAL, OVAL } from './src/racetrack.ts';
         import { MJLRacer1 } from "./src/racers/mjl-racer1.ts";
+        import { update as creeper } from "./src/racers/creeper.ts";
 
         const rt = new Racetrack(document.getElementById(`track`), OVAL);
-        
+
         const mjl1 = new MJLRacer1(rt);
         rt.race(mjl1.update.bind(mjl1));
 
+        rt.race(creeper);
+
         rt.race((state, options) => {
-            console.log(options);
             if (state.step < 5) {
                 return [1, 0];
             }
