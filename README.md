@@ -158,9 +158,9 @@ const U_TRACK:Track = {
 
 The currently deployed version of the project is at:
 
-- ```https://mckoss.com/racetrack``` - Home page
-- ```https://mckoss.com/ractrack/test/``` - Unit test runner
-- ```https://mckoss.com/racetrack/scripts/racetrack.js``` - ES6 Module for library
+- https://mckoss.com/racetrack - Home page
+- https://mckoss.com/ractrack/test/ - Unit test runner
+- https://mckoss.com/racetrack/scripts/racetrack.js - ES6 Module for library
 
 # Using this Repo
 
@@ -174,7 +174,7 @@ Tools used:
 
 To use this repo, you should just be able to start with a relatively recent
 version of
-[npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm)] on
+[npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm) on
 your machine.
 
 ```
