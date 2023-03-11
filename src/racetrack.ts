@@ -1,5 +1,6 @@
 import { Point, linePoints, add, sub, scale, round, ceil, id, pointFromId, neighbors } from './points.js';
-export { Racetrack, U_TRACK };
+import { Track, U_TRACK, OVAL, BIG_OVAL } from './tracks.js';
+export { Racetrack, U_TRACK, OVAL, BIG_OVAL };
 
 interface CarState {
     status: 'running' | 'crashed' | 'finished' | 'error';
@@ -20,26 +21,6 @@ type CarUpdate = (state: CarState, options: MoveOption[]) => Point;
 interface DriveResult {
     status: 'ok' | 'crashed' | 'finished';
     position: Point;
-}
-
-// Definition of a specific track
-interface Track {
-    dim: Point,
-    grid: number;
-    startLine: [Point, Point];
-    finishLine: [Point, Point];
-
-    trackWidth: number;
-    path: Point[];
-}
-
-const U_TRACK:Track = {
-    dim: [400, 400],
-    grid: 20,
-    startLine: [[20, 10], [20, 110]],
-    finishLine: [[20, 290], [20, 390]],
-    trackWidth: 100,
-    path: [[20, 60], [340, 60], [340, 340], [20, 340]],
 }
 
 const CAR_COLORS = ['red', 'blue', 'green', 'orange', 'purple', 'pink', 'brown', 'black', 'white'];
@@ -171,15 +152,17 @@ class Racetrack {
         }
 
         // Add distances to reach the finish line to the grid.
-        this.ctx.fillStyle = 'black';
-        this.ctx.font = '12px sans-serif';
-        this.ctx.textAlign = 'center';
-        this.ctx.textBaseline = 'middle';
-        for (let point of this.gridPoints()) {
-            const [x, y] = scale(this.track.grid, point);
-            const pos = id(point);
-            if (this.finishDistances.has(pos)) {
-                this.ctx.fillText(this.finishDistances.get(pos)!.toString(), x, y);
+        if (this.track.grid >= 20) {
+            this.ctx.fillStyle = 'black';
+            this.ctx.font = '12px sans-serif';
+            this.ctx.textAlign = 'center';
+            this.ctx.textBaseline = 'middle';
+            for (let point of this.gridPoints()) {
+                const [x, y] = scale(this.track.grid, point);
+                const pos = id(point);
+                if (this.finishDistances.has(pos)) {
+                    this.ctx.fillText(this.finishDistances.get(pos)!.toString(), x, y);
+                }
             }
         }
     }
@@ -198,9 +181,10 @@ class Racetrack {
     }
 
     dot(x: number, y: number, color: string) {
+        const radius = this.track.grid / 4;
         this.ctx.fillStyle = color;
         this.ctx.beginPath();
-        this.ctx.ellipse(x, y, 5, 5, 0, 0, 2 * Math.PI);
+        this.ctx.ellipse(x, y, radius, radius, 0, 0, 2 * Math.PI);
         this.ctx.fill();
     }
 
