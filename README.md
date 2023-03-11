@@ -146,7 +146,8 @@ drawns from the starting line to the finishing line).
 The example ```U_TRACK``` is defined as:
 
 ```
-const U_TRACK:Track = {
+{
+    name: "U-Track",
     dim: [400, 400],
     grid: 20,
     startLine: [[20, 10], [20, 110]],
