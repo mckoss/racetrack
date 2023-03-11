@@ -8,52 +8,105 @@
     <title>Martin Gardner's Racetrack</title>
     <style>
         body {
-            font-family: Verdana, Geneva, Tahoma, sans-serif;
-            font-size: 1.5rem;
+            font-family: Verdana, sans-serif;
+            line-height: 1.5em;
+            max-width: 1000px;
+            margin: auto;
+        }
+
+        canvas {
+            display: block;
+            margin: 1rem auto;
+        }
+
+        blockquote {
+            border-left: 1px solid #ccc;
+            padding-left: 1rem;
+            margin-left: 1rem;
+            font-style: italic;
         }
     </style>
 </head>
 
 <body>
-    <canvas id="track"></canvas>
+    <h1>Martin Gardner's Racetrack</h1>
+    <p>
+        This is a simple implementation of Martin Gardner's <a
+        href="https://en.wikipedia.org/wiki/Racetrack_(game)">Racetrack</a>
+        game.
+    </p>
+
+    <blockquote>
+        Racetrack is a paper and pencil game that simulates a car race, played
+        by two or more players. The game is played on a squared sheet of paper,
+        with a pencil line tracking each car's movement. The rules for moving
+        represent a car with a certain inertia and physical limits on traction,
+        and the resulting line is reminiscent of how real racing cars move. The
+        game requires players to slow down before bends in the track, and
+        requires some foresight and planning for successful play. The game is
+        popular as an educational tool teaching vectors.
+    </blockquote>
+
+    <p>
+        In this implementation, autonomous cars race around a grid defined by
+        a track drawn on a canvas. The cars are controlled by a function that
+        uses information about the track to accelerate in either the x or y
+        direction (or both) at each turn.
+    </p>
+
+    <p>
+        Below are some demonstrations of the racetrack. The cars are controlled
+        by some sample racer implementations.  The code for this simulator can
+        be found on <a href="https://github.com/mckoss/racetrack">GitHub</a>.
+    </p>
+    </p>
+        You can create your own racer directly on <a
+        href="https://codepen.io/mckoss/pen/RwYVmGO">CodePen</a>.
+    </p>
 
     <script type="module">
         import { Racetrack, U_TRACK, BIG_OVAL, OVAL } from './src/racetrack.ts';
         import { MJLRacer1 } from "./src/racers/mjl-racer1.ts";
         import { update as creeper } from "./src/racers/creeper.ts";
 
-        const rt = new Racetrack(document.getElementById(`track`), OVAL);
+        for (const track of [U_TRACK, BIG_OVAL, OVAL]) {
+            const canvas = document.createElement('canvas');
+            document.body.appendChild(canvas);
+            const rt = new Racetrack(canvas, track);
+            addRacers(rt);
+            rt.run();
+        }
 
-        const mjl1 = new MJLRacer1(rt);
-        rt.race(mjl1.update.bind(mjl1));
+        function addRacers(rt) {
+            const mjl1 = new MJLRacer1(rt);
+            rt.race(mjl1.update.bind(mjl1));
 
-        rt.race(creeper);
+            rt.race(creeper);
 
-        rt.race((state, options) => {
-            if (state.step < 5) {
-                return [1, 0];
-            }
-            return [-1, 1];
-        });
-
-        rt.race((state, options) => {
-            if (state.step < 5) {
-                return [1, 0];
-            }
-            if (state.step < 9) {
+            rt.race((state, options) => {
+                if (state.step < 5) {
+                    return [1, 0];
+                }
                 return [-1, 1];
-            }
-            return [-1, -1];
-        });
+            });
 
-        rt.race((state, options) => {
-            if (state.step < 4) {
-                return [1, 0];
-            }
-            return [-2, 1];
-        })
+            rt.race((state, options) => {
+                if (state.step < 5) {
+                    return [1, 0];
+                }
+                if (state.step < 9) {
+                    return [-1, 1];
+                }
+                return [-1, -1];
+            });
 
-        rt.run();
+            rt.race((state, options) => {
+                if (state.step < 4) {
+                    return [1, 0];
+                }
+                return [-2, 1];
+            })
+        }
 
     </script>
 </body>

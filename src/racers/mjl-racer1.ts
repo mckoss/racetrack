@@ -1,5 +1,5 @@
-import { Point, add, linePoints, sub } from "../points";
-import { Racetrack } from "../racetrack";
+import { Point, add, linePoints, sub } from "../points.js";
+import { Racetrack } from "../racetrack.js";
 
 // Arbitrary large distance that is hopefully bigger than any track straightaway.
 const PROJECT_FORWARD_DISTANCE = 100000;

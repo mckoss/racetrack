@@ -1,5 +1,5 @@
-import { CarState, MoveOption } from '../racetrack';
-import { Point, add, isZero } from '../points';
+import { CarState, MoveOption } from '../racetrack.js';
+import { Point, add, isZero } from '../points.js';
 
 export { update };
 
