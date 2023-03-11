@@ -154,4 +154,39 @@ const U_TRACK:Track = {
 }
 ```
 
+# Using this Repo
+
+Tools used:
+
+- **npm** - Dependency management
+- **Typescript** - Source code type checking
+- **[mocha](https://mochajs.org/) and chai** - Testing framework
+- **[vite](https://vitejs.dev/)** - Code bundling and development mode.
+
+To use this repo, you should just be able to start with a relatively recent
+version of
+[npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm)] on
+your machine.
+
+```
+$ npm install      # Install all dependencies.
+$ npm run dev      # Run a local development server
+$ npm run build    # Build the production and testing version of the code
+$ npm test         # Run all the unit tests.
+```
+
+The (vite) development server will start a local web server, and assemble the
+code supporting live reloading whenever and code is modified; giving you a very
+quick turn-around time for edit-debug loop.
+
+Command line tests require that you build the production code first (at present).
+
+```
+$ npm run build && npm test
+```
+
+You can also run all the tests on a browser interactively via the web interface
+at ```http://localhost:5173/test/``` in dev mode.
+
+The repo also runs a full build and test on github for every PR and deployment.
 
