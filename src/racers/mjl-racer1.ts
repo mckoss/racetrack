@@ -1,4 +1,4 @@
-import { Point, add, linePoints, sub, scale } from "../points";
+import { Point, add, linePoints, sub } from "../points";
 import { Racetrack } from "../racetrack";
 
 // Arbitrary large distance that is hopefully bigger than any track straightaway.
