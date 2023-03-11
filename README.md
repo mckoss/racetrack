@@ -162,6 +162,7 @@ Tools used:
 - **Typescript** - Source code type checking
 - **[mocha](https://mochajs.org/) and chai** - Testing framework
 - **[vite](https://vitejs.dev/)** - Code bundling and development mode.
+- **[puppeteer](https://pptr.dev/)** - Headless browser for testing.
 
 To use this repo, you should just be able to start with a relatively recent
 version of
