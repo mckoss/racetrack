@@ -159,7 +159,7 @@ const U_TRACK:Track = {
 The currently deployed version of the project is at:
 
 - https://mckoss.com/racetrack - Home page
-- https://mckoss.com/ractrack/test/ - Unit test runner
+- https://mckoss.com/racetrack/test/ - Unit test runner
 - https://mckoss.com/racetrack/scripts/racetrack.js - ES6 Module for library
 
 # Using this Repo
