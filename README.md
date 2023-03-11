@@ -118,6 +118,7 @@ Tracks are implemented as a single path around a grid.
 
 ```
 interface Track {
+    name: string,
     dim: Point,
     grid: number;
     startLine: [Point, Point];
