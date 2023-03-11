@@ -11,7 +11,7 @@ function update(state: CarState, options: MoveOption[]): Point {
     return best.move;
 }
 
-// Pick the best option out of all those where the velocity is exaclty 1
+// Pick the best option out of all those where the velocity is exactly 1
 // in one direction.
 function bestOption(v: Point, options: MoveOption[]): MoveOption | undefined {
     let best:MoveOption | undefined;
