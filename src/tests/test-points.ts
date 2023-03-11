@@ -1,6 +1,6 @@
 import { assert } from 'chai';
 
-import { linePoints, Point } from '../points.js';
+import { linePoints, Point, scaleToBox } from '../points.js';
 
 suite('Points', () => {
     type lpTest = {
@@ -102,6 +102,29 @@ suite('Points', () => {
             const points = Array.from(linePoints(mirrorX(t.p1), mirrorX(t.p2), t.grid));
             assert.equal(JSON.stringify(points), JSON.stringify(t.expected.map(mapper)));
         });
+    }
+
+    const scaleTests: {args: [Point, Point], expected: Point}[] = [
+        {args: [[0, 0], [1, 1]], expected: [0, 0]},
+        {args: [[1, 1], [2, 2]], expected: [2, 2]},
+        {args: [[1, 2], [4, 4]], expected: [2, 4]},
+        {args: [[1, 1], [4, 2]], expected: [2, 2]},
+        {args: [[0, 1], [4, 2]], expected: [0, 2]},
+        {args: [[1, 0], [4, 2]], expected: [4, 0]},
+        {args: [[2, 0.5], [4, 2]], expected: [4, 1]},
+    ];
+
+    for (const t of scaleTests) {
+        for (const a of [-1, 1]) {
+            for (const b of [-1, 1]) {
+                const p = [a * t.args[0][0], b * t.args[0][1]] as Point;
+                const e = [a * t.expected[0], b * t.expected[1]] as Point;
+                test(`scaleToBox(${JSON.stringify(p)}, ${JSON.stringify(t.args[1])}) => ${JSON.stringify(e)}`, () => {
+                    const s = scaleToBox(p, t.args[1]);
+                    assert.equal(JSON.stringify(s), JSON.stringify(e));
+                });
+            }
+        }
     }
 });
 

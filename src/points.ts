@@ -1,4 +1,4 @@
-export { linePoints, add, sub, scale, ceil, round, id, pointFromId, neighbors };
+export { linePoints, add, sub, scale, ceil, round, isZero, scaleToBox, id, pointFromId, neighbors };
 export type { Point };
 
 // x, y coordinates
@@ -71,6 +71,32 @@ function id(p: Point): string {
 
 function pointFromId(id: string): Point {
     return JSON.parse(id);
+}
+
+function isZero([x, y]: Point): boolean {
+    return x === 0 && y === 0;
+}
+
+// Scale point so that maximum dimension equals one of the dimensions of a
+// bounding box.
+// Find the minimum scale factor such that
+// scale * abs(x) == bx or scale * abs(y) == by
+function scaleToBox([x, y]: Point, [bx, by]: Point): Point {
+    let factor: number;
+
+    if (x === 0 && y === 0) {
+        return [0, 0];
+    }
+
+    if (x === 0) {
+        factor = by / Math.abs(y);
+    } else if (y === 0) {
+        factor = bx / Math.abs(x);
+    } else {
+        factor = Math.min(bx / Math.abs(x), by / Math.abs(y));
+    }
+
+    return scale(factor, [x, y]);
 }
 
 function* neighbors(p: Point, grid = 1): Generator<Point> {
