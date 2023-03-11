@@ -57,6 +57,7 @@ suite('Racetrack', function () {
                     position: [1, 1],
                     velocity: [0, 0],
                 });
+                return [1, 0];
             }
             if (state.step == 2) {
                 assert.deepEqual(state, {
@@ -64,19 +65,28 @@ suite('Racetrack', function () {
                     step: 2,
                     position: [2, 1],
                     velocity: [1, 0],
+                    crashPosition: [19, 1]
                 });
+                return [1, 0];
             }
             if (state.step < 5) {
                 assert.deepEqual(options[5].move, [1, 0]);
                 assert.isAtLeast(options[5].distanceToFinish!, 27);
                 assert.equal(options[5].status, 'ok');
+                assert.deepEqual(state.crashPosition, [19, 1]);
                 return [1, 0];
+            }
+            if (state.step === 6) {
+                assert.deepEqual(state.crashPosition, [20, 4]);
             }
             if (state.step < 9) {
                 assert.deepEqual(options[6].move, [-1, 1]);
                 assert.isAtLeast(options[6].distanceToFinish!, 17);
                 assert.equal(options[6].status, 'ok');
                 return [-1, 1];
+            }
+            if (state.step === 13) {
+                assert.isUndefined(state.crashPosition);
             }
             assert.deepEqual(options[1].move, [-1, -1]);
             assert.isAtLeast(options[1].distanceToFinish!, 0);

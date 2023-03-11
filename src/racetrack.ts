@@ -1,4 +1,5 @@
-import { Point, linePoints, add, sub, scale, round, ceil, id, pointFromId, neighbors } from './points.js';
+import { Point, linePoints, add, sub, scale, round, ceil, isZero, scaleToBox,
+         id, pointFromId, neighbors } from './points.js';
 import { Track, U_TRACK, OVAL, BIG_OVAL } from './tracks.js';
 export { Racetrack, U_TRACK, OVAL, BIG_OVAL };
 
@@ -7,6 +8,7 @@ interface CarState {
     step: number;
     position: Point;
     velocity: Point;
+    crashPosition?: Point;
 }
 
 interface MoveOption {
@@ -29,6 +31,7 @@ const CAR_COLORS = ['red', 'blue', 'green', 'orange', 'purple', 'pink', 'brown',
 class Racetrack {
     canvas: HTMLCanvasElement;
     track: Track;
+    dimGrid: Point;
     ctx: CanvasRenderingContext2D;
     path: Path2D = new Path2D();
     polePositions: Generator<Point>;
@@ -51,6 +54,8 @@ class Racetrack {
 
         this.canvas.width = this.track.dim[0];
         this.canvas.height = this.track.dim[1];
+
+        this.dimGrid = ceil(scale(1 / this.track.grid, this.track.dim));
 
         this.calculateTrackPath();
 
@@ -168,9 +173,8 @@ class Racetrack {
     }
 
     *gridPoints(): Generator<Point> {
-        let [xMax, yMax] = ceil(scale(1 / this.track.grid, this.track.dim));
-        for (let y = 1; y < yMax; y++) {
-            for (let x = 1; x < xMax; x++) {
+        for (let y = 1; y < this.dimGrid[1]; y++) {
+            for (let x = 1; x < this.dimGrid[0]; x++) {
                 yield [x, y];
             }
         }
@@ -288,9 +292,12 @@ class Racetrack {
         this.stepNumber += 1;
         for (let i = 0; i < this.cars.length; i++) {
             const car = this.cars[i];
+
+            // Stop calling racer callback after crash, finish, or error
             if (car.status !== 'running') {
                 continue;
             }
+
             car.step = this.stepNumber;
             const update = this.updates[i];
             let delta = update(car, this.moveOptions(car));
@@ -302,14 +309,25 @@ class Racetrack {
                 car.status = 'error';
                 continue;
             }
+            car.crashPosition = undefined;
             car.velocity = add(car.velocity, delta);
-            const startPosition = car.position;
-            const endPosition = add(startPosition, car.velocity);
-            const result = this.driveLine(startPosition, endPosition);
+            const endPosition = add(car.position, car.velocity);
+            const result = this.driveLine(car.position, endPosition);
             car.position = result.position;
             this.histories[i].push(car.position);
             if (result.status !== 'ok') {
                 car.status = result.status;
+            } else if (!isZero(car.velocity)) {
+                // Imagine the car coasts at it's current velocity until it
+                // leaves the track.
+                const v = scaleToBox(car.velocity, this.dimGrid);
+                const moveToward = add(car.position, v);
+                // With a big jump - we are guaranteed to run off the track.
+                // But we might be crossing the finish line - so check that first.
+                const result = this.driveLine(car.position, moveToward);
+                if (result.status === 'crashed') {
+                    car.crashPosition = result.position;
+                }
             }
         }
 

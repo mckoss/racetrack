@@ -65,8 +65,10 @@ The car state:
     step: number;
     position: Point;
     velocity: Point;
+    crashPosition?: Point;
 }
 ```
+A ```Point``` is just a two-element array with an ```[x, y]``` coordinate.
 
 ```status``` is a string with one of 4 values.
 
@@ -78,7 +80,11 @@ Units here are in grid coordinates (not pixels).
 ```velocity``` is is your car's current volocity.  Note that the units are
 relative to the grid points, not to pixels.
 
-A ```Point``` is just a two-element array with an ```[x, y]``` coordinate.
+```crashPosition``` is the point your car will go off the track if you
+just coast at your current speed.  If undefined, you car is either not
+moving, or is coasting toward the finish line.
+
+The second paramater of the racer callback function:
 
 ```options``` is an array of the 9 distinct moves you could make and information
 about the outcomes.
@@ -105,11 +111,6 @@ taking the shortest path).  These are the number displayed in the grid, above.
 
 And a ```status``` about whether that move will make you crash or cross the
 finish line.
-
-## Future Update
-
-I will be updating the options list to also provide some distance measures to
-walls from your current position.
 
 # Designing your own Tracks
 
