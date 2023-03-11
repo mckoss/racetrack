@@ -161,17 +161,18 @@ class Racetrack {
         }
 
         // Add distances to reach the finish line to the grid.
-        if (this.track.grid >= 20) {
-            this.ctx.fillStyle = 'black';
-            this.ctx.font = '12px sans-serif';
-            this.ctx.textAlign = 'center';
-            this.ctx.textBaseline = 'middle';
-            for (let point of this.gridPoints()) {
-                const [x, y] = scale(this.track.grid, point);
-                const pos = id(point);
-                if (this.finishDistances.has(pos)) {
-                    this.ctx.fillText(this.finishDistances.get(pos)!.toString(), x, y);
-                }
+        this.ctx.fillStyle = 'black';
+        this.ctx.font = '12px sans-serif';
+        this.ctx.textAlign = 'center';
+        this.ctx.textBaseline = 'middle';
+        for (let point of this.gridPoints()) {
+            if (this.track.grid < 20 && point[0] % 5 !== 0) {
+                continue;
+            }
+            const [x, y] = scale(this.track.grid, point);
+            const pos = id(point);
+            if (this.finishDistances.has(pos)) {
+                this.ctx.fillText(this.finishDistances.get(pos)!.toString(), x, y);
             }
         }
     }
