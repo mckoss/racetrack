@@ -154,6 +154,14 @@ const U_TRACK:Track = {
 }
 ```
 
+# Hosted Deployment
+
+The currently deployed version of the project is at:
+
+- ```https://mckoss.com/racetrack``` - Home page
+- ```https://mckoss.com/ractrack/test/``` - Unit test runner
+- ```https://mckoss.com/racetrack/scripts/racetrack.js``` - ES6 Module for library
+
 # Using this Repo
 
 Tools used:
@@ -191,3 +199,16 @@ at ```http://localhost:5173/test/``` in dev mode.
 
 The repo also runs a full build and test on github for every PR and deployment.
 
+## Repro Organization
+
+The files in the repo are organized into the following files and folders:
+
+- ```/index.html``` - The home page rendering Racetrack.
+- ```/tools``` - Location of bash scripts using for building and testing.
+- ```/src``` - Source code files (in Typescript).
+- ```/src/tests``` - All unit tests files.
+- ```/test``` - Static version of mocha-based browser test.
+- ```/docs``` - Markdown and images to document this repo.
+- ```/dist``` - (Build product) Production version of code goes here.
+- ```/public/scripts``` - (Build product) Raw Javascript library (ES6) modules from
+  ```tsc``` command.
