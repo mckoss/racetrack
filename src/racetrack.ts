@@ -354,12 +354,13 @@ class Racetrack {
                 this.dot(...p, CAR_COLORS[i]);
             }
 
+            const [x, y] = scale(this.track.grid, car.position);
             if (car.status === 'crashed') {
-                this.dot(...car.position, 'yellow');
+                this.dot(x, y, 'yellow');
             }
 
             if (car.status === 'error') {
-                this.dot(...car.position, 'red');
+                this.dot(x, y, 'red');
             }
         }
     }
