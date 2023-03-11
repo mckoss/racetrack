@@ -1,30 +1,29 @@
 import { CarState, MoveOption } from '../racetrack';
-import { Point, add } from '../points';
+import { Point, add, isZero } from '../points';
 
 export { update };
 
 function update(state: CarState, options: MoveOption[]): Point {
-    const best = bestOption(state.velocity, options);
-    if (!best) {
-        return [0, 0];
-    }
-    return best.move;
+    return bestOption(state.velocity, options).move;
 }
 
-// Pick the best option out of all those where the velocity is exactly 1
-// in one direction.
-function bestOption(v: Point, options: MoveOption[]): MoveOption | undefined {
-    let best:MoveOption | undefined;
+// Pick the best option out of all those where the velocity is limited
+// to +-1 in both x and y directions.
+function bestOption(v: Point, options: MoveOption[]): MoveOption {
+    // Prefer to coast unless another move is better.
+    let best = options[0];
+
     for (const option of options) {
         if (option.distanceToFinish === undefined) {
             continue;
         }
         const [dx, dy] = add(v, option.move);
-        if (Math.abs(dx) + Math.abs(dy) !== 1) {
+        if (Math.abs(dx) > 1 || Math.abs(dy) > 1 || isZero([dx, dy])) {
             continue;
         }
 
-        if (best === undefined || option.distanceToFinish < best.distanceToFinish!) {
+        if (best.distanceToFinish === undefined || option.distanceToFinish < best.distanceToFinish!) {
+            // console.info(`New best: ${JSON.stringify(option)}`);
             best = option;
         }
     }
