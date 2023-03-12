@@ -36,8 +36,8 @@ export const BIG_OVAL:Track = {
     name: "Big Oval",
     dim: [800, 400],
     grid: 10,
-    startLine: [[400, 20], [400, 60]],
-    finishLine: [[380, 20], [380, 60]],
-    trackWidth: 40,
+    startLine: [[400, 5], [400, 75]],
+    finishLine: [[380, 5], [380, 75]],
+    trackWidth: 70,
     path: [[400, 40], [760, 40], [760, 360], [40, 360], [40, 40], [380, 40]],
 }
