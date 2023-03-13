@@ -68,6 +68,7 @@
         import { Racetrack, U_TRACK, BIG_OVAL, OVAL } from './src/racetrack.ts';
         import { MJLRacer1 } from "./src/racers/mjl-racer1.ts";
         import { update as creeper } from "./src/racers/creeper.ts";
+        import { update as jcreeper } from "./src/racers/jcreeper.ts";
 
         for (const track of [U_TRACK, OVAL, BIG_OVAL]) {
             const canvas = document.createElement('canvas');
@@ -83,6 +84,8 @@
 
             rt.race(creeper);
 
+            rt.race(jcreeper);
+
             rt.race((state, options) => {
                 if (state.step < 5) {
                     return [1, 0];
@@ -90,15 +93,15 @@
                 return [-1, 1];
             });
 
-            rt.race((state, options) => {
-                if (state.step < 5) {
-                    return [1, 0];
-                }
-                if (state.step < 9) {
-                    return [-1, 1];
-                }
-                return [-1, -1];
-            });
+            // rt.race((state, options) => {
+            //     if (state.step < 5) {
+            //         return [1, 0];
+            //     }
+            //     if (state.step < 9) {
+            //         return [-1, 1];
+            //     }
+            //     return [-1, -1];
+            // });
 
             rt.race((state, options) => {
                 if (state.step < 4) {
