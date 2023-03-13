@@ -13,7 +13,7 @@ function bestOption(state: CarState, options: MoveOption[]): MoveOption {
 
     const v = state.velocity;
     
-    function manhattan(position1: Point, position2: Point = [0, 0]) {
+    function eDistance(position1: Point, position2: Point = [0, 0]) {
         return Math.sqrt((position1[0] - position2[0]) ** 2 + (position1[1] - position2[1]) ** 2);
     }
 
@@ -29,10 +29,12 @@ function bestOption(state: CarState, options: MoveOption[]): MoveOption {
             continue;
         }
 
+        // select option if it's closer to finish. If options are same distance to finish, pick
+        // one that is closer to current point position
         if ((best.distanceToFinish === undefined || 
              option.distanceToFinish < best.distanceToFinish!) ||
                 (option.distanceToFinish === best.distanceToFinish! &&
-                 manhattan(state.position, option.position) < manhattan(state.position, best.position)))
+                 eDistance(state.position, option.position) < eDistance(state.position, best.position)))
             // console.info(`New best: ${JSON.stringify(option)}`);
             best = option;
     }
