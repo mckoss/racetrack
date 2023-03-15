@@ -67,6 +67,7 @@
     <script type="module">
         import { Racetrack, U_TRACK, BIG_OVAL, OVAL } from './src/racetrack.ts';
         import { MJLRacer1 } from "./src/racers/mjl-racer1.ts";
+        import { update as mjlRacer2 } from "./src/racers/mjl-racer2.ts";
         import { update as creeper } from "./src/racers/creeper.ts";
         import { update as jcreeper } from "./src/racers/jcreeper.ts";
         import { racer } from "./src/racers/chat-gpt4.ts";
@@ -90,6 +91,8 @@
             rt.race(jcreeper);
 
             rt.race(racer);
+
+            rt.race(mjlRacer2);
         }
 
     </script>

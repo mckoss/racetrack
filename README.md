@@ -79,14 +79,14 @@ A ```Point``` is just a two-element array with an ```[x, y]``` coordinate.
 ```position``` is your car's current ```[x, y]``` coordinate on the racetrack.
 Units here are in grid coordinates (not pixels).
 
-```velocity``` is is your car's current volocity.  Note that the units are
+```velocity``` is is your car's current velocity.  Note that the units are
 relative to the grid points, not to pixels.
 
 ```crashPosition``` is the point your car will go off the track if you
 just coast at your current speed.  If undefined, you car is either not
 moving, or is coasting toward the finish line.
 
-The second paramater of the racer callback function:
+The second parameter of the racer callback function:
 
 ```options``` is an array of the 9 distinct moves you could make and information
 about the outcomes.
@@ -143,7 +143,7 @@ line.
 ```trackWidth``` How wide the track path is in pixels.
 
 ```path``` A sequence of points defining the centerline of the track (typically
-drawns from the starting line to the finishing line).
+drawn from the starting line to the finishing line).
 
 The example ```U_TRACK``` is defined as:
 
@@ -204,7 +204,7 @@ at ```http://localhost:5173/test/``` in dev mode.
 
 The repo also runs a full build and test on github for every PR and deployment.
 
-## Repro Organization
+## Repo Organization
 
 The files in the repo are organized into the following files and folders:
 
