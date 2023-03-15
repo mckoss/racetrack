@@ -1,5 +1,7 @@
 import { assert } from 'chai';
 
+import { Point } from '../points.js';
+
 import { stoppingDistance, speedLimit, isSafe } from '../racers/racer-helper.js';
 
 suite('Racer Helper', () => {
