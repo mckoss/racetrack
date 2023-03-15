@@ -33,14 +33,3 @@ export function update(state: CarState, options: MoveOption[]) {
 function magnitude(vector: [number, number]): number {
   return Math.sqrt(vector[0] * vector[0] + vector[1] * vector[1]);
 }
-
-function assert(condition: boolean, message: string): asserts condition {
-  if (!condition) {
-    throw new Error(message);
-  }
-}
-
-function fail(message: string): never {
-  throw new Error(message);
-}
-
