@@ -69,12 +69,15 @@
         import { MJLRacer1 } from "./src/racers/mjl-racer1.ts";
         import { update as creeper } from "./src/racers/creeper.ts";
         import { update as jcreeper } from "./src/racers/jcreeper.ts";
+        import { racer } from "./src/racers/chat-gpt4.ts";
 
         for (const track of [U_TRACK, OVAL, BIG_OVAL]) {
             const canvas = document.createElement('canvas');
             document.body.appendChild(canvas);
             const rt = new Racetrack(canvas, track);
+
             addRacers(rt);
+
             rt.run();
         }
 
@@ -86,29 +89,7 @@
 
             rt.race(jcreeper);
 
-            rt.race((state, options) => {
-                if (state.step < 5) {
-                    return [1, 0];
-                }
-                return [-1, 1];
-            });
-
-            // rt.race((state, options) => {
-            //     if (state.step < 5) {
-            //         return [1, 0];
-            //     }
-            //     if (state.step < 9) {
-            //         return [-1, 1];
-            //     }
-            //     return [-1, -1];
-            // });
-
-            rt.race((state, options) => {
-                if (state.step < 4) {
-                    return [1, 0];
-                }
-                return [-2, 1];
-            })
+            rt.race(racer);
         }
 
     </script>
