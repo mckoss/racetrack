@@ -1,5 +1,7 @@
 # Martin Gardner Racetrack Game
 
+<img style="width: 500px" src="docs/mckoss_a_close-up_of_a_robot_driving_in_Indianapolis_speedway_r_909cbf14-9516-4e24-ab0b-8f96a2c37f79.png">
+
 The code here allows you to simulate a game of
 [Racetrack](https://en.wikipedia.org/wiki/Racetrack_(game)) with one or more
 automated players.
@@ -27,7 +29,7 @@ project.*
 The easiest way to use this repo is to fork a copy of [this
 CodePen](https://codepen.io/mckoss/pen/RwYVmGO).
 
-![Sample Track](docs/sample-track.png)
+<img style="width: 500px" src="docs/sample-track.png">
 
 Here you can see a number of different strategies racing against each other
 (only one of which is succeeding).
