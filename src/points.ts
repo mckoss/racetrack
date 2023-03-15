@@ -1,4 +1,5 @@
-export { linePoints, add, sub, scale, ceil, round, isZero, scaleToBox, id, pointFromId, neighbors };
+export { linePoints, add, sub, scale, ceil, round, isZero, isEqual,
+    scaleToBox, id, pointFromId, neighbors };
 export type { Point };
 
 // x, y coordinates
@@ -75,6 +76,10 @@ function pointFromId(id: string): Point {
 
 function isZero([x, y]: Point): boolean {
     return x === 0 && y === 0;
+}
+
+function isEqual(a: Point, b: Point): boolean {
+    return a[0] === b[0] && a[1] === b[1];
 }
 
 // Scale point so that maximum dimension equals one of the dimensions of a

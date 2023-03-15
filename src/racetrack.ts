@@ -157,7 +157,9 @@ class Racetrack {
     drawDots() {
         for (let point of this.gridPoints()) {
             const [x, y] = scale(this.track.grid, point);
-            this.dot(x, y, this.isPointInTrack(point) ? 'white' : 'red');
+            if (this.isPointInTrack(point)) {
+                this.dot(x, y, 'white');
+            }
         }
 
         // Add distances to reach the finish line to the grid.
@@ -190,7 +192,7 @@ class Racetrack {
     }
 
     dot(x: number, y: number, color: string) {
-        const radius = this.track.grid / 4;
+        const radius = this.track.grid / 4 + 1;
         this.ctx.fillStyle = color;
         this.ctx.beginPath();
         this.ctx.ellipse(x, y, radius, radius, 0, 0, 2 * Math.PI);
@@ -322,7 +324,12 @@ class Racetrack {
             this.histories[i].push(car.position);
             if (result.status !== 'ok') {
                 car.status = result.status;
-                console.log(`Car ${i+1} ${result.status} after ${this.stepNumber} steps at ${result.position}`);
+                const message = `Car ${i+1} ${result.status} after ${this.stepNumber} steps at ${result.position}`;
+                if (result.status === 'crashed') {
+                    console.warn(message);
+                } else {
+                    console.log(message);
+                }
             } else if (!isZero(car.velocity)) {
                 // Imagine the car coasts at it's current velocity until it
                 // leaves the track.
