@@ -15,6 +15,7 @@ function isSafe(v: Point, dist: Point): boolean {
         }
 
         const absV = Math.abs(v);
+
         if (absV <= 1) {
             return true;
         }

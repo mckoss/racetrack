@@ -1,5 +1,5 @@
 import { CarState, MoveOption } from '../racetrack.js';
-import { Point, add, sub, isZero } from '../points.js';
+import { Point, add, sub, isZero, scale, sign } from '../points.js';
 
 import { isSafe } from './racer-helper.js';
 
@@ -8,6 +8,11 @@ export { update };
 function update(state: CarState, options: MoveOption[]): Point {
     // Prefer to coast unless another move is better.
     let best: MoveOption | undefined;
+
+    // If moving to finish, just accelerate in the same direction.
+    if (!isZero(state.velocity) && state.crashPosition === undefined) {
+        return sign(state.velocity);
+    }
 
     for (const option of options) {
         // Not a valid option.
@@ -27,8 +32,7 @@ function update(state: CarState, options: MoveOption[]): Point {
         }
 
         if (state.crashPosition !== undefined) {
-            const next = add(state.position, v);
-            const dist = sub(state.crashPosition, next);
+            const dist = sub(state.crashPosition, state.position);
             if (!isSafe(v, dist)) {
                 continue;
             }
@@ -40,6 +44,6 @@ function update(state: CarState, options: MoveOption[]): Point {
         }
     }
 
-    return best?.move || [0, 0];
+    return best?.move || scale(-1, sign(state.velocity));
 }
 
