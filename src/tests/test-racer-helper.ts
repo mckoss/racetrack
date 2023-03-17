@@ -23,7 +23,8 @@ suite('Racer Helper', () => {
 
     test('speedLimit', () => {
         const tests: { dist: number, expected: number }[] = [
-            { dist: 0, expected: 0 },
+            // Should never happen - but never return a speed limit < 1.
+            { dist: 0, expected: 1 },
             { dist: 1, expected: 1 },
             { dist: 2, expected: 1 },
             { dist: 3, expected: 1 },
