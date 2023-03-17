@@ -66,7 +66,10 @@ function update(state: CarState, options: MoveOption[]): Point {
         }
 
         // Prefer move in same direction as last move.
-        t = testBool(a, b, (x) => isEqual(sign(state.velocity), sign(x.move)));
+        t = testBool(a, b, (x) => {
+            const v = add(state.velocity, x.move);
+            return isEqual(sign(state.velocity), sign(v));
+        });
         if (t !== 0) {
             return t;
         }
@@ -79,7 +82,6 @@ function update(state: CarState, options: MoveOption[]): Point {
             return t;
         }
 
-        console.log(`${state.position}@${state.velocity}: randomly choosing between ${a.move} and ${b.move}.`);
         return 0.5 - Math.random();
     }
 }
