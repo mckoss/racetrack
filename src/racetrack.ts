@@ -44,6 +44,7 @@ class Racetrack {
     // String keys use the id() function of a Point
     finishPositions: Set<string>;
     trackPositions: Set<string> = new Set();
+    crashPositions: Set<string> = new Set();
     finishDistances: Map<string, number> = new Map();
 
     stepNumber = 0;
@@ -69,10 +70,15 @@ class Racetrack {
         this.finishPositions = new Set(Array.from(this.linePoints(...finishGrid)).map(id));
         this.calculateFinishDistances();
 
+        this.refresh();
+    }
+
+    refresh() {
         this.clearStage();
         this.drawTrackPath();
         this.drawDots();
         this.drawStartFinish();
+        this.drawTracks();
     }
 
     clearStage() {
@@ -160,6 +166,11 @@ class Racetrack {
             if (this.isPointInTrack(point)) {
                 this.dot(x, y, 'white');
             }
+        }
+
+        for (let point of this.crashPositions) {
+            const [x, y] = scale(this.track.grid, pointFromId(point));
+            this.dot(x, y, 'red');
         }
 
         // Add distances to reach the finish line to the grid.
@@ -340,11 +351,12 @@ class Racetrack {
                 const result = this.driveLine(car.position, moveToward);
                 if (result.status === 'crashed') {
                     car.crashPosition = result.position;
+                    this.crashPositions.add(id(result.position));
                 }
             }
         }
 
-        this.drawTracks();
+        this.refresh();
 
         function valid(d: number): boolean {
             return [-1, 0, 1].includes(d);

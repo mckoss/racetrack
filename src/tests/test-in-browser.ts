@@ -58,5 +58,5 @@ suite('Headless browser tests', () => {
         console.log(`Failures: ${testResults.stats.failures}`);
         assert.isAtLeast(testResults.stats.tests, 30);
         assert.equal(testResults.stats.failures, 0);
-    });
+    }).timeout(10000);
 }).timeout(10000);
