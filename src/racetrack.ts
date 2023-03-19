@@ -1,8 +1,9 @@
 import { Point, linePoints, add, sub, scale, round, ceil, isZero, scaleToBox,
          id, pointFromId, neighbors } from './points.js';
 import { Track, U_TRACK, OVAL, BIG_OVAL } from './tracks.js';
-export { Racetrack, U_TRACK, OVAL, BIG_OVAL };
+import { ButtonBar } from './button-bar.js';
 
+export { Racetrack, U_TRACK, OVAL, BIG_OVAL };
 export type { CarState, MoveOption, CarUpdate };
 
 interface CarState {
@@ -71,6 +72,15 @@ class Racetrack {
         this.calculateFinishDistances();
 
         this.refresh();
+    }
+
+    addControls(parent: HTMLElement) {
+        const buttonBar = new ButtonBar([
+            // { label: "Reset", action: () => this.reset() },
+            { label: "Step", action: () => this.step() },
+            { label: "Run", action: () => this.run(100) },
+        ]);
+        parent.appendChild(buttonBar.container);
     }
 
     refresh() {

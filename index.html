@@ -6,6 +6,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Martin Gardner's Racetrack</title>
+    <link rel="stylesheet" href="styles/button-bar.css">
     <style>
         body {
             font-family: Verdana, sans-serif;
@@ -80,7 +81,9 @@
 
             addRacers(rt);
 
-            await rt.run(100);
+            rt.addControls(document.body);
+
+            // await rt.run(100);
         }
 
         function addRacers(rt) {

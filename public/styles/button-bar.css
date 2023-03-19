@@ -1,0 +1,14 @@
+.button-bar {
+    display: flex;
+    width: 100%;
+    flex-wrap: wrap;
+    align-items: center;
+    align-content: flex-start;
+    padding: 0;
+    gap: 1rem;
+}
+
+.button-bar button {
+    font-size: 1.3rem;
+
+}
