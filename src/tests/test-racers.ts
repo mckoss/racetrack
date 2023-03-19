@@ -27,16 +27,16 @@ suite('Racers', function () {
         document.body.appendChild(canvas);
     });
 
-    test('Creeper', () => {
+    test('Creeper', async () => {
         rt.race(update);
-        rt.run();
+        await rt.run();
         assert.equal(rt.cars[0].status, 'finished');
     });
 
-    test('MJL #1', () => {
+    test('MJL #1', async () => {
         const mjl1 = new MJLRacer1(rt);
         rt.race(mjl1.update.bind(mjl1));
-        rt.run();
+        await rt.run();
         assert.equal(rt.cars[0].status, 'finished');
     });
 });

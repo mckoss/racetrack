@@ -45,7 +45,7 @@ suite('Racetrack', function () {
         assert.deepEqual(points, expected);
     });
 
-    test('running race', () => {
+    test('running race', async () => {
         rt.race((state, options) => {
             console.log(`step ${state.step}: ${JSON.stringify(state)}`);
             assert.isAtLeast(state.step, 1);
@@ -94,7 +94,7 @@ suite('Racetrack', function () {
             return [-1, -1];
         });
         assert.equal(rt.cars.length, 1);
-        rt.run();
+        await rt.run();
         assert.equal(rt.stepNumber, 14);
         assert.equal(rt.cars[0].status, 'finished');
     });

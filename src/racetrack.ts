@@ -363,11 +363,35 @@ class Racetrack {
         }
     }
 
-    run() {
-        while (!this.isRaceDone()) {
-            this.step();
+    run(delay = 0) : Promise<void> {
+        const self = this;
+        let resolver: () => void;
+
+        const whenDone =  new Promise<void>((resolve) => {
+            resolver = resolve;
+        });
+
+        nextFrame();
+
+        return whenDone;
+
+        function nextFrame() {
+            if (self.isRaceDone()) {
+                console.log(`Race finished in ${self.stepNumber} steps.`);
+                resolver();
+                return;
+            }
+
+            self.step();
+
+            if (delay) {
+                setTimeout(() => {
+                    requestAnimationFrame(nextFrame);
+                }, delay);
+            } else {
+                requestAnimationFrame(nextFrame);
+            }
         }
-        console.log(`Race finished in ${this.stepNumber} steps.`);
     }
 
     isRaceDone(): boolean {

@@ -19,13 +19,13 @@ suite('Tracks', function () {
     document.body.appendChild(tracksDiv);
 
     for (const track of [U_TRACK, OVAL, BIG_OVAL]) {
-        test(track.name, () => {
+        test(track.name, async () => {
             const canvas = document.createElement('canvas');
             const rt = new Racetrack(canvas, track);
             rt.race(update);
-            rt.run();
+            await rt.run();
             tracksDiv.appendChild(canvas);
             assert.equal(rt.cars[0].status, 'finished');
-        });
+        }).timeout(10000);
     }
 });
