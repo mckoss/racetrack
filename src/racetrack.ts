@@ -53,6 +53,9 @@ class Racetrack {
     cars: CarState[] = [];
     histories: Point[][] = [];
 
+    // A race is in progress.
+    isRunning = false;
+
     constructor(canvas: HTMLCanvasElement, track: Track) {
         this.canvas = canvas;
         this.track = track;
@@ -76,11 +79,32 @@ class Racetrack {
 
     addControls(parent: HTMLElement) {
         const buttonBar = new ButtonBar([
-            // { label: "Reset", action: () => this.reset() },
-            { label: "Step", action: () => this.step() },
+            { label: "Reset", action: () => this.reset() },
+            { label: "Step", action: () => {
+                this.isRunning = false;
+                this.step();
+              }
+            },
             { label: "Run", action: () => this.run(100) },
         ]);
         parent.appendChild(buttonBar.container);
+    }
+
+    reset() {
+        this.stepNumber = 0;
+        this.isRunning = false;
+
+        this.cars = [];
+        this.histories = [];
+        const updates = this.updates;
+        this.updates = [];
+        const startGrid = this.pixelsToGrid(this.track.startLine) as [Point, Point]
+        this.polePositions = this.linePoints(...startGrid);
+
+        for (let update of updates) {
+            this.race(update);
+        }
+        this.refresh();
     }
 
     refresh() {
@@ -377,6 +401,8 @@ class Racetrack {
         const self = this;
         let resolver: () => void;
 
+        this.isRunning = true;
+
         const whenDone =  new Promise<void>((resolve) => {
             resolver = resolve;
         });
@@ -386,6 +412,12 @@ class Racetrack {
         return whenDone;
 
         function nextFrame() {
+            if (!self.isRunning) {
+                console.log(`Race reset or paused.`);
+                resolver();
+                return;
+            }
+
             if (self.isRaceDone()) {
                 console.log(`Race finished in ${self.stepNumber} steps.`);
                 resolver();

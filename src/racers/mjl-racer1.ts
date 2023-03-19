@@ -60,7 +60,12 @@ export class MJLRacer1 {
   private path: Move[] | undefined;
   private nextMoveIndex: number = 0;
 
-  update(state: { position: Point }) {
+  update(state: { step: number, position: Point }) {
+    // Handle race reset
+    if (state.step === 1) {
+        this.path = undefined;
+        this.nextMoveIndex = 0;
+    }
     if (!this.path) {
       this.path = this.computePath(state.position);
     }
