@@ -17,12 +17,6 @@
     "noUnusedParameters": true,
     "noImplicitReturns": true,
     "skipLibCheck": true,
-    "outDir": "public/scripts",
-    "sourceMap": true,
-    "inlineSources": true,
-    "paths": {
-      "chai": ["./chai/chai.js"],
-    },
   },
   "include": [
     "src/**/*",

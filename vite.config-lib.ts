@@ -15,6 +15,11 @@ export default defineConfig({
         resolve(__dirname, 'src/points.ts'),
         resolve(__dirname, 'src/button-bar.ts'),
         resolve(__dirname, 'src/tracks.ts'),
+
+        // These scripts are used for node command line testing.
+        resolve(__dirname, 'src/tests/test-points.ts'),
+        resolve(__dirname, 'src/tests/test-racer-helper.ts'),
+        resolve(__dirname, 'src/tests/test-in-browser.ts'),
       ],
       formats: ['es'],
     },
@@ -29,8 +34,10 @@ export default defineConfig({
       //   entryFileNames: '[name].js',
       // },
       external: [
-        '/scripts/browser-tests/test-racetrack.js',
         '/test/mocha.js',
+        'puppeteer',
+        'chai',
+        'mocha',
       ]
     },
   }
