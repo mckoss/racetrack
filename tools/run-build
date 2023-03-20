@@ -1,0 +1,14 @@
+#!/bin/bash
+set -e
+
+echo "Cleaning typescript built files ..."
+rm -rf public/scripts
+
+echo "Typescript: type checking and generate library files ..."
+npx tsc
+
+echo "Vite: Build bundled web pages ..."
+npx vite build
+
+echo "Move static Mocha test files to dist/test ..."
+cp test/mocha* dist/test
