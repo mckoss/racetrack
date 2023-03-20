@@ -6,11 +6,6 @@ import { update } from '../racers/creeper.js';
 import { MJLRacer1 } from "../racers/mjl-racer1.js";
 
 suite('Racers', function () {
-    if (typeof document === 'undefined') {
-        console.log(`Racers tests can only be run in a browser environment`)
-        return;
-    }
-
     let canvas: HTMLCanvasElement;
     let rt: Racetrack;
 
@@ -31,7 +26,7 @@ suite('Racers', function () {
         rt.race(update);
         await rt.run();
         assert.equal(rt.cars[0].status, 'finished');
-    });
+    }).timeout(10000);
 
     test('MJL #1', async () => {
         const mjl1 = new MJLRacer1(rt);

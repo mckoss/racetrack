@@ -17,5 +17,8 @@
       "sourceMap": true,
       "inlineSources": true,
     },
-    "include": ["src/**/*"]
+    "include": [
+        "src/**/*",
+        "src/typings/**/*.d.ts"
+    ],
   }

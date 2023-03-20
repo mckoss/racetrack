@@ -4,11 +4,6 @@ import { Racetrack, U_TRACK } from '../racetrack.js';
 import { Point } from '../points.js';
 
 suite('Racetrack', function () {
-    if (typeof document === 'undefined') {
-        console.log(`Racetrack tests can only be run in a browser environment`)
-        return;
-    }
-
     let canvas: HTMLCanvasElement;
     let rt: Racetrack;
 
@@ -17,9 +12,9 @@ suite('Racetrack', function () {
     setup(function () {
         canvas = document.createElement('canvas');
         rt = new Racetrack(canvas, U_TRACK);
-        const title = document.createElement('h2');
 
         // Append the racetrack canvas to the page in case we want to look at it.
+        const title = document.createElement('h2');
         title.textContent = `${this.currentTest!.title}:`;
         document.body.appendChild(title);
         document.body.appendChild(canvas);
