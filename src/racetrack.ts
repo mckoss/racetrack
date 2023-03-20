@@ -3,6 +3,10 @@ import { Point, linePoints, add, sub, scale, round, ceil, isZero, scaleToBox,
 import { Track, U_TRACK, OVAL, BIG_OVAL } from './tracks.js';
 import { ButtonBar } from './button-bar.js';
 
+console.log('Loading car sprite sheet...');
+import carSpriteImage from './images/car-sheet.png';
+console.log('Car sprite sheet loaded.');
+
 export { Racetrack, U_TRACK, OVAL, BIG_OVAL };
 export type { CarState, MoveOption, CarUpdate };
 
@@ -28,7 +32,17 @@ interface DriveResult {
     position: Point;
 }
 
-const CAR_COLORS = ['red', 'blue', 'green', 'orange', 'purple', 'pink', 'brown', 'black', 'white'];
+const CAR_COLORS = [ 'orange', 'green', 'blue', 'red', 'purple' ];
+
+// Car images stored in a sprite sheet
+const CAR_SPRITE_WIDTH = 90;
+const CAR_SPRITE_HEIGHT = 100;
+
+const carSheet = new Image();
+carSheet.src = carSpriteImage;
+console.log(`Car sprite sheet loading from: ${carSpriteImage}`);
+await carSheet.decode();
+console.log('await done - Car sprite sheet loaded.');
 
 const MAX_RACE_DURATION = 500;
 
@@ -113,6 +127,29 @@ class Racetrack {
         this.drawDots();
         this.drawStartFinish();
         this.drawTracks();
+        this.drawCars();
+    }
+
+    drawCars() {
+        let i = 0;
+        for (let car of this.cars) {
+            const [x, y] = scale(this.track.grid, car.position);
+            this.drawCar(i, [x, y]);
+            i++;
+        }
+    }
+
+    drawCar(index: number, [x, y]: Point) {
+        const mindex = index % CAR_COLORS.length;
+        const [sx, sy] = [0, mindex * CAR_SPRITE_HEIGHT];
+        const [vx, vy] = this.cars[index].velocity;
+        this.ctx.save();
+        this.ctx.imageSmoothingEnabled = false;
+        this.ctx.translate(x, y);
+        this.ctx.rotate(-Math.PI / 2 + Math.atan2(vy, vx));
+        this.ctx.drawImage(carSheet, sx, sy, CAR_SPRITE_WIDTH, CAR_SPRITE_HEIGHT,
+                           -this.track.grid, -2 * this.track.grid, 2 * this.track.grid, 2 * this.track.grid);
+        this.ctx.restore();
     }
 
     clearStage() {
@@ -453,9 +490,10 @@ class Racetrack {
     drawTracks() {
         for (let i = 0; i < this.cars.length; i++) {
             const car = this.cars[i];
+            const mi = i % CAR_COLORS.length;
             const history = this.gridToPixels(this.histories[i])
 
-            this.ctx.strokeStyle = CAR_COLORS[i];
+            this.ctx.strokeStyle = CAR_COLORS[mi];
             this.ctx.lineWidth = 2;
             this.ctx.beginPath();
             this.ctx.moveTo(...history[0]);
@@ -465,7 +503,7 @@ class Racetrack {
             this.ctx.stroke();
 
             for (let p of history) {
-                this.dot(...p, CAR_COLORS[i]);
+                this.dot(...p, CAR_COLORS[mi]);
             }
 
             const [x, y] = scale(this.track.grid, car.position);
