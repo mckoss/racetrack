@@ -21,7 +21,6 @@ suite('Racetrack', function () {
     });
 
     test('constructor', () => {
-        console.log(4);
         assert.equal(rt.canvas, canvas);
         assert.equal(rt.track, U_TRACK);
     });
