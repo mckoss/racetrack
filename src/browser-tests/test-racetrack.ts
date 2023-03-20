@@ -7,12 +7,9 @@ suite('Racetrack', function () {
     let canvas: HTMLCanvasElement;
     let rt: Racetrack;
 
-    console.log(1);
-
     // Arrow functions hide the `this` context, so we need to use a regular
     // function here.
     setup(function () {
-        console.log(3);
         canvas = document.createElement('canvas');
         rt = new Racetrack(canvas, U_TRACK);
 
@@ -22,8 +19,6 @@ suite('Racetrack', function () {
         document.body.appendChild(title);
         document.body.appendChild(canvas);
     });
-
-    console.log(2);
 
     test('constructor', () => {
         console.log(4);

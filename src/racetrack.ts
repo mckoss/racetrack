@@ -3,9 +3,7 @@ import { Point, linePoints, add, sub, scale, round, ceil, isZero, scaleToBox,
 import { Track, U_TRACK, OVAL, BIG_OVAL } from './tracks.js';
 import { ButtonBar } from './button-bar.js';
 
-console.log('Loading car sprite sheet...');
 import carSpriteImage from './images/car-sheet.png';
-console.log('Car sprite sheet loaded.');
 
 export { Racetrack, U_TRACK, OVAL, BIG_OVAL };
 export type { CarState, MoveOption, CarUpdate };
@@ -40,9 +38,7 @@ const CAR_SPRITE_HEIGHT = 100;
 
 const carSheet = new Image();
 carSheet.src = carSpriteImage;
-console.log(`Car sprite sheet loading from: ${carSpriteImage}`);
 await carSheet.decode();
-console.log('await done - Car sprite sheet loaded.');
 
 const MAX_RACE_DURATION = 500;
 
