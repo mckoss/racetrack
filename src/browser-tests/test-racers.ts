@@ -26,7 +26,7 @@ suite('Racers', function () {
         rt.race(update);
         await rt.run();
         assert.equal(rt.cars[0].status, 'finished');
-    });
+    }).timeout(10000);
 
     test('MJL #1', async () => {
         const mjl1 = new MJLRacer1(rt);

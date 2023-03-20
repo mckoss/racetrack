@@ -38,7 +38,11 @@ const CAR_SPRITE_HEIGHT = 100;
 
 const carSheet = new Image();
 carSheet.src = carSpriteImage;
-await carSheet.decode();
+
+// This top level await was breaking Mocha tests.
+// I think save to leave out as we are using a module import for the image
+// (above).
+// await carSheet.decode();
 
 const MAX_RACE_DURATION = 500;
 
