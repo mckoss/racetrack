@@ -6,7 +6,7 @@ nohup npx http-server -c-1 dist -p 8080 > /dev/null 2>&1 &
 
 echo "Testing..."
 set +e
-npx mocha --ui tdd dist/scripts/test-*.js
+npx mocha --ui tdd dist/scripts/tests/*.js
 result=$?
 
 echo "Stopping web server..."

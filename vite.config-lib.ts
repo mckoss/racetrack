@@ -1,6 +1,11 @@
 import { resolve } from 'path';
 import { defineConfig } from 'vite';
 
+// Helper function to resolve paths relative to the project root.
+function src(path: string) {
+  return resolve(__dirname, `src/${path}`);
+}
+
 export default defineConfig({
   base: './',
   build: {
@@ -9,18 +14,20 @@ export default defineConfig({
     minify: false,
     outDir: 'dist/scripts',
     lib: {
-      entry: [
-        resolve(__dirname, 'src/racetrack.ts'),
-        resolve(__dirname, 'src/images/car-sheet.png'),
-        resolve(__dirname, 'src/points.ts'),
-        resolve(__dirname, 'src/button-bar.ts'),
-        resolve(__dirname, 'src/tracks.ts'),
+      entry: {
+        'racetrack': src('racetrack.ts'),
+        'car-sheet': src('images/car-sheet.png'),
+        'points': src('points.ts'),
+        'button-bar': src('button-bar.ts'),
+        'tracks': src('tracks.ts'),
+        'racers/racer-helper': src('racers/racer-helper.ts'),
+        'racers/creeper': src('racers/creeper.ts'),
 
         // These scripts are used for node command line testing.
-        resolve(__dirname, 'src/tests/test-points.ts'),
-        resolve(__dirname, 'src/tests/test-racer-helper.ts'),
-        resolve(__dirname, 'src/tests/test-in-browser.ts'),
-      ],
+        'tests/test-points': src('tests/test-points.ts'),
+        'tests/test-racer-helper': src('tests/test-racer-helper.ts'),
+        'tests/test-in-browser': src('tests/test-in-browser.ts'),
+      },
       formats: ['es'],
     },
     rollupOptions: {
