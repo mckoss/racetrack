@@ -215,5 +215,36 @@ The files in the repo are organized into the following files and folders:
 - ```/test``` - Static version of mocha-based browser test.
 - ```/docs``` - Markdown and images to document this repo.
 - ```/dist``` - (Build product) Production version of code goes here.
-- ```/public/scripts``` - (Build product) Raw Javascript library (ES6) modules from
-  ```tsc``` command.
+- ```/public/test``` - Files used in browser tests.
+
+# Build Notes
+
+Some of the packaging here has been quiet the journey to get to where we are.
+I wanted to use Vite for building and development.  This is all just fine to
+build ```index.html``` and ```test/index.html```.  These files can be hot
+reloaded during development for a very fast turn around.
+
+BUT, this repo is designed to ship ES module library files - not a web page.  At
+first, I was just using the TypeScript compiler (tsc) to make those JavaScript
+files in ES Module format.
+
+But there was a problem for some of the test file as they would really only work
+in Node.js since they imported the 'chai' assert library as a node module.
+
+I tried my hardest to get Vite to JUST bundle chai, but leave the other
+imports as path-relative imports.  But I kept hitting road blocks with mangled
+relative path names, some files not being seen as external, and bundled anyway.
+See my [latest revision in this gist](https://gist.github.com/mckoss/8c549a5f0e968e6a0415fdc8dd35ab5e).
+
+So in the end we use:
+
+- Vite: Builds index.html and test/index.html as bundled assets for rapid development.
+- Vite: Builds the no-npm-dependency library files and command-line only mocha
+  tests for Node.js (using ```vite.config-lib.ts```).
+
+```tsc``` is only called for TypeScript checking and no longer emits any code.
+
+In hindsight, I perhaps could have just left it that way (and still added the
+static library browser test that led me down this path).  But now, we have some
+more flexibility to only expose some modules and bundle others in the library
+files.
