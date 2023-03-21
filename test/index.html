@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="mocha.css" />
     <!-- After running npx mocha test init, this file created. with local
         css and js files.  Defined a GLOBAL suite and test entry point. -->
-    <script src="./mocha.js"></script>
+    <script src="mocha.js"></script>
     <style>
         body {
             width: 800px;
@@ -30,6 +30,7 @@
     <h1>Racetrack Tests</h1>
     <div id="mocha"></div>
     <script>
+        // This must come before loading any test scripts.
         mocha.setup('tdd');
     </script>
 
@@ -39,9 +40,6 @@
     <script type="module" src="../src/browser-tests/test-racetrack.ts"></script>
     <script type="module" src="../src/browser-tests/test-tracks.ts"></script>
     <script type="module" src="../src/browser-tests/test-racers.ts"></script>
-
-    <!-- This must be module type to have it run AFTER defining the test
-         suites above. -->
 
     <script type="module">
         if (navigator.webdriver) {

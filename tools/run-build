@@ -1,14 +1,12 @@
 #!/bin/bash
 set -e
 
-echo "Cleaning typescript built files ..."
-rm -rf public/scripts
-
-echo "Typescript: type checking and generate library files ..."
+echo "Typescript: type checking ..."
 npx tsc
 
-echo "Vite: Build bundled web pages ..."
+echo -e "\nVite: Build bundled web pages ..."
 npx vite build
 
-echo "Move static Mocha test files to dist/test ..."
-cp test/mocha* dist/test
+echo -e "\nVite: Building library and node test files ..."
+npx vite build --config vite.config-lib.ts
+
