@@ -36,8 +36,9 @@
     </script>
 
     <script type="module">
-        import { assert } from 'chai';
-        import { Racetrack, U_TRACK } from '../racetrack.js';
+        const assert = chai.assert;
+        import { Racetrack, U_TRACK } from '../scripts/racetrack.js';
+
         suite('Racetrack', function () {
             let canvas;
             let rt;
@@ -129,10 +130,6 @@
             }
         }
     </script>
-
-    <script type="module" src="../scripts/browser-tests/test-points.js"></script>
-    <script type="module" src="../scripts/browser-tests/test-racer-helper.js"></script>
-    <script type="module" src="../scripts/browser-tests/test-racetrack.js"></script>
 
     <script type="module">
         if (navigator.webdriver) {
