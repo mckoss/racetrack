@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <title>Mocha</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="mocha.css" />
+    <!-- After running npx mocha test init, this file created. with local
+        css and js files.  Defined a GLOBAL suite and test entry point. -->
+    <script src="mocha.js"></script>
+    <script src="chai.js"></script>
+    <style>
+        body {
+            width: 800px;
+            margin: 0 auto;
+        }
+
+        canvas {
+            display: block;
+            margin: 1rem auto;
+        }
+
+        #mocha h2 {
+            font-size: 1em;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Racetrack Tests</h1>
+    <div id="mocha"></div>
+    <script>
+        // This must come before loading any test scripts.
+        mocha.setup('tdd');
+    </script>
+
+    <script type="module">
+        import { assert } from 'chai';
+        import { Racetrack, U_TRACK } from '../racetrack.js';
+        suite('Racetrack', function () {
+            let canvas;
+            let rt;
+            // Arrow functions hide the `this` context, so we need to use a regular
+            // function here.
+            setup(function () {
+                canvas = document.createElement('canvas');
+                rt = new Racetrack(canvas, U_TRACK);
+                // Append the racetrack canvas to the page in case we want to look at it.
+                const title = document.createElement('h2');
+                title.textContent = `${this.currentTest.title}:`;
+                document.body.appendChild(title);
+                document.body.appendChild(canvas);
+            });
+            test('constructor', () => {
+                assert.equal(rt.canvas, canvas);
+                assert.equal(rt.track, U_TRACK);
+            });
+            test('isPointInTrack', () => {
+                assert.isFalse(rt.isPointInTrack([0, 0]));
+                assert.isTrue(rt.isPointInTrack([1, 1]));
+                assert.isTrue(rt.isPointInTrack([2, 2]));
+                assert.isFalse(rt.isPointInTrack([19, 1]));
+            });
+            test('finish line points', () => {
+                const expected = Array.from(range(15, 20)).map(x => [1, x]);
+                const gridPoints = rt.pixelsToGrid(U_TRACK.finishLine);
+                const points = Array.from(rt.linePoints(...gridPoints));
+                assert.equal(points.length, expected.length);
+                assert.deepEqual(points, expected);
+            });
+            test('running race', async () => {
+                rt.race((state, options) => {
+                    console.log(`step ${state.step}: ${JSON.stringify(state)}`);
+                    assert.isAtLeast(state.step, 1);
+                    assert.equal(options.length, 9);
+                    if (state.step == 1) {
+                        assert.deepEqual(state, {
+                            status: 'running',
+                            step: 1,
+                            position: [1, 1],
+                            velocity: [0, 0],
+                        });
+                        return [1, 0];
+                    }
+                    if (state.step == 2) {
+                        assert.deepEqual(state, {
+                            status: 'running',
+                            step: 2,
+                            position: [2, 1],
+                            velocity: [1, 0],
+                            crashPosition: [19, 1]
+                        });
+                        return [1, 0];
+                    }
+                    if (state.step < 5) {
+                        assert.deepEqual(options[5].move, [1, 0]);
+                        assert.isAtLeast(options[5].distanceToFinish, 27);
+                        assert.equal(options[5].status, 'ok');
+                        assert.deepEqual(state.crashPosition, [19, 1]);
+                        return [1, 0];
+                    }
+                    if (state.step === 6) {
+                        assert.deepEqual(state.crashPosition, [20, 4]);
+                    }
+                    if (state.step < 9) {
+                        assert.deepEqual(options[6].move, [-1, 1]);
+                        assert.isAtLeast(options[6].distanceToFinish, 17);
+                        assert.equal(options[6].status, 'ok');
+                        return [-1, 1];
+                    }
+                    if (state.step === 13) {
+                        assert.isUndefined(state.crashPosition);
+                    }
+                    assert.deepEqual(options[1].move, [-1, -1]);
+                    assert.isAtLeast(options[1].distanceToFinish, 0);
+                    assert.equal(options[1].status, state.step < 14 ? 'ok' : 'finished');
+                    return [-1, -1];
+                });
+                assert.equal(rt.cars.length, 1);
+                await rt.run();
+                assert.equal(rt.stepNumber, 14);
+                assert.equal(rt.cars[0].status, 'finished');
+            });
+        });
+        function* range(start, end) {
+            for (let i = start; i < end; i++) {
+                yield i;
+            }
+        }
+    </script>
+
+    <script type="module" src="../scripts/browser-tests/test-points.js"></script>
+    <script type="module" src="../scripts/browser-tests/test-racer-helper.js"></script>
+    <script type="module" src="../scripts/browser-tests/test-racetrack.js"></script>
+
+    <script type="module">
+        if (navigator.webdriver) {
+            // Send report to console.
+            mocha.reporter('spec');
+        } else {
+            mocha.run();
+        }
+    </script>
+</body>
+
+</html>

@@ -8,6 +8,7 @@ function src(path: string) {
 
 export default defineConfig({
   base: './',
+  publicDir: false,
   build: {
     target: 'esnext',
     sourcemap: true,
@@ -31,17 +32,7 @@ export default defineConfig({
       formats: ['es'],
     },
     rollupOptions: {
-      // These options are not needed when using multiple entry points
-      // in the lib configuration.  Where possible, dependent modules will
-      // include a reference to the exported module instead of bundling it
-      // into the module itself.
-
-      // output: {
-      //   preserveModules: true,
-      //   entryFileNames: '[name].js',
-      // },
       external: [
-        '/test/mocha.js',
         'puppeteer',
         'chai',
         'mocha',

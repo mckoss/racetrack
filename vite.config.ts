@@ -11,10 +11,6 @@ export default defineConfig({
         main: resolve(__dirname, 'index.html'),
         test: resolve(__dirname, 'test/index.html'),
       },
-      external: [
-        '/scripts/browser-tests/test-racetrack.js',
-        '/test/mocha.js',
-      ]
     },
   }
 });

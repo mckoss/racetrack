@@ -4,11 +4,9 @@ set -e
 echo "Typescript: type checking ..."
 npx tsc
 
-echo "Vite: Build bundled web pages ..."
+echo -e "\nVite: Build bundled web pages ..."
 npx vite build
 
-echo -e "\nVite: Building library ..."
+echo -e "\nVite: Building library and node test files ..."
 npx vite build --config vite.config-lib.ts
 
-echo -e "\nMove static Mocha test files to dist/test ..."
-cp test/mocha* dist/test
