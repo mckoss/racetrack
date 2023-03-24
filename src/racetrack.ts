@@ -8,12 +8,21 @@ import carSpriteImage from './images/car-sheet.png';
 export { Racetrack, U_TRACK, OVAL, BIG_OVAL };
 export type { CarState, MoveOption, CarUpdate };
 
+// Data used by racer, and provided to stats subscribers.
+// We try not to included derived data here (like average speed)
+// since it is just distanceTraveled / step (or finishTime when finihed).
 interface CarState {
     status: 'running' | 'crashed' | 'finished' | 'error';
     step: number;
     position: Point;
     velocity: Point;
     crashPosition?: Point;
+    topSpeed: number;
+    distanceTraveled: number;
+    racePosition: number;
+    // Only the needed fraction of the last step is included in the finishTime
+    // to break ties between racers that finish in the same step interval.
+    finishTime?: number;
 }
 
 interface MoveOption {
@@ -21,6 +30,12 @@ interface MoveOption {
     position: Point;
     distanceToFinish: number | undefined;
     status: 'ok' | 'crashed' | 'finished';
+}
+
+interface Stats {
+    step: number;
+    status: 'running' | 'finished';
+    cars: CarState[];
 }
 
 type CarUpdate = (state: CarState, options: MoveOption[]) => Point;
@@ -53,7 +68,10 @@ class Racetrack {
     dimGrid: Point;
     ctx: CanvasRenderingContext2D;
     path: Path2D = new Path2D();
-    polePositions: Generator<Point>;
+
+    // We dole out start positions at random for each race.
+    polePositions: Point[];
+    availableStarts: number[] = [];
 
     // Positions are all in grid units (not pixel coordinates)
     // String keys use the id() function of a Point
@@ -66,6 +84,8 @@ class Racetrack {
     updates: CarUpdate[] = [];
     cars: CarState[] = [];
     histories: Point[][] = [];
+
+    statSubs: ((stats: Stats) => void)[] = [];
 
     // A race is in progress.
     isRunning = false;
@@ -84,7 +104,7 @@ class Racetrack {
 
         const startGrid = this.pixelsToGrid(this.track.startLine) as [Point, Point]
         const finishGrid = this.pixelsToGrid(this.track.finishLine) as [Point, Point]
-        this.polePositions = this.linePoints(...startGrid);
+        this.polePositions = Array.from(this.linePoints(...startGrid));
         this.finishPositions = new Set(Array.from(this.linePoints(...finishGrid)).map(id));
         this.calculateFinishDistances();
 
@@ -104,20 +124,40 @@ class Racetrack {
         parent.appendChild(buttonBar.container);
     }
 
+    subscribeStats(sub: (stats: Stats) => void) {
+        this.statSubs.push(sub);
+    }
+
+    getStats(): Stats {
+        return {
+            step: this.stepNumber,
+            status: this.isRunning ? 'running' : 'finished',
+            cars: this.cars,
+        };
+    }
+
+    updateStatsSubs() {
+        const stats = this.getStats();
+        for (let sink of this.statSubs) {
+            sink(stats);
+        }
+    }
+
     reset() {
         this.stepNumber = 0;
         this.isRunning = false;
 
         this.cars = [];
         this.histories = [];
+
+        // Clear out past history and re-register all the racer's update functions.
+        this.availableStarts = [];
         const updates = this.updates;
         this.updates = [];
-        const startGrid = this.pixelsToGrid(this.track.startLine) as [Point, Point]
-        this.polePositions = this.linePoints(...startGrid);
-
         for (let update of updates) {
             this.race(update);
         }
+
         this.refresh();
     }
 
@@ -352,26 +392,26 @@ class Racetrack {
         return this.finishPositions.has(id(point));
     }
 
+    pickStartPosition(): Point {
+        if (this.availableStarts.length === 0) {
+            this.availableStarts = shuffle(Array.from(range(this.polePositions.length)));
+        }
+        const index = this.availableStarts.pop()!;
+        return this.polePositions[index];
+    }
+
     race(update: CarUpdate) {
         this.updates.push(update);
-        const start = this.polePositions.next().value;
-        if (!start) {
-            console.error("Ran out of starting positions.");
-            this.cars.push({
-                status: 'error',
-                step: 0,
-                position: [0, 0],
-                velocity: [0, 0],
-            });
-            this.histories.push([]);
-            return;
-        }
+        const start = this.pickStartPosition();
 
         this.cars.push({
             status: 'running',
             step: 0,
             position: start,
             velocity: [0, 0],
+            topSpeed: 0,
+            distanceTraveled: 0,
+            racePosition: 1,
         });
         this.histories.push([start]);
     }
@@ -389,7 +429,15 @@ class Racetrack {
 
             car.step = this.stepNumber;
             const update = this.updates[i];
-            let delta = update(car, this.moveOptions(car));
+            let delta: Point;
+            try {
+                delta = update(car, this.moveOptions(car));
+            } catch (e) {
+                console.error(`Car ${i+1}: ${e}`);
+                car.status = 'error';
+                continue;
+            }
+
             if (!delta) {
                 console.warn(`Car ${i} is not responding.`);
                 delta = [0, 0];
@@ -428,6 +476,7 @@ class Racetrack {
         }
 
         this.refresh();
+        this.updateStatsSubs();
 
         function valid(d: number): boolean {
             return [-1, 0, 1].includes(d);
@@ -515,5 +564,20 @@ class Racetrack {
                 this.dot(x, y, 'red');
             }
         }
+    }
+}
+
+function shuffle<T>(array: T[]): T[] {
+    const result = array.slice();
+    for (let i = result.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [result[i], result[j]] = [result[j], result[i]];
+    }
+    return result;
+}
+
+function* range(count: number): Generator<number> {
+    for (let i = 0; i < count; i++) {
+        yield i;
     }
 }
