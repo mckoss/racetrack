@@ -1,7 +1,8 @@
 import { Point, linePoints, add, sub, scale, round, ceil, isZero, scaleToBox,
-         id, pointFromId, neighbors } from './points.js';
+         length, id, pointFromId, neighbors } from './points.js';
 import { Track, U_TRACK, OVAL, BIG_OVAL } from './tracks.js';
 import { ButtonBar } from './button-bar.js';
+import { testBool, testValue } from './util.js';
 
 import carSpriteImage from './images/car-sheet.png';
 
@@ -18,6 +19,7 @@ interface CarState {
     velocity: Point;
     crashPosition?: Point;
     topSpeed: number;
+    distanceToFinish?: number;
     distanceTraveled: number;
     racePosition: number;
     // Only the needed fraction of the last step is included in the finishTime
@@ -129,11 +131,45 @@ class Racetrack {
     }
 
     getStats(): Stats {
+        this.calculateRacePositions();
         return {
             step: this.stepNumber,
             status: this.isRunning ? 'running' : 'finished',
             cars: this.cars,
         };
+    }
+
+    // For tied positions, we give both cars the smaller position number
+    // (for example we can have one car in 1st, and then the next 2 cars in 2nd).
+    calculateRacePositions() {
+        const cars = [...this.cars];
+
+        cars.sort(cmpCars);
+
+        // Modify CarState in place
+        let position = 1;
+        for (let index = 0; index < cars.length; index++) {
+            if (index > 0 && cmpCars(cars[index - 1], cars[index]) !== 0) {
+                position++;
+            }
+            cars[index].racePosition = position;
+        }
+
+        function cmpCars(a: CarState, b: CarState): number {
+            // Cars must be in the running
+            let t = testBool(a, b,
+                (c) => c.status === 'running' || c.status === 'finished');
+            if (t !== 0) {
+                return t;
+            }
+
+            t = testValue(a, b, (c) => c.distanceToFinish);
+            if (t !== 0) {
+                return t;
+            }
+
+            return testValue(a, b, (c) => c.finishTime);
+        }
     }
 
     updateStatsSubs() {
@@ -412,6 +448,7 @@ class Racetrack {
             topSpeed: 0,
             distanceTraveled: 0,
             racePosition: 1,
+            distanceToFinish: this.finishDistances.get(id(start)),
         });
         this.histories.push([start]);
     }
@@ -446,11 +483,21 @@ class Racetrack {
                 car.status = 'error';
                 continue;
             }
+
             car.crashPosition = undefined;
             car.velocity = add(car.velocity, delta);
+
+            const speed = length(car.velocity);
+            if (speed > car.topSpeed) {
+                car.topSpeed = speed;
+            }
+
             const endPosition = add(car.position, car.velocity);
             const result = this.driveLine(car.position, endPosition);
+            car.distanceTraveled += length(sub(result.position, car.position));
             car.position = result.position;
+            car.distanceToFinish = this.finishDistances.get(id(car.position));
+
             this.histories[i].push(car.position);
             if (result.status !== 'ok') {
                 car.status = result.status;
@@ -475,9 +522,6 @@ class Racetrack {
             }
         }
 
-        this.refresh();
-        this.updateStatsSubs();
-
         function valid(d: number): boolean {
             return [-1, 0, 1].includes(d);
         }
@@ -492,6 +536,9 @@ class Racetrack {
         const whenDone =  new Promise<void>((resolve) => {
             resolver = resolve;
         });
+
+        // Report on all the starting positions.
+        self.updateStatsSubs();
 
         nextFrame();
 
@@ -511,6 +558,9 @@ class Racetrack {
             }
 
             self.step();
+
+            self.refresh();
+            self.updateStatsSubs();
 
             if (delay) {
                 setTimeout(() => {

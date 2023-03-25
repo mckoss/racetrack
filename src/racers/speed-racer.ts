@@ -1,5 +1,6 @@
 import { CarState, MoveOption } from '../racetrack.js';
 import { Point, add, sub, isZero, scale, sign, isEqual } from '../points.js';
+import { testBool, testValue } from '../util.js';
 
 import { isSafe } from './racer-helper.js';
 
@@ -84,18 +85,4 @@ function update(state: CarState, options: MoveOption[]): Point {
 
         return 0.5 - Math.random();
     }
-}
-
-// Return negative if only a has boolean attribute, positibe if only b has boolean
-// attribute, 0 if they both have the same boolean attribute.
-function testBool<T>(a: T, b: T, f: (x: T) => boolean): number {
-    const aBool = f(a);
-    const bBool = f(b);
-    return aBool === bBool ? 0 : aBool ? -1 : 1;
-}
-
-function testValue<T>(a: T, b: T, f: (x: T) => number): number {
-    const aVal = f(a);
-    const bVal = f(b);
-    return aVal - bVal;
 }

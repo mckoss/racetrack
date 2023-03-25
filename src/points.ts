@@ -1,5 +1,5 @@
 export { linePoints, add, sub, scale, ceil, round, isZero, isEqual, sign,
-    scaleToBox, id, pointFromId, neighbors };
+    length, scaleToBox, id, pointFromId, neighbors };
 export type { Point };
 
 // x, y coordinates
@@ -52,6 +52,10 @@ function add(a: Point, b: Point): Point {
 
 function sub(a: Point, b: Point): Point {
     return [a[0] - b[0], a[1] - b[1]];
+}
+
+function length([x, y]: Point): number {
+    return Math.sqrt(x * x + y * y);
 }
 
 function scale(factor: number, [x, y]: Point): Point {
