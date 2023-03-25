@@ -494,7 +494,8 @@ class Racetrack {
 
             const endPosition = add(car.position, car.velocity);
             const result = this.driveLine(car.position, endPosition);
-            car.distanceTraveled += length(sub(result.position, car.position));
+            const segmentLength = length(sub(result.position, car.position))
+            car.distanceTraveled += segmentLength;
             car.position = result.position;
             car.distanceToFinish = this.finishDistances.get(id(car.position));
 
@@ -502,6 +503,10 @@ class Racetrack {
             if (result.status !== 'ok') {
                 car.status = result.status;
                 const message = `Car ${i+1} ${result.status} after ${this.stepNumber} steps at ${result.position}`;
+                if (result.status === 'finished') {
+                    const fraction = segmentLength / length(sub(endPosition, car.position));
+                    car.finishTime = (this.stepNumber - 1) + fraction;
+                }
                 if (result.status === 'crashed') {
                     console.warn(message);
                 } else {

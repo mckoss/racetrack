@@ -143,6 +143,15 @@ suite('Racetrack', function () {
         const stats = rt.getStats();
         assert.equal(stats.step, 14);
         assert.equal(stats.status, 'finished');
+        const [winner, loser] = stats.cars;
+        assert.equal(winner.status, 'finished');
+        assert.equal(loser.status, 'crashed');
+        assert.equal(winner.racePosition, 1);
+        assert.equal(loser.racePosition, 2);
+        assert.approximately(winner.distanceTraveled, 42.4, 0.01);
+        assert.approximately(loser.distanceTraveled, 30, 20);
+        assert.isUndefined(loser.finishTime);
+        assert.approximately(winner.finishTime, 13.1, 0.1);
     });
 });
 
