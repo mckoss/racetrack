@@ -465,6 +465,9 @@ class Racetrack {
 
     // Step through all cars and update positions
     step() {
+        if (this.isRaceDone()) {
+            return;
+        }
         this.stepNumber += 1;
         for (let i = 0; i < this.cars.length; i++) {
             const car = this.cars[i];
@@ -537,6 +540,8 @@ class Racetrack {
             }
         }
 
+        this.refresh();
+
         function valid(d: number): boolean {
             return [-1, 0, 1].includes(d);
         }
@@ -567,7 +572,6 @@ class Racetrack {
             }
 
             self.step();
-            self.refresh();
 
             if (self.isRaceDone()) {
                 self.isRunning = false;
