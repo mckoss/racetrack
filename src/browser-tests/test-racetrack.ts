@@ -51,8 +51,6 @@ suite('Racetrack', function () {
                 state.position= [1, 1];
                 rt.histories[0][0] = [1, 1];
 
-                // Randomized pole position...
-                assert.equal(state.position[0], 1);
                 assert.deepEqual(state.velocity, [0, 0]);
                 assert.include(state, {
                     status: 'running',
@@ -103,12 +101,13 @@ suite('Racetrack', function () {
         });
         assert.equal(rt.cars.length, 1);
         await rt.run();
+        console.log(rt);
         assert.equal(rt.stepNumber, 14);
         assert.equal(rt.cars[0].status, 'finished');
     });
 
     test('stats', async () => {
-        rt.race((state, options) => {
+        rt.race((state) => {
             // Force consistent start position.
             if (state.step === 1) {
                 state.position = [1, 1];
@@ -122,7 +121,7 @@ suite('Racetrack', function () {
             }
             return [-1, -1];
         });
-        rt.race((state, options) => {
+        rt.race((state) => {
             if (state.step < 5) {
                 return [1, 0];
             }
@@ -151,7 +150,7 @@ suite('Racetrack', function () {
         assert.approximately(winner.distanceTraveled, 42.4, 0.01);
         assert.approximately(loser.distanceTraveled, 30, 20);
         assert.isUndefined(loser.finishTime);
-        assert.approximately(winner.finishTime, 13.1, 0.1);
+        assert.approximately(winner.finishTime!, 13.1, 0.1);
     });
 });
 

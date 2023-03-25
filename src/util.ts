@@ -29,5 +29,8 @@ function testValue<T>(a: T, b: T, f: (x: T) => number | undefined): number {
     if (bVal === undefined) {
         return aVal === undefined ? 0 : -1;
     }
+    if (aVal === undefined) {
+        return 1;
+    }
     return aVal - bVal;
 }
