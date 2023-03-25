@@ -139,6 +139,10 @@ suite('Racetrack', function () {
         });
 
         await rt.run();
+
+        const stats = rt.getStats();
+        assert.equal(stats.step, 14);
+        assert.equal(stats.status, 'finished');
     });
 });
 

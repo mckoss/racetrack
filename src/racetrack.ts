@@ -551,15 +551,17 @@ class Racetrack {
                 return;
             }
 
+            self.step();
+            self.refresh();
+
             if (self.isRaceDone()) {
+                self.isRunning = false;
+                self.updateStatsSubs();
                 console.log(`Race finished in ${self.stepNumber} steps.`);
                 resolver();
                 return;
             }
 
-            self.step();
-
-            self.refresh();
             self.updateStatsSubs();
 
             if (delay) {
