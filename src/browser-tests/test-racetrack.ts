@@ -46,21 +46,32 @@ suite('Racetrack', function () {
             assert.isAtLeast(state.step, 1);
             assert.equal(options.length, 9);
             if (state.step == 1) {
-                assert.deepEqual(state, {
+                // Randomized pole position...cheat here and force it to
+                // be [1, 1] just for TESTING repeatability.
+                state.position= [1, 1];
+                rt.histories[0][0] = [1, 1];
+
+                assert.deepEqual(state.velocity, [0, 0]);
+                assert.include(state, {
                     status: 'running',
                     step: 1,
-                    position: [1, 1],
-                    velocity: [0, 0],
+                    topSpeed: 0,
+                    distanceTraveled: 0,
+                    racePosition: 1,
                 });
                 return [1, 0];
             }
             if (state.step == 2) {
-                assert.deepEqual(state, {
+                assert.equal(state.position[0], 2);
+                assert.deepEqual(state.velocity, [1, 0]);
+                assert.equal(state.position[1], state.crashPosition![1]);
+                assert.isTrue(state.crashPosition![0] >= 19 && state.crashPosition![0] <= 20);
+                assert.deepEqual(state.crashPosition, [19, 1]);
+                assert.include(state, {
                     status: 'running',
                     step: 2,
-                    position: [2, 1],
-                    velocity: [1, 0],
-                    crashPosition: [19, 1]
+                    topSpeed: 1,
+                    distanceTraveled: 1,
                 });
                 return [1, 0];
             }
@@ -90,8 +101,56 @@ suite('Racetrack', function () {
         });
         assert.equal(rt.cars.length, 1);
         await rt.run();
+        console.log(rt);
         assert.equal(rt.stepNumber, 14);
         assert.equal(rt.cars[0].status, 'finished');
+    });
+
+    test('stats', async () => {
+        rt.race((state) => {
+            // Force consistent start position.
+            if (state.step === 1) {
+                state.position = [1, 1];
+                rt.histories[0][0] = [1, 1];
+            }
+            if (state.step < 5) {
+                return [1, 0];
+            }
+            if (state.step < 9) {
+                return [-1, 1];
+            }
+            return [-1, -1];
+        });
+        rt.race((state) => {
+            if (state.step < 5) {
+                return [1, 0];
+            }
+            if (state.step < 10) {
+                return [-1, 1];
+            }
+            return [-1, -1];
+        });
+        let nextStep = 0;
+        rt.subscribeStats((stats) => {
+            assert.equal(stats.step, nextStep);
+            assert.equal(stats.cars.length, 2);
+            nextStep += 1;
+        });
+
+        await rt.run();
+
+        const stats = rt.getStats();
+        assert.equal(stats.step, 14);
+        assert.equal(stats.status, 'finished');
+        const [winner, loser] = stats.cars;
+        assert.equal(winner.status, 'finished');
+        assert.equal(loser.status, 'crashed');
+        assert.equal(winner.racePosition, 1);
+        assert.equal(loser.racePosition, 2);
+        assert.approximately(winner.distanceTraveled, 42.4, 0.01);
+        assert.approximately(loser.distanceTraveled, 30, 20);
+        assert.isUndefined(loser.finishTime);
+        assert.approximately(winner.finishTime!, 13.1, 0.1);
     });
 });
 
