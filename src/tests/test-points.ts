@@ -2,8 +2,6 @@ import { assert } from 'chai';
 
 import { linePoints, Point, scaleToBox, perpendicularLine, fixed, isEqual } from '../points.js';
 
-import type { Track } from '../tracks.js';
-
 suite('Points', () => {
     type lpTest = {
         name: string,
@@ -130,7 +128,7 @@ suite('Points', () => {
     }
 
     test('perpendicularLine', () => {
-        const U_TRACK:Track = {
+        const U_TRACK = {
             name: "U-Track",
             dim: [400, 400],
             grid: 20,
@@ -140,7 +138,7 @@ suite('Points', () => {
             path: [[20, 60], [340, 60], [340, 340], [20, 340]],
         }
 
-        const OVAL:Track = {
+        const OVAL = {
             name: "Oval",
             dim: [800, 400],
             grid: 20,
@@ -150,7 +148,7 @@ suite('Points', () => {
             path: [[400, 60], [740, 60], [740, 340], [60, 340], [60, 60], [360, 60]],
         }
 
-        const BIG_OVAL:Track = {
+        const BIG_OVAL = {
             name: "Big Oval",
             dim: [800, 400],
             grid: 10,
@@ -162,13 +160,13 @@ suite('Points', () => {
 
         let i = 1;
         for (const t of [ U_TRACK, OVAL, BIG_OVAL ]) {
-            let path: Point[] = t.path.slice(0, 2);
+            let path: Point[] = t.path.slice(0, 2) as Point[];
             let p = perpendicularLine(path[0], path[1], t.trackWidth);
-            assert.isTrue(sameLine(p, t.startLine!), `${i} Start`);
+            assert.isTrue(sameLine(p, t.startLine as Point[]), `${i} Start`);
 
-            path = t.path.slice(-2);
+            path = t.path.slice(-2) as Point[];
             p = perpendicularLine(path[1], path[0], t.trackWidth);
-            assert.isTrue(sameLine(p, t.finishLine!), `${i} Finish`);
+            assert.isTrue(sameLine(p, t.finishLine as Point[]), `${i} Finish`);
             i += 1;
         }
 

@@ -1,6 +1,6 @@
 import { Point, linePoints, add, sub, scale, round, ceil, isZero, scaleToBox,
-         length, id, pointFromId, neighbors } from './points.js';
-import { Track, U_TRACK, OVAL, BIG_OVAL, ensureLines } from './tracks.js';
+         length, id, pointFromId, neighbors, perpendicularLine } from './points.js';
+import { Track, U_TRACK, OVAL, BIG_OVAL } from './tracks.js';
 import { ButtonBar } from './button-bar.js';
 import { testBool, testValue, shuffle, range } from './util.js';
 
@@ -71,6 +71,9 @@ class Racetrack {
     ctx: CanvasRenderingContext2D;
     path: Path2D = new Path2D();
 
+    startLine: [Point, Point];
+    finishLine: [Point, Point];
+
     // We dole out start positions at random for each race.
     polePositions: Point[];
     availableStarts: number[] = [];
@@ -96,8 +99,6 @@ class Racetrack {
         this.canvas = canvas;
         this.track = track;
 
-        ensureLines(track);
-
         this.ctx = canvas.getContext('2d')!;
 
         this.canvas.width = this.track.dim[0];
@@ -107,8 +108,14 @@ class Racetrack {
 
         this.calculateTrackPath();
 
-        const startGrid = this.pixelsToGrid(this.track.startLine!) as [Point, Point]
-        const finishGrid = this.pixelsToGrid(this.track.finishLine!) as [Point, Point]
+        this.startLine = perpendicularLine(track.path[0], track.path[1], track.trackWidth);
+        this.finishLine = perpendicularLine(
+            track.path[track.path.length - 1],
+            track.path[track.path.length - 2],
+            track.trackWidth);
+
+        const startGrid = this.pixelsToGrid(this.startLine) as [Point, Point]
+        const finishGrid = this.pixelsToGrid(this.finishLine) as [Point, Point]
         this.polePositions = Array.from(this.linePoints(...startGrid));
         this.finishPositions = new Set(Array.from(this.linePoints(...finishGrid)).map(id));
         this.calculateFinishDistances();
@@ -291,21 +298,21 @@ class Racetrack {
         this.ctx.lineWidth = 5;
         this.ctx.strokeStyle = '#00e000';
         this.ctx.beginPath();
-        this.ctx.moveTo(this.track.startLine![0][0], this.track.startLine![0][1]);
-        this.ctx.lineTo(this.track.startLine![1][0], this.track.startLine![1][1]);
+        this.ctx.moveTo(...this.startLine[0]);
+        this.ctx.lineTo(...this.startLine[1]);
         this.ctx.stroke();
 
         this.ctx.strokeStyle = 'red';
         this.ctx.beginPath();
-        this.ctx.moveTo(this.track.finishLine![0][0], this.track.finishLine![0][1]);
-        this.ctx.lineTo(this.track.finishLine![1][0], this.track.finishLine![1][1]);
+        this.ctx.moveTo(...this.finishLine[0]);
+        this.ctx.lineTo(...this.finishLine[1]);
         this.ctx.stroke();
 
-        for (let point of this.linePoints(...this.track.startLine!)) {
+        for (let point of this.linePoints(...this.startLine)) {
             this.dot(point[0], point[1], 'green');
         }
 
-        for (let point of this.linePoints(...this.track.finishLine!)) {
+        for (let point of this.linePoints(...this.finishLine)) {
             this.dot(point[0], point[1], 'darkred');
         }
     }

@@ -1,16 +1,14 @@
-import { perpendicularLine, Point } from "./points";
+import { Point } from "./points";
 
 export type { Track };
 
-export { U_TRACK, OVAL, BIG_OVAL, ensureLines };
+export { U_TRACK, OVAL, BIG_OVAL };
 
 // Definition of a specific track
 interface Track {
     name: string;
     dim: Point,
     grid: number;
-    startLine?: [Point, Point];
-    finishLine?: [Point, Point];
 
     trackWidth: number;
     path: Point[];
@@ -38,13 +36,4 @@ const BIG_OVAL:Track = {
     grid: 10,
     trackWidth: 70,
     path: [[400, 40], [760, 40], [760, 360], [40, 360], [40, 40], [380, 40]],
-}
-
-function ensureLines(t: Track) {
-    if (!t.startLine) {
-        t.startLine = perpendicularLine(t.path[0], t.path[1], t.trackWidth);
-    }
-    if (!t.finishLine) {
-        t.finishLine = perpendicularLine(t.path[t.path.length - 1], t.path[t.path.length - 2], t.trackWidth);
-    }
 }
