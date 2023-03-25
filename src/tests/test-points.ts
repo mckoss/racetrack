@@ -1,6 +1,8 @@
 import { assert } from 'chai';
 
-import { linePoints, Point, scaleToBox } from '../points.js';
+import { linePoints, Point, scaleToBox, perpendicularLine, fixed, isEqual } from '../points.js';
+
+import type { Track } from '../tracks.js';
 
 suite('Points', () => {
     type lpTest = {
@@ -126,6 +128,56 @@ suite('Points', () => {
             }
         }
     }
+
+    test('perpendicularLine', () => {
+        const U_TRACK:Track = {
+            name: "U-Track",
+            dim: [400, 400],
+            grid: 20,
+            startLine: [[20, 10], [20, 110]],
+            finishLine: [[20, 290], [20, 390]],
+            trackWidth: 100,
+            path: [[20, 60], [340, 60], [340, 340], [20, 340]],
+        }
+
+        const OVAL:Track = {
+            name: "Oval",
+            dim: [800, 400],
+            grid: 20,
+            startLine: [[400, 10], [400, 110]],
+            finishLine: [[360, 10], [360, 110]],
+            trackWidth: 100,
+            path: [[400, 60], [740, 60], [740, 340], [60, 340], [60, 60], [360, 60]],
+        }
+
+        const BIG_OVAL:Track = {
+            name: "Big Oval",
+            dim: [800, 400],
+            grid: 10,
+            startLine: [[400, 5], [400, 75]],
+            finishLine: [[380, 5], [380, 75]],
+            trackWidth: 70,
+            path: [[400, 40], [760, 40], [760, 360], [40, 360], [40, 40], [380, 40]],
+        }
+
+        let i = 1;
+        for (const t of [ U_TRACK, OVAL, BIG_OVAL ]) {
+            let path: Point[] = t.path.slice(0, 2);
+            let p = perpendicularLine(path[0], path[1], t.trackWidth);
+            assert.isTrue(sameLine(p, t.startLine!), `${i} Start`);
+
+            path = t.path.slice(-2);
+            p = perpendicularLine(path[1], path[0], t.trackWidth);
+            assert.isTrue(sameLine(p, t.finishLine!), `${i} Finish`);
+            i += 1;
+        }
+
+        function sameLine(l1: Point[], l2: Point[]): boolean {
+            l1 = l1.map(fixed);
+            return isEqual(l1[0], l2[0]) && isEqual(l1[1], l2[1]) ||
+                isEqual(l1[0], l2[1]) && isEqual(l1[1], l2[0]);
+        }
+    });
 });
 
 function reflect(p: Point): Point {

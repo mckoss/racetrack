@@ -1,5 +1,5 @@
 export { linePoints, add, sub, scale, ceil, round, isZero, isEqual, sign,
-    length, scaleToBox, id, pointFromId, neighbors };
+    length, unit, turn, perpendicularLine, fixed, scaleToBox, id, pointFromId, neighbors };
 export type { Point };
 
 // x, y coordinates
@@ -58,6 +58,10 @@ function length([x, y]: Point): number {
     return Math.sqrt(x * x + y * y);
 }
 
+function unit(v: Point): Point {
+    return scale(1/length(v), v);
+}
+
 function scale(factor: number, [x, y]: Point): Point {
     return [x * factor, y * factor];
 }
@@ -88,6 +92,22 @@ function isEqual(a: Point, b: Point): boolean {
 
 function sign([x, y]: Point): Point {
     return [Math.sign(x), Math.sign(y)];
+}
+
+function turn([x, y]: Point, turns: number): Point {
+    const rad = turns * 2 * Math.PI;
+    const cos = Math.cos(rad);
+    const sin = Math.sin(rad);
+    return [x * cos - y * sin, x * sin + y * cos];
+}
+
+function fixed([x, y]: Point, digits = 3): Point {
+    return [r(x), r(y)];
+
+    function r(n: number): number {
+        const scale = Math.pow(10, digits);
+        return Math.round(n * scale) / scale;
+    }
 }
 
 // Scale point so that maximum dimension equals one of the dimensions of a
@@ -121,4 +141,11 @@ function* neighbors(p: Point, grid = 1): Generator<Point> {
             yield add(p, [dx, dy]);
         }
     }
+}
+
+// Calculate a start or finish line from the starting (ending) point
+// and it's adjacent point.
+function perpendicularLine(p1:Point, p2:Point, width:number): [Point, Point] {
+    const v = scale(width / 2, turn(unit(sub(p2, p1)), -0.25));
+    return [add(p1, v), sub(p1, v)];
 }

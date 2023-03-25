@@ -34,7 +34,7 @@ suite('Racetrack', function () {
 
     test('finish line points', () => {
         const expected = Array.from(range(15, 20)).map(x => [1, x]);
-        const gridPoints = rt.pixelsToGrid(U_TRACK.finishLine) as [Point, Point];
+        const gridPoints = rt.pixelsToGrid(U_TRACK.finishLine!) as [Point, Point];
         const points = Array.from(rt.linePoints(...gridPoints));
         assert.equal(points.length, expected.length);
         assert.deepEqual(points, expected);

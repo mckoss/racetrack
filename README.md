@@ -123,8 +123,6 @@ interface Track {
     name: string,
     dim: Point,
     grid: number;
-    startLine: [Point, Point];
-    finishLine: [Point, Point];
 
     trackWidth: number;
     path: Point[];
@@ -134,11 +132,6 @@ interface Track {
 ```dim``` Dimensions of the canvas element (in pixels).
 
 ```grid``` The spacing of the grid (number of pixels between grid points).
-
-```startline``` The pixel coordinates of a line segment defining the starting
-line.
-
-```finishLine``` Same for the finishing line.
 
 ```trackWidth``` How wide the track path is in pixels.
 
@@ -152,8 +145,6 @@ The example ```U_TRACK``` is defined as:
     name: "U-Track",
     dim: [400, 400],
     grid: 20,
-    startLine: [[20, 10], [20, 110]],
-    finishLine: [[20, 290], [20, 390]],
     trackWidth: 100,
     path: [[20, 60], [340, 60], [340, 340], [20, 340]],
 }
