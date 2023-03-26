@@ -17,6 +17,7 @@ export default defineConfig({
     lib: {
       entry: {
         'racetrack': src('racetrack.ts'),
+        'racetrack-controls': src('racetrack-controls.ts'),
         'car-sheet': src('images/car-sheet.png'),
         'points': src('points.ts'),
         'button-bar': src('button-bar.ts'),

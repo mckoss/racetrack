@@ -1,6 +1,7 @@
 import { assert } from 'chai';
 
-import { Racetrack, OVAL } from '../racetrack.js';
+import { Racetrack } from '../racetrack.js';
+import { OVAL } from '../tracks.js';
 
 import { update } from '../racers/creeper.js';
 import { MJLRacer1 } from "../racers/mjl-racer1.js";

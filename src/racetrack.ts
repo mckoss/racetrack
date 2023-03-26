@@ -1,12 +1,11 @@
 import { Point, linePoints, add, sub, scale, round, ceil, isZero, scaleToBox,
          length, id, pointFromId, neighbors, perpendicularLine } from './points.js';
-import { Track, U_TRACK, OVAL, BIG_OVAL } from './tracks.js';
+import type { Track } from './tracks.js';
 import { testBool, testValue, shuffle, range } from './util.js';
-import { RacetrackControls } from './racetrack-controls.js';
 
 import carSpriteImage from './images/car-sheet.png';
 
-export { Racetrack, RacetrackControls, U_TRACK, OVAL, BIG_OVAL };
+export { Racetrack };
 export type { CarState, MoveOption, CarUpdate };
 
 // Data used by racer, and provided to stats subscribers.

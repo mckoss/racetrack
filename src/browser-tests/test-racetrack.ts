@@ -1,6 +1,7 @@
 import { assert } from 'chai';
 
-import { Racetrack, U_TRACK } from '../racetrack.js';
+import { Racetrack } from '../racetrack.js';
+import { U_TRACK } from '../tracks.js';
 import { Point } from '../points.js';
 
 suite('Racetrack', function () {

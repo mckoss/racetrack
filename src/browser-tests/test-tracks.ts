@@ -1,7 +1,7 @@
 import { assert } from 'chai';
 
-import { Racetrack, U_TRACK, OVAL, BIG_OVAL } from '../racetrack.js';
-
+import { Racetrack } from '../racetrack.js';
+import { U_TRACK, OVAL, BIG_OVAL } from '../tracks.js';
 import { update } from '../racers/creeper.js';
 
 
