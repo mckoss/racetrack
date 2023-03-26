@@ -1,7 +1,6 @@
 import { Point, linePoints, add, sub, scale, round, ceil, isZero, scaleToBox,
          length, id, pointFromId, neighbors, perpendicularLine } from './points.js';
 import { Track, U_TRACK, OVAL, BIG_OVAL } from './tracks.js';
-import { ButtonBar } from './button-bar.js';
 import { testBool, testValue, shuffle, range } from './util.js';
 
 import carSpriteImage from './images/car-sheet.png';
@@ -121,19 +120,6 @@ class Racetrack {
         this.calculateFinishDistances();
 
         this.refresh();
-    }
-
-    addControls(parent: HTMLElement) {
-        const buttonBar = new ButtonBar([
-            { label: "Reset", action: () => this.reset() },
-            { label: "Step", action: () => {
-                this.isRunning = false;
-                this.step();
-              }
-            },
-            { label: "Run", action: () => this.run(100) },
-        ]);
-        parent.appendChild(buttonBar.container);
     }
 
     subscribeStats(sub: (stats: Stats) => void) {

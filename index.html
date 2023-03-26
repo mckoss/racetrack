@@ -67,6 +67,7 @@
 
     <script type="module">
         import { Racetrack, U_TRACK, BIG_OVAL, OVAL } from './src/racetrack.ts';
+        import { RacetrackControls } from './src/racetrack-controls.ts';
         import { MJLRacer1 } from "./src/racers/mjl-racer1.ts";
         import { update as mjlRacer2 } from "./src/racers/mjl-racer2.ts";
         import { update as creeper } from "./src/racers/creeper.ts";
@@ -81,9 +82,7 @@
 
             addRacers(rt);
 
-            rt.addControls(document.body);
-
-            // await rt.run(100);
+            new RacetrackControls(document.body, rt);
         }
 
         function addRacers(rt) {
