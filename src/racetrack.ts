@@ -46,6 +46,10 @@ interface DriveResult {
     position: Point;
 }
 
+interface Options {
+    showGrid?: boolean;
+}
+
 const CAR_COLORS = [ 'orange', 'green', 'blue', 'red', 'purple' ];
 
 // Car images stored in a sprite sheet
@@ -94,9 +98,17 @@ class Racetrack {
     // A race is in progress.
     isRunning = false;
 
-    constructor(canvas: HTMLCanvasElement, track: Track) {
+    options: Options = {
+        showGrid: true
+    }
+
+    constructor(canvas: HTMLCanvasElement, track: Track, options? : Options) {
         this.canvas = canvas;
         this.track = track;
+
+        if (options) {
+            this.setOptions(options);
+        }
 
         this.ctx = canvas.getContext('2d')!;
 
@@ -120,6 +132,10 @@ class Racetrack {
         this.calculateFinishDistances();
 
         this.refresh();
+    }
+
+    setOptions(options: Options) {
+        this.options = { ...this.options, ...options };
     }
 
     subscribeStats(sub: (stats: Stats) => void) {
@@ -304,10 +320,12 @@ class Racetrack {
     }
 
     drawDots() {
-        for (let point of this.gridPoints()) {
-            const [x, y] = scale(this.track.grid, point);
-            if (this.isPointInTrack(point)) {
-                this.dot(x, y, 'white');
+        if (this.options.showGrid) {
+            for (let point of this.gridPoints()) {
+                const [x, y] = scale(this.track.grid, point);
+                if (this.isPointInTrack(point)) {
+                    this.dot(x, y, 'white');
+                }
             }
         }
 
@@ -316,19 +334,21 @@ class Racetrack {
             this.dot(x, y, 'red');
         }
 
-        // Add distances to reach the finish line to the grid.
-        this.ctx.fillStyle = 'black';
-        this.ctx.font = '12px sans-serif';
-        this.ctx.textAlign = 'center';
-        this.ctx.textBaseline = 'middle';
-        for (let point of this.gridPoints()) {
-            if (this.track.grid < 20 && point[0] % 5 !== 0) {
-                continue;
-            }
-            const [x, y] = scale(this.track.grid, point);
-            const pos = id(point);
-            if (this.finishDistances.has(pos)) {
-                this.ctx.fillText(this.finishDistances.get(pos)!.toString(), x, y);
+        if (this.options.showGrid) {
+            // Add distances to reach the finish line to the grid.
+            this.ctx.fillStyle = 'black';
+            this.ctx.font = '12px sans-serif';
+            this.ctx.textAlign = 'center';
+            this.ctx.textBaseline = 'middle';
+            for (let point of this.gridPoints()) {
+                if (this.track.grid < 20 && point[0] % 5 !== 0) {
+                    continue;
+                }
+                const [x, y] = scale(this.track.grid, point);
+                const pos = id(point);
+                if (this.finishDistances.has(pos)) {
+                    this.ctx.fillText(this.finishDistances.get(pos)!.toString(), x, y);
+                }
             }
         }
     }
@@ -447,6 +467,7 @@ class Racetrack {
             distanceToFinish: this.finishDistances.get(id(start)),
         });
         this.histories.push([start]);
+        this.refresh();
     }
 
     // Step through all cars and update positions

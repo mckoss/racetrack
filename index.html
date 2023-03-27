@@ -79,7 +79,7 @@
         for (const track of [U_TRACK, OVAL, BIG_OVAL]) {
             const canvas = document.createElement('canvas');
             document.body.appendChild(canvas);
-            const rt = new Racetrack(canvas, track);
+            const rt = new Racetrack(canvas, track, { showGrid: false });
 
             addRacers(rt);
 

@@ -18,8 +18,16 @@ class RacetrackControls {
                 }
             },
             { label: "Run", action: () => this.rt.run(100) },
+            { type: "checkbox",
+              label: "Show Grid",
+              value: false,
+              action: (checked) => {
+                this.rt.setOptions({ showGrid: checked});
+                this.rt.refresh();
+              }
+             },
         ]);
-        parent.appendChild(buttonBar.container);
+        parent.appendChild(buttonBar.getElement());
     }
 
     attach(rt: Racetrack) {
