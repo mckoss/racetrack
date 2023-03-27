@@ -69,37 +69,23 @@
         import { Racetrack } from './src/racetrack.ts';
         import { U_TRACK, OVAL, BIG_OVAL } from './src/tracks.ts';
         import { RacetrackControls } from './src/racetrack-controls.ts';
-        import { MJLRacer1 } from "./src/racers/mjl-racer1.ts";
+
+        // import { MJLRacer1 } from "./src/racers/mjl-racer1.ts";
         import { update as mjlRacer2 } from "./src/racers/mjl-racer2.ts";
         import { update as creeper } from "./src/racers/creeper.ts";
         import { update as jcreeper } from "./src/racers/jcreeper.ts";
-        import { racer as gpt4 } from "./src/racers/chat-gpt4.ts";
+        // import { racer as gpt4 } from "./src/racers/chat-gpt4.ts";
         import { update as speedRacer } from "./src/racers/speed-racer.ts";
 
-        for (const track of [U_TRACK, OVAL, BIG_OVAL]) {
-            const canvas = document.createElement('canvas');
-            document.body.appendChild(canvas);
-            const rt = new Racetrack(canvas, track, { showGrid: false });
+        const canvas = document.createElement('canvas');
+        document.body.appendChild(canvas);
 
-            addRacers(rt);
-
-            new RacetrackControls(document.body, rt);
-        }
-
-        function addRacers(rt) {
-            rt.race(creeper);
-
-            const mjl1 = new MJLRacer1(rt);
-            rt.race(mjl1.update.bind(mjl1));
-
-            rt.race(jcreeper);
-
-            // rt.race(gpt4);
-
-            rt.race(speedRacer);
-
-            rt.race(mjlRacer2);
-        }
+        new RacetrackControls(
+            document.body,
+            canvas,
+            [U_TRACK, OVAL, BIG_OVAL],
+            [creeper, jcreeper, mjlRacer2, speedRacer],
+        );
 
     </script>
 </body>

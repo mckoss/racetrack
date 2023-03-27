@@ -5,11 +5,11 @@
 // lay out in one or more rows as needed to fit the available space.
 
 export { ButtonBar };
+export type { Element };
 
 interface ElementInfo {
     type?: 'button' | 'checkbox' | 'choice';
     label: string;
-    value?: boolean | string;
 }
 
 interface ButtonInfo extends ElementInfo {
@@ -25,7 +25,15 @@ interface CheckboxInfo extends ElementInfo {
     action: (checked: boolean) => void;
 }
 
-type Element = ButtonInfo | CheckboxInfo
+interface ChoiceInfo extends ElementInfo {
+    type: 'choice';
+    label: string;
+    value: string;
+    choices: string[];
+    action: (choice: string) => void;
+}
+
+type Element = ButtonInfo | CheckboxInfo | ChoiceInfo;
 
 class ButtonBar {
     elements: Element[];
@@ -47,9 +55,28 @@ class ButtonBar {
                     elt.appendChild(input);
                     elt.appendChild(document.createTextNode(eltInfo.label));
                     input.addEventListener("change", () => {
-                        eltInfo.value = input.checked;
-                        console.log(`Checkbox ${eltInfo.value} clicked`);
-                        eltInfo.action(eltInfo.value!);
+                        const e = eltInfo as CheckboxInfo;
+                        e.value = input.checked;
+                        e.action(e.value);
+                    });
+                    break;
+
+                case 'choice':
+                    const select = document.createElement('select');
+                    for (let choice of eltInfo.choices) {
+                        const option = document.createElement('option');
+                        option.value = choice;
+                        option.textContent = choice;
+                        select.appendChild(option);
+                    }
+                    select.value = eltInfo.value;
+                    elt = document.createElement('label');
+                    elt.textContent = eltInfo.label;
+                    elt.appendChild(select);
+                    select.addEventListener("change", () => {
+                        const e = eltInfo as ChoiceInfo;
+                        e.value = select.value;
+                        e.action(e.value);
                     });
                     break;
 
@@ -57,9 +84,8 @@ class ButtonBar {
                     elt = document.createElement('button');
                     elt.textContent = eltInfo.label;
                     elt.addEventListener("click", () => {
-                        eltInfo.value = !eltInfo.value;
-                        console.log(`Button ${eltInfo.value} clicked`);
-                        eltInfo.action(eltInfo.value!);
+                        const e = eltInfo as ButtonInfo;
+                        e.action();
                     });
                     break;
             }
