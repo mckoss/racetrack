@@ -122,11 +122,10 @@ class Racetrack {
 
         this.calculateTrackPath();
 
-        this.startLine = perpendicularLine(track.path[0], track.path[1], track.trackWidth);
-        this.finishLine = perpendicularLine(
-            track.path[track.path.length - 1],
-            track.path[track.path.length - 2],
-            track.trackWidth);
+        const firstSegment = track.path[0].slice(0, 2) as [Point, Point];
+        const lastSegment = track.path[track.path.length - 1].slice(-2).reverse() as [Point, Point];
+        this.startLine = perpendicularLine(...firstSegment, track.trackWidth);
+        this.finishLine = perpendicularLine(...lastSegment, track.trackWidth);
 
         const startGrid = this.pixelsToGrid(this.startLine) as [Point, Point]
         const finishGrid = this.pixelsToGrid(this.finishLine) as [Point, Point]
@@ -253,9 +252,12 @@ class Racetrack {
     }
 
     calculateTrackPath() {
-        this.path.moveTo(this.track.path[0][0], this.track.path[0][1]);
-        for (let i = 1; i < this.track.path.length; i++) {
-            this.path.lineTo(this.track.path[i][0], this.track.path[i][1]);
+        // Loop through each possibly disjoint path.
+        for (let part of this.track.path) {
+            this.path.moveTo(...part[0]);
+            for (let i = 1; i < part.length; i++) {
+                this.path.lineTo(...part[i]);
+            }
         }
 
         // Cache the track positions

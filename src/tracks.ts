@@ -2,7 +2,7 @@ import { Point, add, scale, turn } from "./points";
 
 export type { Track };
 
-export { U_TRACK, OVAL, BIG_OVAL, snakeTrack, spiralTrack };
+export { U_TRACK, OVAL, BIG_OVAL, X_TRACK, snakeTrack, spiralTrack };
 
 // Definition of a specific track
 interface Track {
@@ -11,7 +11,10 @@ interface Track {
     grid: number;
 
     trackWidth: number;
-    path: Point[];
+    // Allow for multiple paths.  Starting line is at the first point of
+    // the first path, and the finish line is at the last point of the
+    // last path.
+    path: Point[][];
 }
 
 const U_TRACK:Track = {
@@ -19,7 +22,7 @@ const U_TRACK:Track = {
     dim: [400, 400],
     grid: 20,
     trackWidth: 100,
-    path: [[20, 60], [340, 60], [340, 340], [20, 340]],
+    path: [[[20, 60], [340, 60], [340, 340], [20, 340]]],
 }
 
 const OVAL:Track = {
@@ -27,7 +30,7 @@ const OVAL:Track = {
     dim: [800, 400],
     grid: 20,
     trackWidth: 100,
-    path: [[400, 60], [740, 60], [740, 340], [60, 340], [60, 60], [360, 60]],
+    path: [[[400, 60], [740, 60], [740, 340], [60, 340], [60, 60], [360, 60]]],
 }
 
 const BIG_OVAL:Track = {
@@ -35,7 +38,18 @@ const BIG_OVAL:Track = {
     dim: [800, 400],
     grid: 10,
     trackWidth: 70,
-    path: [[400, 40], [760, 40], [760, 360], [40, 360], [40, 40], [380, 40]],
+    path: [[[400, 40], [760, 40], [760, 360], [40, 360], [40, 40], [380, 40]]],
+}
+
+const X_TRACK:Track = {
+    name: "X-Track",
+    dim: [800, 800],
+    grid: 20,
+    trackWidth: 100,
+    path: [
+        [[20, 400], [780, 400]],
+        [[400, 20], [400, 780]],
+    ],
 }
 
 // Build a track that snakes back and forth from top to bottom
@@ -76,7 +90,7 @@ function snakeTrack(width: number, height: number, plys: number): Track {
         dim: [width, height],
         grid,
         trackWidth,
-        path,
+        path: [path],
     };
 }
 
@@ -112,6 +126,6 @@ function spiralTrack(dim: number, turns: number): Track {
         dim: [dim, dim],
         grid,
         trackWidth,
-        path,
+        path: [path],
     };
 }
