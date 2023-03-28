@@ -2,7 +2,7 @@ import { Point, add, scale, turn } from "./points";
 
 export type { Track };
 
-export { U_TRACK, OVAL, BIG_OVAL, X_TRACK, snakeTrack, spiralTrack };
+export { U_TRACK, OVAL, BIG_OVAL, X_TRACK, snakeTrack, spiralTrack, SAMPLE_TRACKS };
 
 // Definition of a specific track
 interface Track {
@@ -93,6 +93,17 @@ function snakeTrack(width: number, height: number, plys: number): Track {
         path: [path],
     };
 }
+
+const SAMPLE_TRACKS = [
+    U_TRACK,
+    OVAL,
+    BIG_OVAL,
+    X_TRACK,
+    snakeTrack(800, 800, 3),
+    snakeTrack(800, 800, 6),
+    spiralTrack(800, 1),
+    spiralTrack(800, 3),
+];
 
 // Make a track that spirals into the center of a square canvas.
 function spiralTrack(dim: number, turns: number): Track {

@@ -68,7 +68,7 @@
 
     <script type="module">
         import { Racetrack } from './src/racetrack.ts';
-        import { U_TRACK, OVAL, BIG_OVAL, X_TRACK, snakeTrack, spiralTrack } from './src/tracks.ts';
+        import { SAMPLE_TRACKS } from './src/tracks.ts';
         import { RacetrackControls } from './src/racetrack-controls.ts';
 
         // import { MJLRacer1 } from "./src/racers/mjl-racer1.ts";
@@ -81,21 +81,10 @@
         const canvas = document.createElement('canvas');
         document.body.appendChild(canvas);
 
-        const tracks = [
-            U_TRACK,
-            OVAL,
-            BIG_OVAL,
-            X_TRACK,
-            snakeTrack(800, 800, 3),
-            snakeTrack(800, 800, 6),
-            spiralTrack(800, 1),
-            spiralTrack(800, 3),
-        ];
-
         new RacetrackControls(
             document.body,
             canvas,
-            tracks,
+            SAMPLE_TRACKS,
             [creeper, jcreeper, mjlRacer2, speedRacer, gpt4],
         );
 
