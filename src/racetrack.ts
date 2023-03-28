@@ -210,6 +210,7 @@ class Racetrack {
         }
 
         this.refresh();
+        this.updateStatsSubs();
     }
 
     refresh() {

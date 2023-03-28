@@ -1,5 +1,5 @@
 import { CarState } from './racetrack';
-import { Point } from './points';
+import { Point, length } from './points';
 
 export { RacerStats };
 
@@ -21,6 +21,8 @@ interface PropColumn extends ColumnBase {
 type Column = ComputedColumn | PropColumn;
 
 const COLUMNS: Column[] = [
+    { type: 'text', displayName: 'Position',
+      value: (r) => ordinal(r.racePosition) },
     {
         type: 'html', displayName: 'Racer',
         value: (r) => {
@@ -32,12 +34,14 @@ const COLUMNS: Column[] = [
         }
     },
     { type: 'string', displayName: 'Status', propName: 'status' },
-    // { type: 'number', displayName: 'Speed', propName: 'speed' },
-    { type: 'vector', displayName: 'Velocity', propName: 'velocity' },
+    {
+        type: 'text', displayName: 'Speed',
+        value: (r) => length(r.velocity).toFixed(2)
+    },
+    // { type: 'vector', displayName: 'Velocity', propName: 'velocity' },
     { type: 'number', displayName: 'Step', propName: 'step' },
     { type: 'number', displayName: 'Distance', propName: 'distanceTraveled' },
     { type: 'number', displayName: 'Top&nbsp;Speed', propName: 'topSpeed' },
-    { type: 'number', displayName: 'Position', propName: 'racePosition' },
     { type: 'number', displayName: 'Time', propName: 'finishTime' },
 ];
 
@@ -96,5 +100,17 @@ class RacerStats {
                 this.grid.appendChild(cell);
             }
         }
+    }
+}
+
+function ordinal(num: number): string {
+    const suffixes = ['th', 'st', 'nd', 'rd'];
+    const remainder = num % 100;
+
+    if (remainder >= 11 && remainder <= 13) {
+        return num + 'th';
+    } else {
+        const lastDigit = num % 10;
+        return num + (suffixes[lastDigit] || suffixes[0]);
     }
 }
