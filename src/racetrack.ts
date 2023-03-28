@@ -202,6 +202,7 @@ class Racetrack {
 
         this.cars = [];
         this.histories = [];
+        this.crashPositions = new Set();
 
         // Clear out past history and re-register all the racer's update functions.
         this.availableStarts = [];
