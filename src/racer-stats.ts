@@ -24,18 +24,19 @@ const COLUMNS: Column[] = [
     {
         type: 'html', displayName: 'Racer',
         value: (r) => {
-            let result = `<span style="color: ${r.color}">●</span>&nbsp;${r.name}`;
+            let result = `<span style="color: ${r.color}">⬤</span>&nbsp;${r.name}`;
             if (r.author) {
                 result += `<br><span style="margin-left: 1.5em; font-size: 0.75em;">by&nbsp;${r.author}</span>`;
             }
             return result;
         }
     },
+    { type: 'string', displayName: 'Status', propName: 'status' },
     // { type: 'number', displayName: 'Speed', propName: 'speed' },
     { type: 'vector', displayName: 'Velocity', propName: 'velocity' },
     { type: 'number', displayName: 'Step', propName: 'step' },
     { type: 'number', displayName: 'Distance', propName: 'distanceTraveled' },
-    { type: 'number', displayName: 'Top Speed', propName: 'topSpeed' },
+    { type: 'number', displayName: 'Top&nbsp;Speed', propName: 'topSpeed' },
     { type: 'number', displayName: 'Position', propName: 'racePosition' },
     { type: 'number', displayName: 'Time', propName: 'finishTime' },
 ];
@@ -55,7 +56,7 @@ class RacerStats {
         for (const column of COLUMNS) {
             const header = document.createElement('div');
             header.classList.add('header');
-            header.textContent = column.displayName;
+            header.innerHTML = column.displayName;
             this.grid.appendChild(header);
         }
 

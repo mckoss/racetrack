@@ -1,7 +1,7 @@
 import { ButtonBar, Element } from "./button-bar";
-
 import { Racetrack, CarUpdate } from "./racetrack";
 import type { Track } from "./tracks";
+import { RacerStats } from "./racer-stats";
 
 export { RacetrackControls };
 
@@ -11,6 +11,8 @@ class RacetrackControls {
     tracks: Track[];
     racers: CarUpdate[];
     uiElements: Element[];
+
+    stats: RacerStats;
 
     constructor(parent: HTMLElement, canvas: HTMLCanvasElement, tracks: Track[], racers: CarUpdate[]) {
         this.canvas = canvas;
@@ -47,6 +49,8 @@ class RacetrackControls {
 
         const buttonBar = new ButtonBar(this.uiElements);
         parent.appendChild(buttonBar.getElement());
+
+        this.stats = new RacerStats(parent);
     }
 
     attachTrack(track: Track) {
@@ -58,5 +62,9 @@ class RacetrackControls {
         for (const racer of this.racers) {
             this.rt.race(racer);
         }
+
+        this.rt.subscribeStats((stats) => {
+            this.stats.update(stats.cars);
+        });
     }
 }
