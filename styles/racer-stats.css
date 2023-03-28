@@ -12,8 +12,12 @@
 }
 
 .race-stats div {
-    font-size: 1.2rem;
+    font-size: 1rem;
     background-color: white;
-    padding: 0.5rem;
+    padding: 0.25rem;
     text-align: center;
+}
+
+span.by {
+    font-size: 0.75rem;
 }

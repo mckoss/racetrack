@@ -28,7 +28,7 @@ const COLUMNS: Column[] = [
         value: (r) => {
             let result = `<span style="color: ${r.color}">⬤</span>&nbsp;${r.name}`;
             if (r.author) {
-                result += `<br><span style="margin-left: 1.5em; font-size: 0.75em;">by&nbsp;${r.author}</span>`;
+                result += `<br><span class="by">by&nbsp;${r.author}</span>`;
             }
             return result;
         }
@@ -56,6 +56,8 @@ class RacerStats {
     }
 
     update(racers: CarState[]) {
+        racers = racers.slice().sort((a, b) => a.racePosition - b.racePosition);
+
         this.grid.innerHTML = '';
         for (const column of COLUMNS) {
             const header = document.createElement('div');

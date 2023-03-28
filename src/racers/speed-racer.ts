@@ -7,6 +7,11 @@ import { isSafe } from './racer-helper.js';
 export { update };
 
 function update(state: CarState, options: MoveOption[]): Point {
+    if (state.step === 1) {
+        state.name = "Speed Racer";
+        state.author = "mckoss";
+    }
+
     // Prefer to coast unless another move is better.
     let best: MoveOption | undefined;
 
