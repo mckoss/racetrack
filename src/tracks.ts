@@ -1,8 +1,8 @@
-import { Point } from "./points";
+import { Point, add, scale, turn } from "./points";
 
 export type { Track };
 
-export { U_TRACK, OVAL, BIG_OVAL, snakeTrack };
+export { U_TRACK, OVAL, BIG_OVAL, snakeTrack, spiralTrack };
 
 // Definition of a specific track
 interface Track {
@@ -74,6 +74,42 @@ function snakeTrack(width: number, height: number, plys: number): Track {
     return {
         name: `Snake-${plys}`,
         dim: [width, height],
+        grid,
+        trackWidth,
+        path,
+    };
+}
+
+// Make a track that spirals into the center of a square canvas.
+function spiralTrack(dim: number, turns: number): Track {
+    const grid = Math.floor(dim / ((turns + 1) * 2 * 7));
+    const trackWidth = 5 * grid;
+    const dTurn = 7 * grid;
+
+    let radius = dim / 2 - grid / 2 - trackWidth / 2;
+    const center = [dim / 2, dim / 2] as Point;
+    const SIDES = 20;
+    const points = turns * SIDES + 1;
+
+    let v = [0, -1] as Point;
+
+    const path: Point[] = [];
+    path.push([grid, grid / 2 + trackWidth / 2]);
+
+    for (let i = 0; i < points; i++) {
+        path.push(add(center, scale(radius, v)));
+        v = turn(v, 1 / SIDES);
+        if (i > SIDES / 2) {
+            radius -= dTurn / SIDES;
+            if (i < SIDES) {
+                radius -= dTurn / SIDES;
+            }
+        }
+    }
+
+    return {
+        name: `Spiral-${turns}`,
+        dim: [dim, dim],
         grid,
         trackWidth,
         path,
