@@ -162,7 +162,6 @@ class Racetrack {
         cars.sort(cmpCars);
 
         // Modify CarState in place
-        let position = 1;
         let bump = 0;
         for (let index = 0; index < cars.length; index++) {
             if (index > 0 && cmpCars(cars[index - 1], cars[index]) === 0) {
