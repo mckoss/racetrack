@@ -3,6 +3,10 @@ import { CarState, MoveOption } from '../racetrack.js';
 export { racer };
 
 function racer(state: CarState, options: MoveOption[]) {
+    if (state.step === 1) {
+        state.name = "AI Racer";
+        state.author = "chat-gpt4";
+    }
     // Filter out options that lead to crashing
     const safeOptions = options.filter(option => option.status !== 'crashed');
 

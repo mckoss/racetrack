@@ -3,6 +3,11 @@ import { CarState, MoveOption } from "../racetrack.js";
 
 // Follows the least distance path, but tries to control speed to avoid crashing.
 export function update(state: CarState, options: MoveOption[]) {
+  if (state.step === 1) {
+      state.name = "MJL-2";
+      state.author = "mikelehen";
+  }
+
   function distTo(point?: Point) {
     return point ? magnitude(sub(point, state.position)) : Number.POSITIVE_INFINITY;
   }

@@ -12,6 +12,9 @@ export type { CarState, MoveOption, CarUpdate };
 // We try not to included derived data here (like average speed)
 // since it is just distanceTraveled / step (or finishTime when finihed).
 interface CarState {
+    name?: string;
+    author?: string;
+    color: string;
     status: 'running' | 'crashed' | 'finished' | 'error';
     step: number;
     position: Point;
@@ -159,12 +162,14 @@ class Racetrack {
         cars.sort(cmpCars);
 
         // Modify CarState in place
-        let position = 1;
+        let bump = 0;
         for (let index = 0; index < cars.length; index++) {
-            if (index > 0 && cmpCars(cars[index - 1], cars[index]) !== 0) {
-                position++;
+            if (index > 0 && cmpCars(cars[index - 1], cars[index]) === 0) {
+                bump++;
+            } else {
+                bump = 0;
             }
-            cars[index].racePosition = position;
+            cars[index].racePosition = index + 1 - bump;
         }
 
         function cmpCars(a: CarState, b: CarState): number {
@@ -207,6 +212,7 @@ class Racetrack {
         }
 
         this.refresh();
+        this.updateStatsSubs();
     }
 
     refresh() {
@@ -457,6 +463,8 @@ class Racetrack {
         const start = this.pickStartPosition();
 
         this.cars.push({
+            name: `Car ${this.cars.length + 1}`,
+            color: CAR_COLORS[this.cars.length % CAR_COLORS.length],
             status: 'running',
             step: 0,
             position: start,
@@ -524,7 +532,7 @@ class Racetrack {
                 car.status = result.status;
                 const message = `Car ${i+1} ${result.status} after ${this.stepNumber} steps at ${result.position}`;
                 if (result.status === 'finished') {
-                    const fraction = segmentLength / length(sub(endPosition, car.position));
+                    const fraction = segmentLength / length(car.velocity);
                     car.finishTime = (this.stepNumber - 1) + fraction;
                 }
                 if (result.status === 'crashed') {
@@ -548,6 +556,12 @@ class Racetrack {
         }
 
         this.refresh();
+        if (this.isRaceDone()) {
+            this.isRunning = false;
+            console.log(`Race finished in ${this.stepNumber} steps.`);
+        }
+
+        this.updateStatsSubs();
 
         function valid(d: number): boolean {
             return [-1, 0, 1].includes(d);
@@ -580,15 +594,10 @@ class Racetrack {
 
             self.step();
 
-            if (self.isRaceDone()) {
-                self.isRunning = false;
-                self.updateStatsSubs();
-                console.log(`Race finished in ${self.stepNumber} steps.`);
+            if (!self.isRunning) {
                 resolver();
                 return;
             }
-
-            self.updateStatsSubs();
 
             if (delay) {
                 setTimeout(() => {
@@ -617,10 +626,9 @@ class Racetrack {
     drawTracks() {
         for (let i = 0; i < this.cars.length; i++) {
             const car = this.cars[i];
-            const mi = i % CAR_COLORS.length;
             const history = this.gridToPixels(this.histories[i])
 
-            this.ctx.strokeStyle = CAR_COLORS[mi];
+            this.ctx.strokeStyle = car.color;
             this.ctx.lineWidth = 2;
             this.ctx.beginPath();
             this.ctx.moveTo(...history[0]);
@@ -630,7 +638,7 @@ class Racetrack {
             this.ctx.stroke();
 
             for (let p of history) {
-                this.dot(...p, CAR_COLORS[mi]);
+                this.dot(...p, car.color);
             }
 
             const [x, y] = scale(this.track.grid, car.position);

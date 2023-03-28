@@ -7,11 +7,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Martin Gardner's Racetrack</title>
     <link rel="stylesheet" href="styles/button-bar.css">
+    <link rel="stylesheet" href="styles/racer-stats.css">
     <style>
         body {
             font-family: Verdana, sans-serif;
             line-height: 1.5em;
-            max-width: 800px;
+            max-width: 900px;
             margin: auto;
         }
 
@@ -74,7 +75,7 @@
         import { update as mjlRacer2 } from "./src/racers/mjl-racer2.ts";
         import { update as creeper } from "./src/racers/creeper.ts";
         import { update as jcreeper } from "./src/racers/jcreeper.ts";
-        // import { racer as gpt4 } from "./src/racers/chat-gpt4.ts";
+        import { racer as gpt4 } from "./src/racers/chat-gpt4.ts";
         import { update as speedRacer } from "./src/racers/speed-racer.ts";
 
         const canvas = document.createElement('canvas');
@@ -84,7 +85,7 @@
             document.body,
             canvas,
             [U_TRACK, OVAL, BIG_OVAL],
-            [creeper, jcreeper, mjlRacer2, speedRacer],
+            [creeper, jcreeper, mjlRacer2, speedRacer, gpt4],
         );
 
     </script>

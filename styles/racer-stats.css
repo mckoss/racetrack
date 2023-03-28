@@ -1,0 +1,23 @@
+.race-stats {
+    display: grid;
+    margin: 1rem auto;
+    gap: 2px;
+    background-color: black;
+    border: 2px solid black;
+}
+
+.race-stats .header {
+    font-weight: bold;
+    border-bottom: 2px solid black;
+}
+
+.race-stats div {
+    font-size: 1rem;
+    background-color: white;
+    padding: 0.25rem;
+    text-align: center;
+}
+
+span.by {
+    font-size: 0.75rem;
+}

@@ -4,6 +4,10 @@ import { Point, add, isZero } from '../points.js';
 export { update };
 
 function update(state: CarState, options: MoveOption[]): Point {
+    if (state.step === 1) {
+        state.name = "Creeper";
+        state.author = "mckoss";
+    }
     return bestOption(state.velocity, options).move;
 }
 
