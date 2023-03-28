@@ -163,11 +163,14 @@ class Racetrack {
 
         // Modify CarState in place
         let position = 1;
+        let bump = 0;
         for (let index = 0; index < cars.length; index++) {
-            if (index > 0 && cmpCars(cars[index - 1], cars[index]) !== 0) {
-                position++;
+            if (index > 0 && cmpCars(cars[index - 1], cars[index]) === 0) {
+                bump++;
+            } else {
+                bump = 0;
             }
-            cars[index].racePosition = position;
+            cars[index].racePosition = index + 1 - bump;
         }
 
         function cmpCars(a: CarState, b: CarState): number {
@@ -530,7 +533,7 @@ class Racetrack {
                 car.status = result.status;
                 const message = `Car ${i+1} ${result.status} after ${this.stepNumber} steps at ${result.position}`;
                 if (result.status === 'finished') {
-                    const fraction = segmentLength / length(sub(endPosition, car.position));
+                    const fraction = segmentLength / length(car.velocity);
                     car.finishTime = (this.stepNumber - 1) + fraction;
                 }
                 if (result.status === 'crashed') {
