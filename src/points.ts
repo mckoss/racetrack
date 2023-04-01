@@ -1,5 +1,6 @@
 export { linePoints, add, sub, scale, ceil, round, isZero, isEqual, sign,
-    length, unit, turn, perpendicularLine, fixed, scaleToBox, id, pointFromId, neighbors };
+    length, unit, turn, dot, repr, perpendicularLine, fixed, scaleToBox, id,
+    pointFromId, neighbors };
 export type { Point };
 
 // x, y coordinates
@@ -78,6 +79,11 @@ function id(p: Point): string {
     return JSON.stringify(p);
 }
 
+function repr(p: Point): string {
+    p = fixed(p);
+    return `[${p[0]}, ${p[1]}]`;
+}
+
 function pointFromId(id: string): Point {
     return JSON.parse(id);
 }
@@ -108,6 +114,10 @@ function fixed([x, y]: Point, digits = 3): Point {
         const scale = Math.pow(10, digits);
         return Math.round(n * scale) / scale;
     }
+}
+
+function dot(a: Point, b: Point): number {
+    return a[0] * b[0] + a[1] * b[1];
 }
 
 // Scale point so that maximum dimension equals one of the dimensions of a
