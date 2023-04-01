@@ -4,6 +4,10 @@ export { stoppingDistance, speedLimit, isSafe };
 
 // A velocity is considered safe if we can stop before hitting the
 // relative crash position in either the x or y direction.
+//
+// This is a rather flawed metric and is usually way too conservative.
+// Cars following this strategy ofter slow down unnecessarily until
+// they creep past a collision point.
 function isSafe(v: Point, dist: Point): boolean {
     return isCoordSafe(v[0], dist[0]) && isCoordSafe(v[1], dist[1]);
 
