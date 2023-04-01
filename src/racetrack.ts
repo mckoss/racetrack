@@ -501,16 +501,16 @@ class Racetrack {
             try {
                 delta = update(car, this.moveOptions(car));
             } catch (e) {
-                console.error(`Car ${i+1}: ${e}`);
+                console.error(`Car ${car.name}: ${e}`);
                 car.status = 'error';
                 continue;
             }
 
             if (!delta) {
-                console.warn(`Car ${i} is not responding.`);
+                console.warn(`Car ${car.name} is not responding.`);
                 delta = [0, 0];
             } else if (!valid(delta[0]) || !valid(delta[1])) {
-                console.error(`Car ${i+1}: Invalid move: ${delta} at ${car.position}`);
+                console.error(`Car ${car.name}: Invalid move: ${delta} at ${car.position}`);
                 car.status = 'error';
                 continue;
             }
@@ -533,7 +533,7 @@ class Racetrack {
             this.histories[i].push(car.position);
             if (result.status !== 'ok') {
                 car.status = result.status;
-                const message = `Car ${i+1} ${result.status} after ${this.stepNumber} steps at ${result.position}`;
+                const message = `Car ${car.name} ${result.status} after ${this.stepNumber} steps at ${result.position}`;
                 if (result.status === 'finished') {
                     const fraction = segmentLength / length(car.velocity);
                     car.finishTime = (this.stepNumber - 1) + fraction;
