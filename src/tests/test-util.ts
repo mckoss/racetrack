@@ -64,6 +64,17 @@ suite('pyramidal', () => {
             });
         }
     }
+
+    // For giggles, confirm that length of minimal pyramidal sequence is
+    // FLOOR(SQRT(4n-1)).
+    for (let i = 1; i < 50; i++) {
+        const p = pyramidal(i);
+        test(`p(${i}).length = ${p.length}`, () => {
+            const len = Math.floor(Math.sqrt(4 * i - 1));
+            console.log(p.length);
+            assert.equal(p.length, len);
+        });
+    }
 });
 
 function sumAll(seq: number[]): number {
