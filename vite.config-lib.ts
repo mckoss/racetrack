@@ -27,6 +27,7 @@ export default defineConfig({
 
         // These scripts are used for node command line testing.
         'tests/test-points': src('tests/test-points.ts'),
+        'tests/test-util': src('tests/test-util.ts'),
         'tests/test-racer-helper': src('tests/test-racer-helper.ts'),
         'tests/test-in-browser': src('tests/test-in-browser.ts'),
         'tests/test-lib-in-browser': src('tests/test-lib-in-browser.ts'),
