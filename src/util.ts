@@ -77,10 +77,10 @@ function* range(start: number, stop?: number, step: number = 1): Generator<numbe
 function pyramidal(d: number): number[] {
     const peak = Math.floor(Math.sqrt(d));
 
-    // Minimal sequence is 1, 2, ...., maxTerm, maxTerm - 1, ..., 2, 1
-    // At worst this sum needs to be augmented by (maxTerm + 1)^2 - maxTerm^2 - 1.
-    // i.e. 2 * maxTerm.
-    // Since maxTerm is the largest term we can use without exceeding d, we can
+    // Minimal sequence is 1, 2, ...., peak, peak - 1, ..., 2, 1
+    // At worst this sum needs to be augmented by (peak + 1)^2 - peak^2 - 1.
+    // i.e. 2 * peak.
+    // Since peak is the largest term we can use without exceeding d, we can
     // add at most 2 additional terms to the sequence to equal d.
 
     const result = Array.from(range(1, peak)).concat(Array.from(range(peak, 0, -1)));
@@ -89,7 +89,6 @@ function pyramidal(d: number): number[] {
 
     while (deficit > 0) {
         // Term is always non-ascending in value in this loop.
-        // At most s, s, and then the remainder < s.
         const term = Math.min(deficit, peak);
         result.splice(term - 1, 0, term);
         deficit -= term;

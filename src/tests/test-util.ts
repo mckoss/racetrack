@@ -71,7 +71,6 @@ suite('pyramidal', () => {
         const p = pyramidal(i);
         test(`p(${i}).length = ${p.length}`, () => {
             const len = Math.floor(Math.sqrt(4 * i - 1));
-            console.log(p.length);
             assert.equal(p.length, len);
         });
     }
