@@ -3,6 +3,9 @@ import { Point, length } from './points';
 
 export { RacerStats };
 
+// Assume 1G max acceleration
+const MPH_PER_SPEED = 32 * 3600 / 5280;
+
 interface ColumnBase {
     type: 'string' | 'number' | 'vector' | 'html' | 'text';
     displayName: string;
@@ -35,13 +38,21 @@ const COLUMNS: Column[] = [
     },
     { type: 'string', displayName: 'Status', propName: 'status' },
     {
-        type: 'text', displayName: 'Speed',
-        value: (r) => length(r.velocity).toFixed(2)
+        type: 'html', displayName: 'Speed',
+        value: (r) => {
+            const speed = length(r.velocity);
+            return `${mph(speed)}<br>[${speed.toFixed(1)}]`;
+        }
     },
     // { type: 'vector', displayName: 'Velocity', propName: 'velocity' },
     { type: 'number', displayName: 'Step', propName: 'step' },
     { type: 'number', displayName: 'Distance', propName: 'distanceTraveled' },
-    { type: 'number', displayName: 'Top&nbsp;Speed', propName: 'topSpeed' },
+    {
+        type: 'html', displayName: 'Top&nbsp;Speed',
+        value: (r) => {
+            return `${mph(r.topSpeed)}<br>[${r.topSpeed.toFixed(1)}]`;
+        }
+    },
     { type: 'number', displayName: 'Time', propName: 'finishTime' },
 ];
 
@@ -115,4 +126,8 @@ function ordinal(num: number): string {
         const lastDigit = num % 10;
         return num + (suffixes[lastDigit] || suffixes[0]);
     }
+}
+
+function mph(speed: number): string {
+    return `${(speed * MPH_PER_SPEED).toFixed(0)} mph`;
 }
