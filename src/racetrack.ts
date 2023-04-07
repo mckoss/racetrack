@@ -88,7 +88,8 @@ class Racetrack {
     // String keys use the id() function of a Point
     finishPositions: Set<string>;
     trackPositions: Set<string> = new Set();
-    crashPositions: Set<string> = new Set();
+    // Store location and color of the car that was giving this crash position
+    crashPositions: Map<string, string> = new Map();
     finishDistances: Map<string, number> = new Map();
 
     stepNumber = 0;
@@ -201,7 +202,7 @@ class Racetrack {
 
         this.cars = [];
         this.histories = [];
-        this.crashPositions = new Set();
+        this.crashPositions = new Map();
 
         // Clear out past history and re-register all the racer's update functions.
         this.availableStarts = [];
@@ -338,9 +339,9 @@ class Racetrack {
             }
         }
 
-        for (let point of this.crashPositions) {
+        for (let [point, color] of this.crashPositions.entries()) {
             const [x, y] = scale(this.track.grid, pointFromId(point));
-            this.dot(x, y, 'red');
+            this.dot(x, y, color);
         }
 
         if (this.options.showGrid) {
@@ -553,7 +554,7 @@ class Racetrack {
                 const result = this.driveLine(car.position, moveToward);
                 if (result.status === 'crashed') {
                     car.crashPosition = result.position;
-                    this.crashPositions.add(id(result.position));
+                    this.crashPositions.set(id(result.position), car.color);
                 }
             }
         }
