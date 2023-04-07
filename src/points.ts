@@ -60,6 +60,10 @@ function length([x, y]: Point): number {
 }
 
 function unit(v: Point): Point {
+    // Don't return [NaN, NaN] if v is [0, 0].
+    if (isZero(v)) {
+        return [0, 0];
+    }
     return scale(1/length(v), v);
 }
 

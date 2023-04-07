@@ -1,4 +1,4 @@
-export { testBool, testValue, shuffle, range, pyramidal, partialPyramidal };
+export { testBool, testValue, shuffle, range, first, pyramidal, partialPyramidal };
 
 // These functions are used as helpers for sorting arrays.  Inside of a
 // comparison function, they return a negative number if a is less than b, a
@@ -12,6 +12,8 @@ export { testBool, testValue, shuffle, range, pyramidal, partialPyramidal };
 //   }
 //   ... next in-order test ...
 // }
+
+type CMP<T> = (a: T, b: T) => number;
 
 // Return negative if only a has boolean attribute, positive if only b has boolean
 // attribute, 0 if they both have the same boolean attribute.
@@ -64,6 +66,23 @@ function* range(start: number, stop?: number, step: number = 1): Generator<numbe
             yield i;
         }
     }
+}
+
+// Without sorting the whole array, find the element with the smallest value
+// according to the given comparison function.
+function first<T>(array: T[], cmp: CMP<T>): T | undefined {
+    if (array.length === 0) {
+        return undefined;
+    }
+
+    let smallest = array[0];
+    for (let i = 1; i < array.length; i++) {
+        if (cmp(array[i], smallest) < 0) {
+            smallest = array[i];
+        }
+    }
+
+    return smallest;
 }
 
 // Return a "pyramidal sequence" of minimum sum d starting at s.

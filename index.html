@@ -77,6 +77,7 @@
         import { update as jcreeper } from "./src/racers/jcreeper.ts";
         import { racer as gpt4 } from "./src/racers/chat-gpt4.ts";
         import { update as speedRacer } from "./src/racers/speed-racer.ts";
+        import { update as gradD } from "./src/racers/gradient-descent.ts";
 
         const canvas = document.createElement('canvas');
         document.body.appendChild(canvas);
@@ -85,7 +86,7 @@
             document.body,
             canvas,
             SAMPLE_TRACKS,
-            [creeper, jcreeper, mjlRacer2, speedRacer, gpt4],
+            [creeper, jcreeper, mjlRacer2, speedRacer, gpt4, gradD],
         );
 
     </script>
