@@ -1,9 +1,17 @@
 import { CarState, MoveOption } from '../racetrack.js';
-import { Point, add, sub, unit, dot, length, isZero, repr } from '../points.js';
+import { Point, add, sub, unit, dot, length, isZero, repr, turn } from '../points.js';
 import { speedLimit } from './racer-helper.js';
-import { first } from '../util.js';
+import { first, testValue } from '../util.js';
 
 export { update };
+
+const DEBUG = false;
+
+function debug(...args: any[]) {
+    if (DEBUG) {
+        console.log(...args);
+    }
+}
 
 // Strategy:
 // - Compute the gradient of the distance to the finish at the point
@@ -17,12 +25,13 @@ function update(state: CarState, options: MoveOption[]): Point {
         state.author = "mckoss";
     }
 
-    const grad = gradientOf(options, state.velocity);
+    const vGrad = gradientOf(options, state.velocity);
+    const vPerpGrad = turn(vGrad, 0.25);
 
-    console.log(`\nv: ${repr(state.velocity)} grad: ${repr(grad)}`);
+    debug(`\nv: ${repr(state.velocity)} grad: ${repr(vGrad)}`);
 
     // Hopeless - no non-crash move.
-    if (isZero(grad)) {
+    if (isZero(vGrad)) {
         console.warn("No non-crashing moves!");
         return [0, 0];
     }
@@ -30,17 +39,27 @@ function update(state: CarState, options: MoveOption[]): Point {
     // First step has zero velocity - and therefore no crash position.
     // Just choose the move most aligned with the gradient.
     if (state.step === 1) {
-        return first(options, (a, b) => {
-            return dot(b.move, grad) - dot(a.move, grad);
+        // Don't consider zero move.
+        const best = first(options.slice(1), (a, b) => {
+            return dot(unit(b.move), vGrad) - dot(unit(a.move), vGrad);
         })!.move;
+        debug(`first step: ${repr(best)}`);
+        return best;
     }
 
     // Our current trajectory - is toward the finish line.
     if (state.crashPosition === undefined) {
+        debug(`Pointing to finish!`);
+        const v = unit(state.velocity);
+        if (length(v) === 1) {
+            debug(`Book it!`);
+            return v;
+        }
+
         const finishMoves = options.filter(o => o.status === 'finished');
         // If we have finishing moves, take the fastest one.
         if (finishMoves.length > 0) {
-            console.log('finishMoves', finishMoves);
+            debug('finishMoves', finishMoves);
             return first(finishMoves, (a, b) => {
                 return length(b.move) - length(a.move);
             })!.move;
@@ -50,7 +69,7 @@ function update(state: CarState, options: MoveOption[]): Point {
         return first(options, (a, b) => {
             const aV = add(state.velocity, a.move);
             const bV = add(state.velocity, b.move);
-            return dot(bV, grad) - dot(aV, grad);
+            return dot(bV, vGrad) - dot(aV, vGrad);
         })!.move;
     }
 
@@ -58,55 +77,66 @@ function update(state: CarState, options: MoveOption[]): Point {
     const dist = length(dCrash);
     const vCrash = unit(dCrash);
 
-    console.log(`dcrash: ${repr(dCrash)} dist: ${fmt(dist)} speedLimit:${speedLimit(dist)}`);
+    debug(`dcrash: ${repr(dCrash)} dist: ${fmt(dist)} speedLimit:${speedLimit(dist)}`);
 
     // Find the move that has the largest component in the direction of the
     // gradient, and prefer moves that have least amount of off-axis
     // component.
-    let best: MoveOption | undefined;
-    let bestSpeed: number | undefined;
-    let bestComponent: number | undefined;
-    for (let option of options) {
-        // Don't crash and keep moving.
+
+    const crashMoves: Point[] = [];
+
+    // Only consider moves that don't crash and keep moving.
+    options = options.filter(option => {
+        if (option.status === 'crashed') {
+            crashMoves.push(option.move);
+            return false;
+        }
+        return !isZero(add(state.velocity, option.move));
+    });
+
+    // Compute criteria.
+    const criteria = options.map(option => {
         const v = add(state.velocity, option.move);
-        if (option.status === "crashed" || isZero(v)) {
-            continue;
+        const crashSpeed = dot(v, vCrash);
+        let wallDist = 3;
+        for (const move of crashMoves) {
+            const dist = length(sub(option.move, move));
+            if (dist < wallDist) {
+                wallDist = dist;
+            }
         }
+        return {
+            ...option,
+            v,
+            wallDist,
+            gradSpeed: dot(v, vGrad),
+            perpGradSpeed: Math.abs(dot(v, vPerpGrad)),
+            crashSpeed,
+            excessSpeed: Math.max(0, crashSpeed - speedLimit(dist)),
+        };
+    });
 
-        const speed = length(v);
-        const compGrad = dot(v, grad);
+    // Sort based on weighted criteria.
+    criteria.sort((a, b) => {
+        return testValue(b, a, o => {
+            return (
+                + o.gradSpeed
+                - o.perpGradSpeed * 0.25
+                - o.excessSpeed * 1.5
+                + o.wallDist * 0.5
+            );
+        });
+    });
 
-        console.log(`move: ${repr(option.move)} speed: ${fmt(speed)} compGrad: ${fmt(compGrad)}`);
-
-        // if (dot(v, crashUnit!) > speedLimit(dist)) {
-        //     console.log(`too fast: ${repr(option.move)} v: ${repr(v)} compSpeed: ${dot(v, crashUnit!)} > ${speedLimit(dist)} crash in ${dist}`);
-        //     continue;
-        // }
-
-        const compCrash = dot(v, vCrash);
-        // Maybe not accurate for dist < 2 - rely on 'crashed' status in option.
-        if (dist >= 2 && compCrash > speedLimit(dist)) {
-            console.log(`too fast: ${repr(option.move)} v: ${repr(v)} vCrash: ${repr(vCrash)} ` +
-                `compCrash: ${fmt(compCrash)} > ${speedLimit(dist)} crash in ${fmt(dist)}`);
-            continue;
-        }
-
-        if (bestComponent === undefined || compGrad > bestComponent ||
-            compGrad === bestComponent && speed < bestSpeed!) {
-            best = option;
-            bestSpeed = speed;
-            bestComponent = compGrad;
-            console.log(`better: ${repr(best.move)} speed: ${fmt(speed)} ` +
-                `gradSpeed: ${fmt(compGrad)} crashSpeed: ${fmt(dot(v, vCrash))}`);
-        }
+    // Sorted list of options
+    for (let option of criteria) {
+        debug(`${repr(option.move)} => ${repr(option.v)} speed: ${fmt(length(option.v))} ` +
+                    `gradSpeed: ${fmt(option.gradSpeed)} perpGradSpeed: ${fmt(option.perpGradSpeed)} ` +
+                    `\ncrashSpeed: ${fmt(option.crashSpeed)} excessSpeed: ${fmt(option.excessSpeed)}` +
+                    `\nwallDist: ${fmt(option.wallDist)}`);
     }
 
-    if (best === undefined) {
-        console.warn("No non-crashing moves!");
-        return [0, 0];
-    }
-
-    return best.move;
+    return criteria[0].move;
 }
 
 // Estimate the gradient as the average the moves that have the
@@ -145,16 +175,23 @@ function gradientOf(options: MoveOption[], v: Point): Point {
             if (option.distanceToFinish !== 0) {
                 continue;
             }
-            console.log(add(v, option.move));
+            debug(add(v, option.move));
             const speed = length(add(v, option.move));
             if (speed > bestSpeed) {
                 bestSpeed = speed;
                 best = option.move;
             }
         }
-        console.log(`best: ${repr(best)} speed: ${fmt(bestSpeed)}`);
+        debug(`finish best: ${repr(best)} speed: ${fmt(bestSpeed)}`);
         return unit(best);
     }
+
+    debug(`\n${options[1].distanceToFinish} ${options[2].distanceToFinish}` +
+                ` ${options[3].distanceToFinish}` +
+                `\n${options[4].distanceToFinish} ${options[0].distanceToFinish}` +
+                ` ${options[5].distanceToFinish}` +
+                `\n${options[6].distanceToFinish} ${options[7].distanceToFinish}` +
+                ` ${options[8].distanceToFinish}`);
 
     return unit(sum);
 }
