@@ -76,7 +76,10 @@ function racer(state: CarState, options: MoveOption[]) {
         score += 5;
       }
 
-      score += 30 / (distanceToFinish + 1);
+      // I added this test that Chat-GPT did not have, to fix a compiler error.
+      if (distanceToFinish !== undefined) {
+        score += 30 / (distanceToFinish + 1);
+      }
 
       return score;
     });
