@@ -1,6 +1,6 @@
 import { CarState, MoveOption } from '../racetrack.js';
 import { Point, add, sub, unit, dot, length, isZero, repr, turn } from '../points.js';
-import { speedLimit } from './racer-helper.js';
+import { speedLimit, gradientOf } from './racer-helper.js';
 import { first, testValue } from '../util.js';
 
 export { update };
@@ -137,63 +137,6 @@ function update(state: CarState, options: MoveOption[]): Point {
     }
 
     return criteria[0].move;
-}
-
-// Estimate the gradient as the average the moves that have the
-// minimum distance to the finish.
-function gradientOf(options: MoveOption[], v: Point): Point {
-    let minDistance: number | undefined;
-    for (let option of options) {
-        if (option.distanceToFinish === undefined) {
-            continue;
-        }
-        if (minDistance === undefined || option.distanceToFinish < minDistance) {
-            minDistance = option.distanceToFinish;
-        }
-    }
-
-    // All moves illegal - no gradient.
-    if (minDistance === undefined) {
-        return [0, 0];
-    }
-
-    let sum: Point = [0, 0];
-    for (let option of options) {
-        if (option.distanceToFinish === minDistance) {
-            sum = add(sum, option.move);
-        }
-    }
-
-    // For multiple moves that cross finish, the gradient should be
-    // the one with the highest velocity!  Just summing them sometimes
-    // results in a zero vector (all finish).
-    if (minDistance === 0) {
-        let bestSpeed = 0;
-        let best: Point = [0, 0];
-        for (let i = 0; i < options.length; i++) {
-            const option = options[i];
-            if (option.distanceToFinish !== 0) {
-                continue;
-            }
-            debug(add(v, option.move));
-            const speed = length(add(v, option.move));
-            if (speed > bestSpeed) {
-                bestSpeed = speed;
-                best = option.move;
-            }
-        }
-        debug(`finish best: ${repr(best)} speed: ${fmt(bestSpeed)}`);
-        return unit(best);
-    }
-
-    debug(`\n${options[1].distanceToFinish} ${options[2].distanceToFinish}` +
-                ` ${options[3].distanceToFinish}` +
-                `\n${options[4].distanceToFinish} ${options[0].distanceToFinish}` +
-                ` ${options[5].distanceToFinish}` +
-                `\n${options[6].distanceToFinish} ${options[7].distanceToFinish}` +
-                ` ${options[8].distanceToFinish}`);
-
-    return unit(sum);
 }
 
 function fmt(x: number): string {
