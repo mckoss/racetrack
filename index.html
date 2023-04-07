@@ -75,7 +75,7 @@
         import { update as mjlRacer2 } from "./src/racers/mjl-racer2.ts";
         import { update as creeper } from "./src/racers/creeper.ts";
         import { update as jcreeper } from "./src/racers/jcreeper.ts";
-        import { racer as gpt4 } from "./src/racers/chat-gpt4.ts";
+        import { racer as gpt4, racer2 as gpt4_2 } from "./src/racers/chat-gpt4.ts";
         import { update as speedRacer } from "./src/racers/speed-racer.ts";
         import { update as gradD } from "./src/racers/gradient-descent.ts";
 
@@ -86,7 +86,7 @@
             document.body,
             canvas,
             SAMPLE_TRACKS,
-            [creeper, jcreeper, mjlRacer2, speedRacer, gpt4, gradD],
+            [creeper, jcreeper, mjlRacer2, speedRacer, gpt4, gpt4_2, gradD],
         );
 
     </script>

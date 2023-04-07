@@ -1,11 +1,11 @@
 import { CarState, MoveOption } from '../racetrack.js';
 
-export { racer };
+export { racer, racer2 };
 
 function racer(state: CarState, options: MoveOption[]) {
     if (state.step === 1) {
-        state.name = "AI Racer";
-        state.author = "chat-gpt4";
+        state.name = "AI-Racer";
+        state.author = "GPT-4";
     }
     // Filter out options that lead to crashing
     const safeOptions = options.filter(option => option.status !== 'crashed');
@@ -36,4 +36,56 @@ function racer(state: CarState, options: MoveOption[]) {
     }
 
     return bestOption.move;
+  }
+
+  // This version was created by GPT-4 after much prompting to improve on
+  // previous solutions, many of which were crashing or falling into infinite
+  // loops.
+  //
+  // I provided the LLM with the console.log output of previous failing versions.
+  // I made edit to it's version, changing the speedLimit constant from 2 to 2.5
+  // to make it a little faster (3 crashes frequently).
+  function racer2(state: CarState, options: MoveOption[]) {
+    if (state.author === undefined) {
+      state.name = "AI-Racer 2.0";
+      state.author = "GPT-4"
+    }
+
+    console.log(`Position: ${state.position} velocity: ${state.velocity} crashPosition: ${state.crashPosition}`);
+
+    const safeMoves = options.filter(option => option.status !== 'crashed');
+
+    if (safeMoves.length === 0) {
+      return options[Math.floor(Math.random() * options.length)].move;
+    }
+
+    const speedLimit = 2.5;
+
+    const moveScores = safeMoves.map(move => {
+      const newVelocity = [state.velocity[0] + move.move[0], state.velocity[1] + move.move[1]];
+      const speed = Math.sqrt(newVelocity[0] * newVelocity[0] + newVelocity[1] * newVelocity[1]);
+      const distanceToFinish = move.distanceToFinish;
+
+      let score = 0;
+
+      if (speed <= speedLimit) {
+        score += 10;
+      }
+
+      if (speed > 0) {
+        score += 5;
+      }
+
+      score += 30 / (distanceToFinish + 1);
+
+      return score;
+    });
+
+    const maxScore = Math.max(...moveScores);
+    const bestMoves = safeMoves.filter((_, index) => moveScores[index] === maxScore);
+
+    const bestMove = bestMoves[Math.floor(Math.random() * bestMoves.length)].move;
+
+    console.log(`Best move: ${bestMove}`);
+    return bestMove;
   }
