@@ -3,11 +3,15 @@ import { Point, length } from './points';
 
 export { RacerStats };
 
-// Assume 1G max acceleration
-const MPH_PER_SPEED = 32 * 3600 / 5280;
+// Assume grid cells are 32' apart, which matches an acceleration capability
+// of 32'/s^2.
+const FEET_PER_GRID = 32;
+const FEET_PER_MILE = 5280;
+const SECS_PER_HOUR = 3600;
+const MPH_PER_SPEED = FEET_PER_GRID * SECS_PER_HOUR / FEET_PER_MILE;
 
 interface ColumnBase {
-    type: 'string' | 'number' | 'vector' | 'html' | 'text';
+    type: 'string' | 'number' | 'integer' | 'vector' | 'html' | 'text';
     displayName: string;
 }
 
@@ -17,15 +21,17 @@ interface ComputedColumn extends ColumnBase {
 }
 
 interface PropColumn extends ColumnBase {
-    type: 'string' | 'number' | 'vector';
+    type: 'string' | 'number' | 'integer' | 'vector';
     propName: keyof CarState;
 }
 
 type Column = ComputedColumn | PropColumn;
 
 const COLUMNS: Column[] = [
-    { type: 'text', displayName: 'Position',
-      value: (r) => ordinal(r.racePosition) },
+    {
+        type: 'text', displayName: 'Position',
+        value: (r) => ordinal(r.racePosition)
+    },
     {
         type: 'html', displayName: 'Racer',
         value: (r) => {
@@ -45,15 +51,31 @@ const COLUMNS: Column[] = [
         }
     },
     // { type: 'vector', displayName: 'Velocity', propName: 'velocity' },
-    { type: 'number', displayName: 'Step', propName: 'step' },
-    { type: 'number', displayName: 'Distance', propName: 'distanceTraveled' },
+    { type: 'integer', displayName: 'Step', propName: 'step' },
+    {
+        type: 'text', displayName: 'Distance',
+        value: (r) => `${thousands(r.distanceTraveled * FEET_PER_GRID)}'`
+    },
     {
         type: 'html', displayName: 'Top&nbsp;Speed',
         value: (r) => {
             return `${mph(r.topSpeed)}<br>[${r.topSpeed.toFixed(1)}]`;
         }
     },
-    { type: 'number', displayName: 'Time', propName: 'finishTime' },
+    {
+        type: 'html', displayName: 'Time',
+        value: (r) => {
+            if (r.status === 'crashed') {
+                const avgSpeed = r.distanceTraveled / r.step * MPH_PER_SPEED;
+                return `DNF<br>(${avgSpeed.toFixed(1)} mph)`;
+            }
+            if (r.finishTime !== undefined) {
+                const avgSpeed = r.distanceTraveled / r.finishTime * MPH_PER_SPEED;
+                return `${r.finishTime.toFixed(2)} s<br>(${avgSpeed.toFixed(1)} mph)`;
+            }
+            return '';
+        }
+    },
 ];
 
 class RacerStats {
@@ -100,9 +122,13 @@ class RacerStats {
                             cell.innerHTML = value as string;
                             break;
 
+                        case 'integer':
+                            cell.textContent = (value as number).toFixed(0);
+                            break;
+
                         case 'number':
                             cell.textContent = (value as number).toFixed(2);
-                            break;
+                                    break;
 
                         case 'vector':
                             cell.textContent = (racer[column.propName!] as Point).toString();
@@ -130,4 +156,8 @@ function ordinal(num: number): string {
 
 function mph(speed: number): string {
     return `${(speed * MPH_PER_SPEED).toFixed(0)} mph`;
+}
+
+function thousands(n: number): string {
+    return Math.round(n).toLocaleString();
 }
