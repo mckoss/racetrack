@@ -56,7 +56,7 @@ function findOptimalPath(start: Point, rt: Racetrack) : Point[] {
             }
 
             if (result.status === 'finished') {
-                priors.set(idPV(result.position, nextVelocity), idPV(pos, velocity));
+                priors.set(idPV(newPos, nextVelocity), idPV(pos, velocity));
                 const path = buildPath(idPV(newPos, nextVelocity), priors);
                 return path;
             }
