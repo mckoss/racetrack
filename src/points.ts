@@ -1,6 +1,6 @@
 export { linePoints, add, sub, scale, ceil, round, isZero, isEqual, sign,
     length, unit, turn, dot, repr, perpendicularLine, fixed, scaleToBox, id,
-    pointFromId, neighbors };
+    pointFromId, neighbors, isOrthogonal };
 export type { Point };
 
 // x, y coordinates
@@ -98,6 +98,10 @@ function isZero([x, y]: Point): boolean {
 
 function isEqual(a: Point, b: Point): boolean {
     return a[0] === b[0] && a[1] === b[1];
+}
+
+function isOrthogonal(a: Point): boolean {
+    return a[0] === 0 || a[1] === 0;
 }
 
 function sign([x, y]: Point): Point {

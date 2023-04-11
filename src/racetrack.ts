@@ -27,6 +27,8 @@ interface CarState {
     // Only the needed fraction of the last step is included in the finishTime
     // to break ties between racers that finish in the same step interval.
     finishTime?: number;
+    // For use by the racer to retain state across calls.
+    extra?: any;
 }
 
 interface MoveOption {

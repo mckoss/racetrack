@@ -78,6 +78,7 @@
         import { racer as gpt4, racer2 as gpt4_2 } from "./src/racers/chat-gpt4.ts";
         import { update as speedRacer } from "./src/racers/speed-racer.ts";
         import { update as gradD } from "./src/racers/gradient-descent.ts";
+        import { update as gateCrasher } from "./src/racers/gate-crasher.ts";
 
         const canvas = document.createElement('canvas');
         document.body.appendChild(canvas);
@@ -86,7 +87,8 @@
             document.body,
             canvas,
             SAMPLE_TRACKS,
-            [creeper, jcreeper, mjlRacer1, mjlRacer2, speedRacer, gpt4, gpt4_2, gradD],
+            [creeper, jcreeper, mjlRacer1, mjlRacer2, speedRacer, gpt4, gpt4_2,
+             gradD, gateCrasher],
         );
 
     </script>
