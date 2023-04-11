@@ -132,7 +132,7 @@ function partialPyramidal(d: number, s: number): number[] {
         const results = Array.from(range(s - 1, 0, -1));
         let deficit = d - s * (s - 1) / 2;
         if (deficit < 0) {
-            throw new Error("Impossible partialPyramid(${d}, ${s}).");
+            throw new Error(`Impossible partialPyramid(${d}, ${s}).`);
         }
 
         while (deficit > 0) {

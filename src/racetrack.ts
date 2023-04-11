@@ -334,16 +334,14 @@ class Racetrack {
     drawDots() {
         if (this.options.showGrid) {
             for (let point of this.gridPoints()) {
-                const [x, y] = scale(this.track.grid, point);
                 if (this.isPointInTrack(point)) {
-                    this.dot(x, y, 'white');
+                    this.gridDot(point, 'white');
                 }
             }
         }
 
-        for (let [point, color] of this.crashPositions.entries()) {
-            const [x, y] = scale(this.track.grid, pointFromId(point));
-            this.dot(x, y, color);
+        for (let [pointId, color] of this.crashPositions.entries()) {
+            this.gridDot(pointFromId(pointId), color);
         }
 
         if (this.options.showGrid) {
@@ -383,6 +381,11 @@ class Racetrack {
         this.ctx.beginPath();
         this.ctx.ellipse(x, y, radius, radius, 0, 0, 2 * Math.PI);
         this.ctx.fill();
+    }
+
+    gridDot(point: Point, color: string) {
+        const [x, y] = scale(this.track.grid, point);
+        this.dot(x, y, color);
     }
 
     // Return grid points that are inside the track
@@ -442,7 +445,7 @@ class Racetrack {
         function pushOption(move: Point, endPoint: Point) {
             const result = self.driveLine(car.position, endPoint);
             const position = result.position;
-            let distanceToFinish = self.finishDistances.get(id(position))!;
+            let distanceToFinish = self.distanceToFinish(position);
             options.push({
                 move,
                 status: result.status,
@@ -454,6 +457,10 @@ class Racetrack {
 
     isFinishPoint(point: Point): boolean {
         return this.finishPositions.has(id(point));
+    }
+
+    distanceToFinish(point: Point): number {
+        return this.finishDistances.get(id(point))!;
     }
 
     pickStartPosition(): Point {
@@ -478,7 +485,7 @@ class Racetrack {
             topSpeed: 0,
             distanceTraveled: 0,
             racePosition: 1,
-            distanceToFinish: this.finishDistances.get(id(start)),
+            distanceToFinish: this.distanceToFinish(start),
         });
         this.histories.push([start]);
         this.refresh();
@@ -632,29 +639,31 @@ class Racetrack {
     drawTracks() {
         for (let i = 0; i < this.cars.length; i++) {
             const car = this.cars[i];
-            const history = this.gridToPixels(this.histories[i])
+            this.drawGridTrail(this.histories[i], car.color);
 
-            this.ctx.strokeStyle = car.color;
-            this.ctx.lineWidth = 2;
-            this.ctx.beginPath();
-            this.ctx.moveTo(...history[0]);
-            for (let i = 1; i < history.length; i++) {
-                this.ctx.lineTo(...history[i]);
-            }
-            this.ctx.stroke();
-
-            for (let p of history) {
-                this.dot(...p, car.color);
-            }
-
-            const [x, y] = scale(this.track.grid, car.position);
             if (car.status === 'crashed') {
-                this.dot(x, y, 'yellow');
+                this.gridDot(car.position, 'yellow');
             }
 
             if (car.status === 'error') {
-                this.dot(x, y, 'red');
+                this.gridDot(car.position, 'red');
             }
+        }
+    }
+
+    drawGridTrail(trail: Point[], color: string) {
+        const pixels = this.gridToPixels(trail);
+        this.ctx.strokeStyle = color;
+        this.ctx.lineWidth = 2;
+        this.ctx.beginPath();
+        this.ctx.moveTo(...pixels[0]);
+        for (let point of pixels) {
+            this.ctx.lineTo(...point);
+        }
+        this.ctx.stroke();
+
+        for (let p of trail) {
+            this.gridDot(p, color);
         }
     }
 }

@@ -1,7 +1,8 @@
-import { ButtonBar, Element } from "./button-bar";
+import { ButtonBar, Element, CheckboxInfo } from "./button-bar";
 import { Racetrack, CarUpdate, CarState } from "./racetrack";
 import type { Track } from "./tracks";
 import { RacerStats } from "./racer-stats";
+import { findOptimalPath } from "./optimal-path-finder";
 
 export { RacetrackControls };
 
@@ -17,6 +18,7 @@ class RacetrackControls {
     racers: CarUpdate[];
     inRace: boolean[];
     uiElements: Element[];
+    showGrid: CheckboxInfo;
 
     stats: RacerStats;
 
@@ -60,7 +62,15 @@ class RacetrackControls {
                 this.rt!.refresh();
               }
              },
+            {
+              label: "Solve", action: () => {
+                const path = findOptimalPath(this.rt!.polePositions[0], this.rt!);
+                console.log(path);
+              }
+            },
         ];
+
+        this.showGrid = this.uiElements.find(e => e.label === 'Show Grid') as CheckboxInfo;
 
         const buttonBar = new ButtonBar(this.uiElements);
         parent.appendChild(buttonBar.getElement());
@@ -91,7 +101,7 @@ class RacetrackControls {
             this.rt.reset();
         }
 
-        this.rt = new Racetrack(this.canvas, track, { showGrid: false });
+        this.rt = new Racetrack(this.canvas, track, { showGrid: this.showGrid.value });
 
         for (let i = 0; i < this.racers.length; i++) {
             const racer = this.racers[i];
