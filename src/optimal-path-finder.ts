@@ -4,7 +4,7 @@
 // fastest path to the finish.
 
 import { Racetrack, CarUpdate } from './racetrack';
-import { Point, isZero, add, neighbors, sub } from './points';
+import { Point, isZero, add, neighbors, sub, length } from './points';
 
 export { findOptimalPath, racerFromPath };
 
@@ -14,7 +14,19 @@ function findOptimalPath(start: Point, rt: Racetrack) : Point[] {
     // given point/velocity (since we are doing breadth-first search it will
     // be the fastest way of reaching that point/velocity).
     const priors = new Map<string, string>();
-    const frontier: [Point, Point][] = [[start, [0, 0]]];
+    let frontier: [Point, Point][] = [[start, [0, 0]]];
+    let nextFrontier: [Point, Point][] = [];
+
+    let bestFinish: {
+        newPos: Point,
+        nextVelocity: Point,
+        fraction: number,
+        pathLength: number,
+        pos: Point,
+        velocity: Point,
+    } | undefined;
+
+    let pathLength = 1;
 
     while (frontier.length > 0) {
         const [pos, velocity] = frontier.shift()!;
@@ -55,21 +67,47 @@ function findOptimalPath(start: Point, rt: Racetrack) : Point[] {
                 continue;
             }
 
+            // The best finish is the one that crosses the finish line
+            // soonest.
+
             if (result.status === 'finished') {
-                priors.set(idPV(newPos, nextVelocity), idPV(pos, velocity));
-                const path = buildPath(idPV(newPos, nextVelocity), priors);
-                return path;
+                const fraction = length(sub(result.position, pos)) / length(nextVelocity);
+                console.log(`Found a finish: ${pathLength}.${fraction} @ ${length(nextVelocity).toFixed(1)}`);
+
+                if (bestFinish === undefined ||
+                    pathLength <= bestFinish.pathLength && fraction < bestFinish.fraction) {
+                    bestFinish = {
+                        newPos,
+                        nextVelocity,
+                        fraction,
+                        pos,
+                        velocity,
+                        pathLength
+                    };
+                }
             }
 
             // TODO: Prune sure-to-crash points due to their high velocity.
             // as an optimization - no need to explore those.
             priors.set(idPV(newPos, nextVelocity), idPV(pos, velocity));
-            frontier.push([newPos, nextVelocity]);
-            // rt.gridDot(newPos, 'red');
+            nextFrontier.push([newPos, nextVelocity]);
+        }
+
+        // Subsequent frontiers don't matter if we've already found a finish.
+        if (frontier.length === 0 && bestFinish === undefined) {
+            pathLength += 1;
+            console.log(`Frontier size: ${nextFrontier.length} @ ${pathLength}`);
+            frontier = nextFrontier;
+            nextFrontier = [];
         }
     }
 
-    throw(new Error('No path found'));
+    if (bestFinish === undefined) {
+        throw(new Error('No path found'));
+    }
+
+    const path = buildPath(idPV(bestFinish.newPos, bestFinish.nextVelocity), priors);
+    return path;
 }
 
 function buildPath(endPoint: string, priors: Map<string, string>): Point[] {
