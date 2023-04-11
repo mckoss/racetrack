@@ -24,9 +24,9 @@ class RacetrackControls {
         this.canvas = canvas;
         this.tracks = tracks;
         this.racers = racers;
-        this.inRace = racers.map(() => true);
 
         const racerNames = this.getRacerInfo();
+        this.inRace = racerNames.map(r => r.name! !== 'MJL-1');
 
         this.uiElements = [
             { type: 'choice',
