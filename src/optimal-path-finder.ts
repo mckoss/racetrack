@@ -3,10 +3,10 @@
 // given point/speed combination.  We use an breadth-first search to find the
 // fastest path to the finish.
 
-import { Racetrack } from './racetrack';
-import { Point, isZero, add, neighbors } from './points';
+import { Racetrack, CarUpdate } from './racetrack';
+import { Point, isZero, add, neighbors, sub } from './points';
 
-export { findOptimalPath };
+export { findOptimalPath, racerFromPath };
 
 function findOptimalPath(start: Point, rt: Racetrack) : Point[] {
     // Map from a reached point/velocity to the previous point/velocity
@@ -56,7 +56,6 @@ function findOptimalPath(start: Point, rt: Racetrack) : Point[] {
             }
 
             if (result.status === 'finished') {
-                console.log(`Found path at ${pos} @ ${velocity} - Frontier: ${frontier.length}`);
                 priors.set(idPV(result.position, nextVelocity), idPV(pos, velocity));
                 // TODO: Return whole path
                 const path = buildPath(idPV(newPos, nextVelocity), priors);
@@ -86,7 +85,20 @@ function buildPath(endPoint: string, priors: Map<string, string>): Point[] {
         current = priors.get(current);
     }
 
-    return result;
+    return result.reverse();
+}
+
+function racerFromPath(path: Point[]): CarUpdate {
+    return (state) => {
+        if (state.step === 1) {
+            state.name = 'Optimus-Prime';
+            state.author = 'God';
+            return sub(path[1], path[0])
+        }
+        const vCurrent = sub(path[state.step], path[state.step - 1]);
+        const vPrev = sub(path[state.step - 1], path[state.step - 2]);
+        return sub(vCurrent, vPrev);
+    };
 }
 
 function idPV(p: Point, v: Point): string {
