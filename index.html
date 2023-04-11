@@ -71,7 +71,7 @@
         import { SAMPLE_TRACKS } from './src/tracks.ts';
         import { RacetrackControls } from './src/racetrack-controls.ts';
 
-        // import { MJLRacer1 } from "./src/racers/mjl-racer1.ts";
+        import { racer as mjlRacer1 } from "./src/racers/mjl-racer1.ts";
         import { update as mjlRacer2 } from "./src/racers/mjl-racer2.ts";
         import { update as creeper } from "./src/racers/creeper.ts";
         import { update as jcreeper } from "./src/racers/jcreeper.ts";
@@ -86,7 +86,7 @@
             document.body,
             canvas,
             SAMPLE_TRACKS,
-            [creeper, jcreeper, mjlRacer2, speedRacer, gpt4, gpt4_2, gradD],
+            [creeper, jcreeper, mjlRacer1, mjlRacer2, speedRacer, gpt4, gpt4_2, gradD],
         );
 
     </script>

@@ -42,7 +42,7 @@ interface Stats {
     cars: CarState[];
 }
 
-type CarUpdate = (state: CarState, options: MoveOption[]) => Point;
+type CarUpdate = (state: CarState, options: MoveOption[], racetrack?: Racetrack) => Point;
 
 interface DriveResult {
     status: 'ok' | 'crashed' | 'finished';
@@ -500,7 +500,7 @@ class Racetrack {
             const update = this.updates[i];
             let delta: Point;
             try {
-                delta = update(car, this.moveOptions(car));
+                delta = update(car, this.moveOptions(car), this);
             } catch (e) {
                 console.error(`Car ${car.name}: ${e}`);
                 car.status = 'error';

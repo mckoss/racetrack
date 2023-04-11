@@ -1,5 +1,5 @@
 import { Point, add, linePoints, sub } from "../points.js";
-import { Racetrack } from "../racetrack.js";
+import { CarState, MoveOption, Racetrack } from "../racetrack.js";
 
 // Arbitrary large distance that is hopefully bigger than any track straightaway.
 const PROJECT_FORWARD_DISTANCE = 100000;
@@ -182,4 +182,20 @@ function assert(condition: boolean, message: string): asserts condition {
 
 function fail(message: string): never {
   throw new Error(message);
+}
+
+// Convert class-based racer into a static function.  It will need to detect
+// when a new race begins so if can construct the racer for the possibly new
+// track.
+
+let racerInstance: MJLRacer1;
+
+export function racer(state: CarState, _options: MoveOption[], racetrack: Racetrack) {
+    if (state.step === 1) {
+        state.name = 'MJL-1';
+        state.author = 'mikelehen';
+        racerInstance = new MJLRacer1(racetrack);
+    }
+
+  return racerInstance.update(state);
 }

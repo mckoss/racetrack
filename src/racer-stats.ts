@@ -47,19 +47,20 @@ const COLUMNS: Column[] = [
         type: 'html', displayName: 'Speed',
         value: (r) => {
             const speed = length(r.velocity);
-            return `${mph(speed)}<br>[${speed.toFixed(1)}]`;
+            return `${mph(speed)}<br>[${speed.toFixed(1)} / s]`;
         }
     },
     // { type: 'vector', displayName: 'Velocity', propName: 'velocity' },
     { type: 'integer', displayName: 'Step', propName: 'step' },
     {
-        type: 'text', displayName: 'Distance',
-        value: (r) => `${thousands(r.distanceTraveled * FEET_PER_GRID)}'`
+        type: 'html', displayName: 'Distance',
+        value: (r) => `${thousands(r.distanceTraveled * FEET_PER_GRID)}'` +
+            `<br>[${r.distanceTraveled.toFixed(1)}]`
     },
     {
         type: 'html', displayName: 'Top&nbsp;Speed',
         value: (r) => {
-            return `${mph(r.topSpeed)}<br>[${r.topSpeed.toFixed(1)}]`;
+            return `${mph(r.topSpeed)}<br>[${r.topSpeed.toFixed(1)} / s]`;
         }
     },
     {
