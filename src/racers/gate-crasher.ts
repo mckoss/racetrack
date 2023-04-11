@@ -6,7 +6,7 @@ import { gradientOf } from './racer-helper.js';
 
 export { update };
 
-const DEBUG = true;
+const DEBUG = false;
 
 function debug(...args: any[]) {
     if (DEBUG) {
@@ -86,7 +86,18 @@ function update(state: CarState, options: MoveOption[]): Point {
         const v = unit(state.velocity);
         const speed = length(state.velocity);
         const dist = dot(sub(state.crashPosition, state.position), v) - 3;
-        const speeds = partialPyramidal(dist, speed);
+        let speeds: number[];
+        try {
+            speeds = partialPyramidal(dist, speed);
+        } catch (e) {
+            console.warn(e);
+            try {
+                speeds = partialPyramidal(dist + 1, speed);
+            } catch (e) {
+                console.error(e);
+                speeds = partialPyramidal(dist + 2, speed);
+            }
+        }
         speeds.push(0);
         gateInfo = { v, speeds };
         state.extra = gateInfo;
@@ -101,7 +112,7 @@ function update(state: CarState, options: MoveOption[]): Point {
         let move = scale(delta, gateInfo.v);
 
         // Navigate a turn near the gate.
-        if (gateInfo.speeds.length <= 1) {
+        if (gateInfo.speeds.length <= 2) {
             let t = round(turn(gateInfo.v, 0.25));
             if (dot(t, vGrad) < 0) {
                 t = round(turn(t, 0.5));
