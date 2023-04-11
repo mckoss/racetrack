@@ -150,10 +150,10 @@ function scaleToBox([x, y]: Point, [bx, by]: Point): Point {
     return scale(factor, [x, y]);
 }
 
-function* neighbors(p: Point, grid = 1): Generator<Point> {
+function* neighbors(p: Point, grid = 1, includeSelf = false): Generator<Point> {
     for (let dy of [-grid, 0, grid]) {
         for (let dx of [-grid, 0, grid]) {
-            if (dx === 0 && dy === 0) {
+            if (!includeSelf && dx === 0 && dy === 0) {
                 continue;
             }
             yield add(p, [dx, dy]);

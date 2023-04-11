@@ -1,7 +1,8 @@
-import { ButtonBar, Element } from "./button-bar";
+import { ButtonBar, Element, CheckboxInfo } from "./button-bar";
 import { Racetrack, CarUpdate, CarState } from "./racetrack";
 import type { Track } from "./tracks";
 import { RacerStats } from "./racer-stats";
+import { findOptimalPath, racerFromPath } from "./optimal-path-finder";
 
 export { RacetrackControls };
 
@@ -17,33 +18,44 @@ class RacetrackControls {
     racers: CarUpdate[];
     inRace: boolean[];
     uiElements: Element[];
+    showGrid: CheckboxInfo;
+    optimalRacer: CarUpdate | undefined;
 
     stats: RacerStats;
 
     constructor(parent: HTMLElement, canvas: HTMLCanvasElement, tracks: Track[], racers: CarUpdate[]) {
         this.canvas = canvas;
         this.tracks = tracks;
-        this.racers = racers;
+        this.racers = [...racers];
+
+        this.racers.push((state, options, rt) => {
+            if (state.step === 1) {
+                const path = findOptimalPath(state.position, rt!);
+                this.optimalRacer = racerFromPath(path);
+            }
+            return this.optimalRacer!(state, options);
+        });
 
         const racerNames = this.getRacerInfo();
         this.inRace = racerNames.map(r => r.name! !== 'MJL-1');
 
         this.uiElements = [
-            { type: 'choice',
-              label: "Racetrack",
-              value: tracks[0].name,
-              choices: tracks.map(t => t.name),
-              action: (name) => {
-                this.attachTrack(tracks.find(t => t.name === name)!);
-              }
+            {
+                type: 'choice',
+                label: "Racetrack",
+                value: tracks[0].name,
+                choices: tracks.map(t => t.name),
+                action: (name) => {
+                    this.attachTrack(tracks.find(t => t.name === name)!);
+                }
             },
             {
-              label: "Reset",
-              action: () => {
-                // Don't use default reset function as we could have different
-                // racers selected.
-                this.attachTrack(this.rt!.track);
-              }
+                label: "Reset",
+                action: () => {
+                    // Don't use default reset function as we could have different
+                    // racers selected.
+                    this.attachTrack(this.rt!.track);
+                }
             },
             {
                 label: "Step", action: () => {
@@ -52,19 +64,21 @@ class RacetrackControls {
                 }
             },
             { label: "Run", action: () => this.rt!.run(100) },
-            { type: "checkbox",
-              label: "Show Grid",
-              value: false,
-              action: (checked) => {
-                this.rt!.setOptions({ showGrid: checked});
-                this.rt!.refresh();
-              }
-             },
+            {
+                type: "checkbox",
+                label: "Show Grid",
+                value: false,
+                action: (checked) => {
+                    this.rt!.setOptions({ showGrid: checked });
+                    this.rt!.refresh();
+                }
+            },
         ];
+
+        this.showGrid = this.uiElements.find(e => e.label === 'Show Grid') as CheckboxInfo;
 
         const buttonBar = new ButtonBar(this.uiElements);
         parent.appendChild(buttonBar.getElement());
-
 
         const racerCheckboxes: Element[] = racerNames.map((r, i) => {
             return {
@@ -91,7 +105,7 @@ class RacetrackControls {
             this.rt.reset();
         }
 
-        this.rt = new Racetrack(this.canvas, track, { showGrid: false });
+        this.rt = new Racetrack(this.canvas, track, { showGrid: this.showGrid.value });
 
         for (let i = 0; i < this.racers.length; i++) {
             const racer = this.racers[i];

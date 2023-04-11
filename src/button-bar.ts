@@ -5,7 +5,7 @@
 // lay out in one or more rows as needed to fit the available space.
 
 export { ButtonBar };
-export type { Element };
+export type { Element, CheckboxInfo };
 
 interface ElementInfo {
     type?: 'button' | 'checkbox' | 'choice';
