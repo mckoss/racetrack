@@ -71,7 +71,7 @@
         import { SAMPLE_TRACKS } from './src/tracks.ts';
         import { RacetrackControls } from './src/racetrack-controls.ts';
 
-        import { racer as mjlRacer1 } from "./src/racers/mjl-racer1.ts";
+        // import { racer as mjlRacer1 } from "./src/racers/mjl-racer1.ts";
         import { update as mjlRacer2 } from "./src/racers/mjl-racer2.ts";
         import { update as creeper } from "./src/racers/creeper.ts";
         import { update as jcreeper } from "./src/racers/jcreeper.ts";
@@ -79,6 +79,7 @@
         import { update as speedRacer } from "./src/racers/speed-racer.ts";
         import { update as gradD } from "./src/racers/gradient-descent.ts";
         import { update as gateCrasher } from "./src/racers/gate-crasher.ts";
+        import { getOptimalRacer } from "./src/optimal-path-finder.ts";
 
         const canvas = document.createElement('canvas');
         document.body.appendChild(canvas);
@@ -87,8 +88,8 @@
             document.body,
             canvas,
             SAMPLE_TRACKS,
-            [creeper, jcreeper, mjlRacer1, mjlRacer2, speedRacer, gpt4, gpt4_2,
-             gradD, gateCrasher],
+            [creeper, jcreeper, mjlRacer2, speedRacer, gpt4, gpt4_2,
+             gradD, gateCrasher, getOptimalRacer()],
         );
 
     </script>

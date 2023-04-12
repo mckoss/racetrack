@@ -3,11 +3,11 @@
 // given point/speed combination.  We use an breadth-first search to find the
 // fastest path to the finish.
 
-import { Racetrack, CarUpdate } from './racetrack';
+import { Racetrack, MoveOption, CarState, CarUpdate } from './racetrack';
 import { Point, isZero, add, neighbors, sub, length } from './points';
 import { first, sgnOrder, cmpDefined } from './util';
 
-export { findOptimalPath, racerFromPath };
+export { findOptimalPath, getOptimalRacer };
 
 interface Finish {
     newPos: Point,
@@ -119,17 +119,21 @@ function buildPath(endPoint: string, priors: Map<string, string>): Point[] {
     return result.reverse();
 }
 
-function racerFromPath(path: Point[]): CarUpdate {
-    return (state) => {
+function getOptimalRacer(): CarUpdate {
+    let path: Point[] = [];
+
+    return (state: CarState, _options: MoveOption[], rt?: Racetrack) => {
         if (state.step === 1) {
             state.name = 'Optimus-Prime';
             state.author = 'God';
+            path = findOptimalPath(state.position, rt!);
             return sub(path[1], path[0])
         }
+
         const vCurrent = sub(path[state.step], path[state.step - 1]);
         const vPrev = sub(path[state.step - 1], path[state.step - 2]);
         return sub(vCurrent, vPrev);
-    };
+    }
 }
 
 function idPV(p: Point, v: Point): string {

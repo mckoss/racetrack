@@ -2,7 +2,6 @@ import { ButtonBar, Element, CheckboxInfo } from "./button-bar";
 import { Racetrack, CarUpdate, CarState } from "./racetrack";
 import type { Track } from "./tracks";
 import { RacerStats } from "./racer-stats";
-import { findOptimalPath, racerFromPath } from "./optimal-path-finder";
 
 export { RacetrackControls };
 
@@ -16,10 +15,9 @@ class RacetrackControls {
     rt?: Racetrack;
     tracks: Track[];
     racers: CarUpdate[];
-    inRace: boolean[];
+    inRace: boolean[] = [];
     uiElements: Element[];
     showGrid: CheckboxInfo;
-    optimalRacer: CarUpdate | undefined;
 
     stats: RacerStats;
 
@@ -28,16 +26,8 @@ class RacetrackControls {
         this.tracks = tracks;
         this.racers = [...racers];
 
-        this.racers.push((state, options, rt) => {
-            if (state.step === 1) {
-                const path = findOptimalPath(state.position, rt!);
-                this.optimalRacer = racerFromPath(path);
-            }
-            return this.optimalRacer!(state, options);
-        });
-
         const racerNames = this.getRacerInfo();
-        this.inRace = racerNames.map(r => r.name! !== 'MJL-1');
+        this.inRace = racerNames.map(_ => true);
 
         this.uiElements = [
             {
@@ -126,7 +116,7 @@ class RacetrackControls {
     }
 
     getRacerInfo() : RacerInfo[] {
-        // Just need a dummy race.
+        // Just need a dummy race so we can register the racers to get their names.
         const rt = new Racetrack(this.canvas, this.tracks[0], { showGrid: false });
         for (const racer of this.racers) {
             rt.race(racer);

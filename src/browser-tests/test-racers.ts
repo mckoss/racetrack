@@ -1,11 +1,10 @@
 import { assert } from 'chai';
 
-import { Racetrack, CarUpdate } from '../racetrack.js';
+import { Racetrack } from '../racetrack.js';
 import { OVAL } from '../tracks.js';
 
 import { update } from '../racers/creeper.js';
-import { MJLRacer1 } from "../racers/mjl-racer1.js";
-import { findOptimalPath, racerFromPath } from '../optimal-path-finder.js';
+import { getOptimalRacer } from '../optimal-path-finder.js';
 
 suite('Racers', function () {
     let canvas: HTMLCanvasElement;
@@ -30,23 +29,8 @@ suite('Racers', function () {
         assert.equal(rt.cars[0].status, 'finished');
     }).timeout(10000);
 
-    test('MJL #1', async () => {
-        const mjl1 = new MJLRacer1(rt);
-        rt.race(mjl1.update.bind(mjl1));
-        await rt.run();
-        assert.equal(rt.cars[0].status, 'finished');
-    });
-
     test('Optimal Racer', async () => {
-        let optimal: CarUpdate | undefined;
-
-        rt.race((state, options, rt) => {
-            if (state.step === 1) {
-                const path = findOptimalPath(state.position, rt!);
-                optimal = racerFromPath(path);
-            }
-            return optimal!(state, options);
-        });
+        rt.race(getOptimalRacer());
         await rt.run();
         assert.equal(rt.cars[0].status, 'finished');
         assert.equal(rt.cars[0].finishTime, 25);
