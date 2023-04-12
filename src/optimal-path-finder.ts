@@ -5,8 +5,18 @@
 
 import { Racetrack, CarUpdate } from './racetrack';
 import { Point, isZero, add, neighbors, sub, length } from './points';
+import { first, sgnOrder, cmpDefined } from './util';
 
 export { findOptimalPath, racerFromPath };
+
+interface Finish {
+    newPos: Point,
+    nextVelocity: Point,
+    fraction: number,
+    pathLength: number,
+    pos: Point,
+    velocity: Point,
+};
 
 function findOptimalPath(start: Point, rt: Racetrack) : Point[] {
     // Map from a reached point/velocity to the previous point/velocity
@@ -17,14 +27,7 @@ function findOptimalPath(start: Point, rt: Racetrack) : Point[] {
     let frontier: [Point, Point][] = [[start, [0, 0]]];
     let nextFrontier: [Point, Point][] = [];
 
-    let bestFinish: {
-        newPos: Point,
-        nextVelocity: Point,
-        fraction: number,
-        pathLength: number,
-        pos: Point,
-        velocity: Point,
-    } | undefined;
+    let bestFinish: Finish | undefined;
 
     let pathLength = 1;
 
@@ -56,7 +59,7 @@ function findOptimalPath(start: Point, rt: Racetrack) : Point[] {
             // Prune points that are further from the finish than
             // the current point.  Note: this may not always be fastest
             // but it is a good heuristic and cuts down on the search space.
-            if (rt.distanceToFinish(newPos) >= currentDistanceToFinish) {
+            if (rt.distanceToFinish(newPos) > currentDistanceToFinish) {
                 continue;
             }
 
@@ -74,17 +77,9 @@ function findOptimalPath(start: Point, rt: Racetrack) : Point[] {
                 const fraction = length(sub(result.position, pos)) / length(nextVelocity);
                 console.log(`Found a finish: ${pathLength}.${fraction} @ ${length(nextVelocity).toFixed(1)}`);
 
-                if (bestFinish === undefined ||
-                    pathLength <= bestFinish.pathLength && fraction < bestFinish.fraction) {
-                    bestFinish = {
-                        newPos,
-                        nextVelocity,
-                        fraction,
-                        pos,
-                        velocity,
-                        pathLength
-                    };
-                }
+                bestFinish = first([bestFinish,
+                    { newPos, nextVelocity, fraction, pos, velocity, pathLength }],
+                    cmpFinish);
             }
 
             // TODO: Prune sure-to-crash points due to their high velocity.
@@ -144,3 +139,15 @@ function idPV(p: Point, v: Point): string {
 function pvFromId(id: string): [Point, Point] {
     return JSON.parse(id);
 }
+
+function cmpFinish(a: Finish | undefined, b: Finish | undefined): number {
+    let sgn = cmpDefined(a, b);
+    if (sgn !== 0) {
+        return sgn;
+    }
+
+    return sgnOrder(
+        a!.pathLength - b!.pathLength,
+        a!.fraction - b!.fraction,
+        length(b!.nextVelocity) - length(a!.nextVelocity));
+};

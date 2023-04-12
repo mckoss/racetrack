@@ -1,4 +1,6 @@
-export { testBool, testValue, shuffle, range, first, pyramidal, partialPyramidal };
+export { testBool, testValue, cmpDefined, sgnOrder,
+    shuffle, range, first, pyramidal, partialPyramidal };
+export type { CMP, SGN };
 
 // These functions are used as helpers for sorting arrays.  Inside of a
 // comparison function, they return a negative number if a is less than b, a
@@ -14,27 +16,45 @@ export { testBool, testValue, shuffle, range, first, pyramidal, partialPyramidal
 // }
 
 type CMP<T> = (a: T, b: T) => number;
+type SGN = -1 | 0 | 1;
 
 // Return negative if only a has boolean attribute, positive if only b has boolean
 // attribute, 0 if they both have the same boolean attribute.
 // Treat undefined as false.
-function testBool<T>(a: T, b: T, f: (x: T) => boolean | undefined): number {
+function testBool<T>(a: T, b: T, f: (x: T) => boolean | undefined): SGN {
     const aBool = f(a) || false;
     const bBool = f(b) || false;
     return aBool === bBool ? 0 : aBool ? -1 : 1;
 }
 
 // Treat undefined as largest value (coming latest in sort order).
-function testValue<T>(a: T, b: T, f: (x: T) => number | undefined): number {
+function testValue<T>(a: T, b: T, f: (x: T) => number | undefined): SGN {
     const aVal = f(a);
     const bVal = f(b);
-    if (bVal === undefined) {
-        return aVal === undefined ? 0 : -1;
+    let sgn = cmpDefined(a, b);
+    if (sgn !== 0) {
+        return sgn;
     }
-    if (aVal === undefined) {
-        return 1;
+    return Math.sign(aVal! - bVal!) as SGN;
+}
+
+function cmpDefined<T>(a: T | undefined, b: T | undefined): SGN {
+    if (a === undefined) {
+        return b === undefined ? 0 : 1;
     }
-    return aVal - bVal;
+    if (b === undefined) {
+        return -1;
+    }
+    return 0;
+}
+
+function sgnOrder(...sgn: number[]): SGN {
+    for (const s of sgn) {
+        if (s !== 0) {
+            return Math.sign(s) as SGN;
+        }
+    }
+    return 0;
 }
 
 function shuffle<T>(array: T[]): T[] {
