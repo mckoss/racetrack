@@ -25,76 +25,77 @@ function findOptimalPath(start: Point, rt: Racetrack) : Point[] {
     // be the fastest way of reaching that point/velocity).
     const priors = new Map<string, string>();
     let frontier: [Point, Point][] = [[start, [0, 0]]];
-    let nextFrontier: [Point, Point][] = [];
+    let nextFrontier: [Point, Point][];
 
     let bestFinish: Finish | undefined;
 
     let pathLength = 1;
 
     while (frontier.length > 0) {
-        const [pos, velocity] = frontier.shift()!;
-        // rt.gridDot(pos, 'black');
+        nextFrontier = [];
+        for (const [pos, velocity] of frontier) {
+            const currentDistanceToFinish = rt.distanceToFinish(pos);
 
-        const currentDistanceToFinish = rt.distanceToFinish(pos);
+            for (const nextVelocity of neighbors(velocity, 1, true)) {
+                // While there may be cases where we need to stop
+                // and turn around, we will ignore those (for now).
+                if (isZero(nextVelocity)) {
+                    continue;
+                }
 
-        for (const nextVelocity of neighbors(velocity, 1, true)) {
-            // While there may be cases where we need to stop
-            // and turn around, we will ignore those (for now).
-            if (isZero(nextVelocity)) {
-                continue;
+                const newPos = add(pos, nextVelocity);
+
+                // We've already been here at the same velocity - skip.
+                if (priors.has(idPV(newPos, nextVelocity))) {
+                    continue;
+                }
+
+                // Prune points that have left the track.
+                if (!rt.isPointInTrack(newPos)) {
+                    continue;
+                }
+
+                // Prune points that are further from the finish than
+                // the current point.  Note: this may not always be fastest
+                // but it is a good heuristic and cuts down on the search space.
+                if (rt.distanceToFinish(newPos) > currentDistanceToFinish) {
+                    continue;
+                }
+
+                const result = rt.driveLine(pos, newPos);
+
+                // Went off track in the transition.
+                if (result.status === 'crashed') {
+                    continue;
+                }
+
+                // The best finish is the one that crosses the finish line
+                // soonest.
+
+                if (result.status === 'finished') {
+                    const fraction = length(sub(result.position, pos)) / length(nextVelocity);
+                    console.log(`Found a finish: ${pathLength}.${fraction} @ ${length(nextVelocity).toFixed(1)}`);
+
+                    bestFinish = first([bestFinish,
+                        { newPos, nextVelocity, fraction, pos, velocity, pathLength }],
+                        cmpFinish);
+                }
+
+                // TODO: Prune sure-to-crash points due to their high velocity.
+                // as an optimization - no need to explore those.
+                priors.set(idPV(newPos, nextVelocity), idPV(pos, velocity));
+                nextFrontier.push([newPos, nextVelocity]);
             }
-
-            const newPos = add(pos, nextVelocity);
-
-            // We've already been here at the same velocity - skip.
-            if (priors.has(idPV(newPos, nextVelocity))) {
-                continue;
-            }
-
-            // Prune points that have left the track.
-            if (!rt.isPointInTrack(newPos)) {
-                continue;
-            }
-
-            // Prune points that are further from the finish than
-            // the current point.  Note: this may not always be fastest
-            // but it is a good heuristic and cuts down on the search space.
-            if (rt.distanceToFinish(newPos) > currentDistanceToFinish) {
-                continue;
-            }
-
-            const result = rt.driveLine(pos, newPos);
-
-            // Went off track in the transition.
-            if (result.status === 'crashed') {
-                continue;
-            }
-
-            // The best finish is the one that crosses the finish line
-            // soonest.
-
-            if (result.status === 'finished') {
-                const fraction = length(sub(result.position, pos)) / length(nextVelocity);
-                console.log(`Found a finish: ${pathLength}.${fraction} @ ${length(nextVelocity).toFixed(1)}`);
-
-                bestFinish = first([bestFinish,
-                    { newPos, nextVelocity, fraction, pos, velocity, pathLength }],
-                    cmpFinish);
-            }
-
-            // TODO: Prune sure-to-crash points due to their high velocity.
-            // as an optimization - no need to explore those.
-            priors.set(idPV(newPos, nextVelocity), idPV(pos, velocity));
-            nextFrontier.push([newPos, nextVelocity]);
         }
 
         // Subsequent frontiers don't matter if we've already found a finish.
-        if (frontier.length === 0 && bestFinish === undefined) {
-            pathLength += 1;
-            console.log(`Frontier size: ${nextFrontier.length} @ ${pathLength}`);
-            frontier = nextFrontier;
-            nextFrontier = [];
+        if (bestFinish !== undefined) {
+            break;
         }
+
+        pathLength += 1;
+        console.log(`Frontier size: ${nextFrontier.length} @ ${pathLength}`);
+        frontier = nextFrontier;
     }
 
     if (bestFinish === undefined) {
