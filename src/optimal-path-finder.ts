@@ -75,7 +75,7 @@ function findOptimalPath(start: Point, rt: Racetrack) : Point[] {
 
                 if (result.status === 'finished') {
                     const fraction = length(sub(result.position, pos)) / length(nextVelocity);
-                    console.log(`Found a finish: ${pathLength}.${fraction} @ ${length(nextVelocity).toFixed(1)}`);
+                    // console.log(`Found a finish: ${pathLength}.${fraction} @ ${length(nextVelocity).toFixed(1)}`);
 
                     bestFinish = first([bestFinish,
                         { newPos, nextVelocity, fraction, pos, velocity, pathLength }],
@@ -95,7 +95,7 @@ function findOptimalPath(start: Point, rt: Racetrack) : Point[] {
         }
 
         pathLength += 1;
-        console.log(`Frontier size: ${nextFrontier.length} @ ${pathLength}`);
+        // console.log(`Frontier size: ${nextFrontier.length} @ ${pathLength}`);
         frontier = nextFrontier;
     }
 

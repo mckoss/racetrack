@@ -543,15 +543,9 @@ class Racetrack {
             this.histories[i].push(car.position);
             if (result.status !== 'ok') {
                 car.status = result.status;
-                const message = `Car ${car.name} ${result.status} after ${this.stepNumber} steps at ${result.position}`;
                 if (result.status === 'finished') {
                     const fraction = segmentLength / length(car.velocity);
                     car.finishTime = (this.stepNumber - 1) + fraction;
-                }
-                if (result.status === 'crashed') {
-                    console.warn(message);
-                } else {
-                    console.log(message);
                 }
             } else if (!isZero(car.velocity)) {
                 // Imagine the car coasts at it's current velocity until it
@@ -571,7 +565,6 @@ class Racetrack {
         this.refresh();
         if (this.isRaceDone()) {
             this.isRunning = false;
-            console.log(`Race finished in ${this.stepNumber} steps.`);
         }
 
         this.updateStatsSubs();
@@ -600,7 +593,6 @@ class Racetrack {
 
         function nextFrame() {
             if (!self.isRunning) {
-                console.log(`Race reset or paused.`);
                 resolver();
                 return;
             }
