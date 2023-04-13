@@ -381,7 +381,7 @@ class Racetrack {
         this.ctx.textAlign = 'center';
         this.ctx.textBaseline = 'middle';
         const [x, y] = scale(this.track.grid, point);
-        this.ctx.fillText(text, x, y);
+        this.ctx.fillText(text, x, y + 1);
     }
 
     // Return grid points that are inside the track
