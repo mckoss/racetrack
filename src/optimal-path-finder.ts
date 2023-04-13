@@ -3,9 +3,9 @@
 // given point/speed combination.  We use an breadth-first search to find the
 // fastest path to the finish.
 
-import { Racetrack, MoveOption, CarState, CarUpdate } from './racetrack';
+import { Racetrack, MoveOption, CarState, CarUpdate, movesFromPath } from './racetrack';
 import { Point, isZero, add, neighbors, sub, length } from './points';
-import { first, sgnOrder, cmpDefined } from './util';
+import { first, sgnOrder, cmpDefined, shuffle } from './util';
 
 export { findOptimalPath, getOptimalRacer };
 
@@ -36,7 +36,8 @@ function findOptimalPath(start: Point, rt: Racetrack) : Point[] {
         for (const [pos, velocity] of frontier) {
             const currentDistanceToFinish = rt.distanceToFinish(pos);
 
-            for (const nextVelocity of neighbors(velocity, 1, true)) {
+            // Remove directional bias by shuffling the order of the neighbors.
+            for (const nextVelocity of shuffle([...neighbors(velocity, 1, true)])) {
                 // While there may be cases where we need to stop
                 // and turn around, we will ignore those (for now).
                 if (isZero(nextVelocity)) {
@@ -121,19 +122,17 @@ function buildPath(endPoint: string, priors: Map<string, string>): Point[] {
 }
 
 function getOptimalRacer(): CarUpdate {
-    let path: Point[] = [];
+    let moves: Point[] = [];
 
     return (state: CarState, _options: MoveOption[], rt?: Racetrack) => {
         if (state.step === 1) {
             state.name = 'Optimus-Prime';
             state.author = 'God';
-            path = findOptimalPath(state.position, rt!);
-            return sub(path[1], path[0])
+            moves = movesFromPath(findOptimalPath(state.position, rt!));
+            return moves[0];
         }
 
-        const vCurrent = sub(path[state.step], path[state.step - 1]);
-        const vPrev = sub(path[state.step - 1], path[state.step - 2]);
-        return sub(vCurrent, vPrev);
+        return moves[state.step - 1];
     }
 }
 

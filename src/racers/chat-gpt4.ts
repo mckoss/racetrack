@@ -51,7 +51,7 @@ function racer(state: CarState, options: MoveOption[]) {
       state.author = "GPT-4"
     }
 
-    console.log(`Position: ${state.position} velocity: ${state.velocity} crashPosition: ${state.crashPosition}`);
+    // console.log(`Position: ${state.position} velocity: ${state.velocity} crashPosition: ${state.crashPosition}`);
 
     const safeMoves = options.filter(option => option.status !== 'crashed');
 
@@ -89,6 +89,6 @@ function racer(state: CarState, options: MoveOption[]) {
 
     const bestMove = bestMoves[Math.floor(Math.random() * bestMoves.length)].move;
 
-    console.log(`Best move: ${bestMove}`);
+    // console.log(`Best move: ${bestMove}`);
     return bestMove;
   }

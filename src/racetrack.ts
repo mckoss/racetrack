@@ -1,11 +1,11 @@
-import { Point, linePoints, add, sub, scale, round, ceil, isZero, scaleToBox,
-         length, id, pointFromId, neighbors, perpendicularLine } from './points.js';
+import { Point, linePoints, add, sub, scale, round, ceil, isZero, dot, scaleToBox,
+         unit, length, id, pointFromId, neighbors, perpendicularLine } from './points.js';
 import type { Track } from './tracks.js';
 import { testBool, testValue, shuffle, range } from './util.js';
 
 import carSpriteImage from './images/car-sheet.png';
 
-export { Racetrack };
+export { Racetrack, movesFromPath };
 export type { CarState, MoveOption, CarUpdate };
 
 // Data used by racer, and provided to stats subscribers.
@@ -652,15 +652,38 @@ class Racetrack {
     }
 
     drawGridTrail(trail: Point[], color: string) {
+        type Dash = number[];
+        const SOLID: Dash = [];
+        const WEAK_DASHED: Dash = [2, 6];
+        const STRONG_DASHED: Dash = [6, 2];
+
+        const moves = movesFromPath(trail);
         const pixels = this.gridToPixels(trail);
+
         this.ctx.strokeStyle = color;
         this.ctx.lineWidth = 2;
-        this.ctx.beginPath();
-        this.ctx.moveTo(...pixels[0]);
-        for (let point of pixels) {
-            this.ctx.lineTo(...point);
+
+        this.ctx.save();
+
+        for (let i = 1; i < pixels.length; i++) {
+            const v = sub(trail[i], trail[i - 1]);
+            const deltaV = dot(moves[i - 1], unit(v));
+
+            let dash = STRONG_DASHED;
+            if (deltaV >= 0.5) {
+                dash = SOLID;
+            } else if (deltaV <= -0.5) {
+                dash = WEAK_DASHED;
+            }
+
+            this.ctx.setLineDash(dash);
+            this.ctx.beginPath();
+            this.ctx.moveTo(...pixels[i - 1]);
+            this.ctx.lineTo(...pixels[i]);
+            this.ctx.stroke();
         }
-        this.ctx.stroke();
+
+        this.ctx.restore();
 
         for (let p of trail) {
             this.gridDot(p, color);
@@ -668,3 +691,15 @@ class Racetrack {
     }
 }
 
+function movesFromPath(path: Point[]): Point[] {
+    const result: Point[] = [];
+    let vPrev: Point = [0, 0];
+
+    for (let i = 1; i < path.length; i++) {
+        const vCurrent = sub(path[i], path[i - 1]);
+        result.push(sub(vCurrent, vPrev));
+        vPrev = vCurrent;
+    }
+
+    return result;
+}
