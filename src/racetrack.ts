@@ -337,29 +337,16 @@ class Racetrack {
                 if (this.isPointInTrack(point)) {
                     this.gridDot(point, 'white');
                 }
+
+                const dist = this.finishDistances.get(id(point));
+                if (dist !== undefined && (this.track.grid >= 20 || dist % 5 === 0)) {
+                    this.gridText(point, dist.toString());
+                }
             }
         }
 
         for (let [pointId, color] of this.crashPositions.entries()) {
-            this.gridDot(pointFromId(pointId), color);
-        }
-
-        if (this.options.showGrid) {
-            // Add distances to reach the finish line to the grid.
-            this.ctx.fillStyle = 'black';
-            this.ctx.font = '12px sans-serif';
-            this.ctx.textAlign = 'center';
-            this.ctx.textBaseline = 'middle';
-            for (let point of this.gridPoints()) {
-                if (this.track.grid < 20 && point[0] % 5 !== 0) {
-                    continue;
-                }
-                const [x, y] = scale(this.track.grid, point);
-                const pos = id(point);
-                if (this.finishDistances.has(pos)) {
-                    this.ctx.fillText(this.finishDistances.get(pos)!.toString(), x, y);
-                }
-            }
+            this.gridText(pointFromId(pointId), 'X', color, '800 12pt sans-serif');
         }
     }
 
@@ -386,6 +373,15 @@ class Racetrack {
     gridDot(point: Point, color: string) {
         const [x, y] = scale(this.track.grid, point);
         this.dot(x, y, color);
+    }
+
+    gridText(point: Point, text: string, color = 'black', font='8pt sans-serif') {
+        this.ctx.fillStyle = color;
+        this.ctx.font = font;
+        this.ctx.textAlign = 'center';
+        this.ctx.textBaseline = 'middle';
+        const [x, y] = scale(this.track.grid, point);
+        this.ctx.fillText(text, x, y);
     }
 
     // Return grid points that are inside the track
