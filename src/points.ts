@@ -1,6 +1,6 @@
 export { linePoints, add, sub, scale, ceil, round, isZero, isEqual, sign,
     length, unit, turn, dot, repr, perpendicularLine, fixed, scaleToBox, id,
-    pointFromId, neighbors, isOrthogonal };
+    pointFromId, neighbors, isOrthogonal, Transform };
 export type { Point };
 
 // x, y coordinates
@@ -166,4 +166,79 @@ function* neighbors(p: Point, grid = 1, includeSelf = false): Generator<Point> {
 function perpendicularLine(p1:Point, p2:Point, width:number): [Point, Point] {
     const v = scale(width / 2, turn(unit(sub(p2, p1)), -0.25));
     return [add(p1, v), sub(p1, v)];
+}
+
+// A transform is a 3x3 matrix that can be used to transform points.
+// mxx, mxy, xOffset, myx, myy, yOffset
+type TParams = [number, number, number, number, number, number];
+
+class Transform {
+    params: TParams;
+
+    // Construct the identity transform if no arguments are given.
+    constructor(params?: TParams) {
+        if (params) {
+            this.params = params;
+        } else {
+            this.params = [1, 0, 0, 0, 1, 0];
+        }
+    }
+
+    copy(): Transform {
+        return new Transform(this.params.slice() as TParams);
+    }
+
+    static translate([x, y]: Point): Transform {
+        return new Transform([1, 0, x, 0, 1, y]);
+    }
+
+    static scale([x, y]: Point): Transform {
+        return new Transform([x, 0, 0, 0, y, 0]);
+    }
+
+    static turn(turns: number): Transform {
+        const rad = turns * 2 * Math.PI;
+        const cos = Math.cos(rad);
+        const sin = Math.sin(rad);
+        return new Transform([cos, -sin, 0, sin, cos, 0]);
+    }
+
+    // Reflection across the x-y axis
+    static reflect(): Transform {
+        return new Transform([0, 1, 0, 1, 0, 0]);
+    }
+
+    static mirror(): Transform {
+        return new Transform([-1, 0, 0, 0, -1, 0]);
+    }
+
+    apply([x, y]: Point): Point {
+        return [this.params[0] * x + this.params[1] * y + this.params[2],
+                this.params[3] * x + this.params[4] * y + this.params[5]];
+    }
+
+    compose(t: Transform): Transform {
+        return new Transform([
+            this.params[0] * t.params[0] + this.params[1] * t.params[3],
+            this.params[0] * t.params[1] + this.params[1] * t.params[4],
+            this.params[0] * t.params[2] + this.params[1] * t.params[5] + this.params[2],
+            this.params[3] * t.params[0] + this.params[4] * t.params[3],
+            this.params[3] * t.params[1] + this.params[4] * t.params[4],
+            this.params[3] * t.params[2] + this.params[4] * t.params[5] + this.params[5],
+        ]);
+    }
+
+    inverse(): Transform {
+        const [mxx, mxy, xOffset, myx, myy, yOffset] = this.params;
+        const det = mxx * myy - mxy * myx;
+
+        if (det === 0) {
+            throw new Error("Cannot invert transform");
+        }
+
+        return new Transform([
+            myy / det, -mxy / det, -((myy * xOffset - mxy * yOffset) / det),
+            -myx / det, mxx / det, -((mxx * yOffset - myx * xOffset) / det),
+        ]);
+    }
 }

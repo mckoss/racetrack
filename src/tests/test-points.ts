@@ -1,6 +1,6 @@
 import { assert } from 'chai';
 
-import { linePoints, Point, scaleToBox, perpendicularLine, fixed, isEqual } from '../points.js';
+import { linePoints, Point, scaleToBox, perpendicularLine, fixed, isEqual, Transform } from '../points.js';
 
 suite('Points', () => {
     type lpTest = {
@@ -176,6 +176,114 @@ suite('Points', () => {
                 isEqual(l1[0], l2[1]) && isEqual(l1[1], l2[0]);
         }
     });
+
+    const transformTests = [
+        {
+            name: 'identity',
+            trans: new Transform(),
+            result: [3, 5],
+        },
+        {
+            name: 'translate',
+            trans: Transform.translate([1, 2]),
+            result: [4, 7],
+        },
+        {
+            name: 'scale',
+            trans: Transform.scale([2, 3]),
+            result: [6, 15],
+        },
+        {
+            name: 'turn',
+            trans: Transform.turn(0.25),
+            result: [-5, 3],
+        },
+        {
+            name: 'reflect',
+            trans: Transform.reflect(),
+            result: [5, 3],
+        },
+        {
+            name: 'mirror',
+            trans: Transform.mirror(),
+            result: [-3, -5],
+        },
+        {
+            name: 'compose',
+            trans: Transform.translate([1, 2]).compose(Transform.scale([2, 3])),
+            result: [7, 17],
+        },
+        {
+            name: 'inverse',
+            trans: Transform.translate([1, 2]).inverse(),
+            result: [2, 3],
+        },
+        {
+            // The reason for this result is as follows (from GPT-4):
+            // 1. First, we translate the point (3, 5) by (-10, -10), resulting
+            //    in the point (-7, -5).
+            // 2. Then, we rotate the point (-7, -5) by 90 degrees (0.25 turns)
+            //    around the origin (0, 0). The rotated point is (5, -7).
+            // 3. Finally, we translate the rotated point (5, -7) by (10, 10),
+            //    resulting in the point (15, 3).
+            //
+            // So, the composed transform first moves the point to a new
+            // coordinate system, then rotates it, and finally moves it back to
+            // the original coordinate system, yielding the final point (15, 3).
+
+            name: 'rotate-around-a-point',
+            trans: Transform.translate([10, 10])
+                .compose(Transform.turn(0.25))
+                .compose(Transform.translate([-10, -10])),
+            result: [15, 3],
+        },
+        {
+            name: 'complex-compose',
+            trans: Transform.translate([2, 3])
+                   .compose(Transform.scale([0.5, 2]))
+                   .compose(Transform.turn(0.25)),
+            result: [-0.5, 9],
+        },
+        {
+            name: 'large-scale-factors',
+            trans: Transform.scale([1e-10, 1e10]),
+            result: [3e-10, 5e10],
+        },
+        {
+            name: 'near-singular',
+            trans: new Transform([1, 1e-10, 0, 1e-10, 1, 0]),
+            result: [3, 5],
+        },
+        {
+            name: 'zero',
+            trans: Transform.scale([0, 0]),
+            result: [0, 0],
+            inverseError: true
+        },
+    ];
+
+    for (const t of transformTests) {
+        test(`Transform - ${t.name}`, () => {
+            const point = [3, 5] as Point;
+            const computed = t.trans.apply(point);
+            assert.approximately(computed[0], t.result[0], 0.0001);
+            assert.approximately(computed[1], t.result[1], 0.0001);
+        });
+
+        test(`Transform - ${t.name} - inverse${t.inverseError ? ' (throws)' : ''}`, () => {
+            const point = [3, 5] as Point;
+            const f = () => {
+                return t.trans.compose(t.trans.inverse()).apply(point);
+            };
+            if (t.inverseError) {
+                assert.throws(f);
+                return;
+            }
+            const computed = f();
+            assert.approximately(computed[0], point[0], 0.0001);
+            assert.approximately(computed[1], point[1], 0.0001);
+        });
+    }
 });
 
 function reflect(p: Point): Point {
