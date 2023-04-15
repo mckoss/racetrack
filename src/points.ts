@@ -204,12 +204,16 @@ class Transform {
     }
 
     // Reflection across the x-y axis
-    static reflect(): Transform {
+    static swapXY(): Transform {
         return new Transform([0, 1, 0, 1, 0, 0]);
     }
 
-    static mirror(): Transform {
-        return new Transform([-1, 0, 0, 0, -1, 0]);
+    static negateX(): Transform {
+        return new Transform([-1, 0, 0, 0, 1, 0]);
+    }
+
+    static negateY(): Transform {
+        return new Transform([1, 0, 0, 0, -1, 0]);
     }
 
     apply([x, y]: Point): Point {

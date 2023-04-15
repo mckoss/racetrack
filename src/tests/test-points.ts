@@ -199,14 +199,19 @@ suite('Points', () => {
             result: [-5, 3],
         },
         {
-            name: 'reflect',
-            trans: Transform.reflect(),
+            name: 'swapXY',
+            trans: Transform.swapXY(),
             result: [5, 3],
         },
         {
-            name: 'mirror',
-            trans: Transform.mirror(),
-            result: [-3, -5],
+            name: 'negateX',
+            trans: Transform.negateX(),
+            result: [-3, 5],
+        },
+        {
+            name: 'negateY',
+            trans: Transform.negateY(),
+            result: [3, -5],
         },
         {
             name: 'compose',
