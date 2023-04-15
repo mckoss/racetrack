@@ -10,7 +10,7 @@ export type { CarState, MoveOption, CarUpdate };
 
 // Data used by racer, and provided to stats subscribers.
 // We try not to included derived data here (like average speed)
-// since it is just distanceTraveled / step (or finishTime when finihed).
+// since it is just distanceTraveled / step.
 interface CarState {
     name?: string;
     author?: string;
@@ -21,7 +21,7 @@ interface CarState {
     velocity: Point;
     crashPosition?: Point;
     topSpeed: number;
-    distanceToFinish?: number;
+    distanceToFinish: number;
     distanceTraveled: number;
     racePosition: number;
     // Only the needed fraction of the last step is included in the finishTime
@@ -534,7 +534,7 @@ class Racetrack {
             const segmentLength = length(sub(result.position, car.position))
             car.distanceTraveled += segmentLength;
             car.position = result.position;
-            car.distanceToFinish = this.finishDistances.get(id(car.position));
+            car.distanceToFinish = this.finishDistances.get(id(car.position))!;
 
             this.histories[i].push(car.position);
             if (result.status !== 'ok') {
