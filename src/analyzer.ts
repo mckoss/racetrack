@@ -1,28 +1,39 @@
 // Analyze racer strategies.
 
-import { Point, Transform, scale, sub, length } from "./points";
+import { Point, Transform, sub, length } from "./points";
 import { CarState, CarUpdate, MoveOption } from "./racetrack";
-import { sgnOrder } from "./util";
+// import { gradientOf } from "./racers/racer-helper";
+import { sgnOrder, round } from "./util";
 
-export { normalize, Collector };
+export { normalize, cmpNormalize, Collector };
 
-// Normalize the data so it can be compared between analogous conditions.
+type Reducer<T> = (state: CarState, moves: MoveOption[]) => [T, Transform];
+
+// We develop several reducer functions that convert the data into classes
+// that can be more easily compared (e.g., are not sensitive to the
+// current position or orientation of the car).
+
+// This one preserves the most information.  But, does not aggregrate
+// many of the responses into a single class.
+
 // We convert the current velocity so that it is in the 1st octant
 // (x and y, positive, and x >= y).  We also convert the crash position
-// to be relative to the current position.
+// to a distance.
 // Distance to finish is normalized to be relative to the smallest
 // distance in the current position or any move.
 // Note that in this case distanceToFinish of zero is NOT the finish line.
 interface RacerData {
     velocity: Point;
-    crashDist: number;
-    moves: MoveOption[];
-    distanceToFinish: number;
-    selectedMove: Point;
+    crash: number;
+    moves: {
+        move: Point;
+        dist: number;
+    }[];
 }
 
-function normalize(state: CarState, moves: MoveOption[], move: Point): RacerData {
+function normalize(state: CarState, moves: MoveOption[]): [RacerData, Transform] {
     let t = new Transform();
+
     if (state.velocity[0] < 0) {
         t = t.compose(Transform.negateX());
     }
@@ -33,65 +44,66 @@ function normalize(state: CarState, moves: MoveOption[], move: Point): RacerData
     if (x < y) {
         t = Transform.swapXY().compose(t);
     }
-    const tPos = t.compose(Transform.translate(scale(-1, state.position)));
     const coastDist = moves.reduce((a, b) =>
-        b.distanceToFinish !== undefined
-        ? Math.min(a, b.distanceToFinish)
-        : a, Infinity);
-    const crashDist = state.crashPosition !== undefined ?
-        Math.round(length(sub(state.crashPosition, state.position)) * 10) / 10 :
+        b.distanceToFinish !== undefined ? Math.min(a, b.distanceToFinish) : a,
+        Infinity);
+    const crash = state.crashPosition !== undefined ?
+        round(length(sub(state.crashPosition, state.position)), 1):
         Infinity;
     const result = {
         velocity: t.apply(state.velocity),
-        crashDist,
+        crash,
         moves: moves.map(m => ({
-            ...m,
             move: t.apply(m.move),
-            position: tPos.apply(m.position),
-            distanceToFinish: m.distanceToFinish ? m.distanceToFinish - coastDist : Infinity,
+            dist: m.distanceToFinish ? m.distanceToFinish - coastDist : Infinity,
         })),
-        distanceToFinish: state.distanceToFinish,
-        selectedMove: t.apply(move),
     };
-    return result;
+    return [result, t];
 }
 
-class Collector {
+function cmpNormalize(a: RacerData, b: RacerData): number {
+    return sgnOrder(
+        a.velocity[0]- b.velocity[0],
+        a.velocity[1]- b.velocity[1],
+        a.crash - b.crash);
+}
+
+class Collector<T> {
     racer: CarUpdate;
     wrappedRacer: CarUpdate;
+    cmp?: (a: T, b: T) => number;
     hist = new Map<string, Point[]>();
 
-    constructor(racer: CarUpdate) {
+    constructor(racer: CarUpdate, reducer: Reducer<T>, cmp?: (a: T, b: T) => number) {
         const self = this;
 
         this.racer = racer;
+        this.cmp = cmp;
+
         this.wrappedRacer = (state, moves, rt) => {
             const move = racer(state, moves, rt);
-            const data = normalize(state, moves, move);
-            const keyJSON = {v: data.velocity, c: data.crashDist};
-            const key = JSON.stringify(keyJSON);
+            const [data, t] = reducer(state, moves);
+            const key = JSON.stringify(data);
             if (!self.hist.has(key)) {
                 self.hist.set(key, []);
             }
-            self.hist.get(key)!.push(data.selectedMove);
+            self.hist.get(key)!.push(t.apply(move));
             return move;
         };
     }
 
     report(): string {
         const entries = Array.from(this.hist.entries());
-        entries.sort((a, b) => {
-            const aKey = JSON.parse(a[0]);
-            const bKey = JSON.parse(b[0]);
-            return sgnOrder(
-                aKey.v[0] - bKey.v[0],
-                aKey.v[1] - bKey.v[1],
-                aKey.c - bKey.c
-                );
-        });
+        if (this.cmp) {
+            const cmp = this.cmp;
+            entries.sort((a, b) => {
+                const [aT, bT] = [a, b].map(x => JSON.parse(x[0]));
+                return cmp!(aT, bT);
+            });
+        }
         const samples = entries.reduce((a, b) => a + b[1].length, 0);
-        console.log(`entries: ${samples}`);
+        console.log(`entries: ${entries.length} keys - with ${samples} samples`);
         const lines = entries.map(([key, choices]) => `${key}: ${JSON.stringify(choices)}`);
-        return lines.join('\n');
+        return lines.join('\n\n');
     }
 }

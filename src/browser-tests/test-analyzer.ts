@@ -2,7 +2,7 @@ import { assert } from 'chai';
 
 import { Racetrack } from '../racetrack.js';
 import { SAMPLE_TRACKS } from '../tracks.js';
-import { Collector } from '../analyzer.js';
+import { normalize, cmpNormalize, Collector } from '../analyzer.js';
 
 import { getOptimalRacer } from '../optimal-path-finder.js';
 
@@ -23,7 +23,7 @@ suite('Analyzer', function () {
 
     test('Optimal Racer', async () => {
         const racer = getOptimalRacer();
-        const c = new Collector(racer);
+        const c = new Collector(racer, normalize, cmpNormalize);
         for (const track of SAMPLE_TRACKS) {
             const rt = new Racetrack(canvas, track);
             rt.race(c.wrappedRacer);

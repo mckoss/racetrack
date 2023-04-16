@@ -1,5 +1,5 @@
 export { linePoints, add, sub, scale, ceil, round, isZero, isEqual, sign,
-    length, unit, turn, dot, repr, perpendicularLine, fixed, scaleToBox, id,
+    length, unit, turn, turnOf, dot, repr, perpendicularLine, fixed, scaleToBox, id,
     pointFromId, neighbors, isOrthogonal, Transform };
 export type { Point };
 
@@ -113,6 +113,11 @@ function turn([x, y]: Point, turns: number): Point {
     const cos = Math.cos(rad);
     const sin = Math.sin(rad);
     return [x * cos - y * sin, x * sin + y * cos];
+}
+
+// Returns value between -0.5 and 0.5
+function turnOf([x, y]: Point): number {
+    return Math.atan2(y, x) / (2 * Math.PI);
 }
 
 function fixed([x, y]: Point, digits = 3): Point {

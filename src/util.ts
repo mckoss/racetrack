@@ -1,5 +1,5 @@
 export { testBool, testValue, cmpDefined, sgnOrder,
-    shuffle, range, first, pyramidal, partialPyramidal };
+    shuffle, range, first, pyramidal, partialPyramidal, round };
 export type { CMP, SGN };
 
 // These functions are used as helpers for sorting arrays.  Inside of a
@@ -189,4 +189,9 @@ function partialPyramidal(d: number, s: number): number[] {
     }
 
     return results;
+}
+
+function round(n: number, digits: number = 0): number {
+    const factor = 10 ** digits;
+    return Math.round(n * factor) / factor;
 }

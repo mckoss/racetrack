@@ -243,6 +243,8 @@ class Racetrack {
         this.ctx.save();
         this.ctx.imageSmoothingEnabled = false;
         this.ctx.translate(x, y);
+        // Sprite is facing down, so rotate to face right, and then in direction
+        // of the velocity.
         this.ctx.rotate(-Math.PI / 2 + Math.atan2(vy, vx));
         this.ctx.drawImage(carSheet, sx, sy, CAR_SPRITE_WIDTH, CAR_SPRITE_HEIGHT,
                            -this.track.grid, -2 * this.track.grid, 2 * this.track.grid, 2 * this.track.grid);
