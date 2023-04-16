@@ -1,6 +1,6 @@
 // Analyze racer strategies.
 
-import { Point, Transform, scale } from "./points";
+import { Point, Transform, scale, sub, length } from "./points";
 import { CarState, CarUpdate, MoveOption } from "./racetrack";
 import { sgnOrder } from "./util";
 
@@ -15,7 +15,7 @@ export { normalize, Collector };
 // Note that in this case distanceToFinish of zero is NOT the finish line.
 interface RacerData {
     velocity: Point;
-    crashPosition: Point | undefined;
+    crashDist: number;
     moves: MoveOption[];
     distanceToFinish: number;
     selectedMove: Point;
@@ -38,9 +38,12 @@ function normalize(state: CarState, moves: MoveOption[], move: Point): RacerData
         b.distanceToFinish !== undefined
         ? Math.min(a, b.distanceToFinish)
         : a, Infinity);
+    const crashDist = state.crashPosition !== undefined ?
+        Math.round(length(sub(state.crashPosition, state.position)) * 10) / 10 :
+        Infinity;
     const result = {
         velocity: t.apply(state.velocity),
-        crashPosition: state.crashPosition ? tPos.apply(state.crashPosition) : undefined,
+        crashDist,
         moves: moves.map(m => ({
             ...m,
             move: t.apply(m.move),
@@ -56,7 +59,7 @@ function normalize(state: CarState, moves: MoveOption[], move: Point): RacerData
 class Collector {
     racer: CarUpdate;
     wrappedRacer: CarUpdate;
-    velocities = new Map<string, number>();
+    hist = new Map<string, Point[]>();
 
     constructor(racer: CarUpdate) {
         const self = this;
@@ -65,23 +68,30 @@ class Collector {
         this.wrappedRacer = (state, moves, rt) => {
             const move = racer(state, moves, rt);
             const data = normalize(state, moves, move);
-            const key = JSON.stringify(data.velocity);
-            const count = self.velocities.has(key) ? self.velocities.get(key)! : 0;
-            self.velocities.set(key, count + 1);
+            const keyJSON = {v: data.velocity, c: data.crashDist};
+            const key = JSON.stringify(keyJSON);
+            if (!self.hist.has(key)) {
+                self.hist.set(key, []);
+            }
+            self.hist.get(key)!.push(data.selectedMove);
             return move;
         };
     }
 
     report(): string {
-        const entries = Array.from(this.velocities.entries());
+        const entries = Array.from(this.hist.entries());
         entries.sort((a, b) => {
-            const [xA, yA] = JSON.parse(a[0]);
-            const [xB, yB] = JSON.parse(b[0]);
-            return sgnOrder(xA - xB, yA - yB);
+            const aKey = JSON.parse(a[0]);
+            const bKey = JSON.parse(b[0]);
+            return sgnOrder(
+                aKey.v[0] - bKey.v[0],
+                aKey.v[1] - bKey.v[1],
+                aKey.c - bKey.c
+                );
         });
-        const samples = entries.reduce((a, b) => a + b[1], 0);
+        const samples = entries.reduce((a, b) => a + b[1].length, 0);
         console.log(`entries: ${samples}`);
-        const lines = entries.map(([key, count]) => `${key}: ${count}`);
+        const lines = entries.map(([key, choices]) => `${key}: ${JSON.stringify(choices)}`);
         return lines.join('\n');
     }
 }
