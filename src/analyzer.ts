@@ -5,7 +5,7 @@ import { CarState, CarUpdate, MoveOption } from "./racetrack";
 import { gradientOf } from "./racers/racer-helper";
 import { sgnOrder, round } from "./util";
 
-export { normalize, cmpNormalize, scalarNormalize, cmpScalar, Collector };
+export { normalize, cmpNormalize, scalarReducer, cmpScalar, Collector };
 
 type Reducer<T> = (state: CarState, moves: MoveOption[]) => [T, Transform];
 
@@ -82,7 +82,7 @@ interface ScalarData {
     grad: number;
 }
 
-function scalarNormalize(state: CarState, moves: MoveOption[]): [ScalarData, Transform] {
+function scalarReducer(state: CarState, moves: MoveOption[]): [ScalarData, Transform] {
     const t = velocityTransform(state.velocity);
     const speed = round(length(state.velocity), 1);
     const crash = round(state.crashPosition !== undefined ?
