@@ -1,11 +1,11 @@
 // Analyze racer strategies.
 
-import { Point, Transform, sub, length } from "./points";
+import { Point, Transform, sub, length, turnOf } from "./points";
 import { CarState, CarUpdate, MoveOption } from "./racetrack";
-// import { gradientOf } from "./racers/racer-helper";
+import { gradientOf } from "./racers/racer-helper";
 import { sgnOrder, round } from "./util";
 
-export { normalize, cmpNormalize, Collector };
+export { normalize, cmpNormalize, scalarNormalize, cmpScalar, Collector };
 
 type Reducer<T> = (state: CarState, moves: MoveOption[]) => [T, Transform];
 
@@ -16,9 +16,7 @@ type Reducer<T> = (state: CarState, moves: MoveOption[]) => [T, Transform];
 // This one preserves the most information.  But, does not aggregrate
 // many of the responses into a single class.
 
-// We convert the current velocity so that it is in the 1st octant
-// (x and y, positive, and x >= y).  We also convert the crash position
-// to a distance.
+// Convert the crash position to a distance.
 // Distance to finish is normalized to be relative to the smallest
 // distance in the current position or any move.
 // Note that in this case distanceToFinish of zero is NOT the finish line.
@@ -32,21 +30,12 @@ interface RacerData {
 }
 
 function normalize(state: CarState, moves: MoveOption[]): [RacerData, Transform] {
-    let t = new Transform();
+    const t = velocityTransform(state.velocity);
 
-    if (state.velocity[0] < 0) {
-        t = t.compose(Transform.negateX());
-    }
-    if (state.velocity[1] < 0) {
-        t = t.compose(Transform.negateY());
-    }
-    const [x, y] = t.apply(state.velocity);
-    if (x < y) {
-        t = Transform.swapXY().compose(t);
-    }
     const coastDist = moves.reduce((a, b) =>
         b.distanceToFinish !== undefined ? Math.min(a, b.distanceToFinish) : a,
         Infinity);
+
     const crash = state.crashPosition !== undefined ?
         round(length(sub(state.crashPosition, state.position)), 1):
         Infinity;
@@ -61,11 +50,54 @@ function normalize(state: CarState, moves: MoveOption[]): [RacerData, Transform]
     return [result, t];
 }
 
+// Transform to convert the current velocity so that it is in the 1st octant
+// (x and y, positive, and x >= y).
+function velocityTransform(velocity: Point): Transform {
+    let t = new Transform();
+
+    if (velocity[0] < 0) {
+        t = t.compose(Transform.negateX());
+    }
+    if (velocity[1] < 0) {
+        t = t.compose(Transform.negateY());
+    }
+    const [x, y] = t.apply(velocity);
+    if (x < y) {
+        t = Transform.swapXY().compose(t);
+    }
+    return t;
+}
+
 function cmpNormalize(a: RacerData, b: RacerData): number {
     return sgnOrder(
         a.velocity[0]- b.velocity[0],
         a.velocity[1]- b.velocity[1],
         a.crash - b.crash);
+}
+
+interface ScalarData {
+    speed: number;
+    crash: number;
+    // Expressed in turns
+    grad: number;
+}
+
+function scalarNormalize(state: CarState, moves: MoveOption[]): [ScalarData, Transform] {
+    const t = velocityTransform(state.velocity);
+    const speed = round(length(state.velocity), 1);
+    const crash = round(state.crashPosition !== undefined ?
+        round(length(sub(state.crashPosition, state.position)), 1):
+        Infinity, 1);
+    const grad = round(turnOf(t.apply(gradientOf(moves, state.velocity))), 2);
+    const data = {speed, crash, grad };
+    return [data, t];
+}
+
+function cmpScalar(a: ScalarData, b: ScalarData): number {
+    return sgnOrder(
+        a.speed - b.speed,
+        a.crash - b.crash,
+        a.grad - b.grad);
 }
 
 class Collector<T> {

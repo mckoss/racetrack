@@ -2,7 +2,7 @@ import { assert } from 'chai';
 
 import { Racetrack } from '../racetrack.js';
 import { SAMPLE_TRACKS } from '../tracks.js';
-import { normalize, cmpNormalize, Collector } from '../analyzer.js';
+import { Collector, scalarNormalize, cmpScalar } from '../analyzer.js';
 
 import { getOptimalRacer } from '../optimal-path-finder.js';
 
@@ -21,9 +21,21 @@ suite('Analyzer', function () {
         document.body.appendChild(canvas);
     });
 
-    test('Optimal Racer', async () => {
+    // test('Normal Data Collector', async () => {
+    //     const racer = getOptimalRacer();
+    //     const c = new Collector(racer, normalize, cmpNormalize);
+    //     for (const track of SAMPLE_TRACKS) {
+    //         const rt = new Racetrack(canvas, track);
+    //         rt.race(c.wrappedRacer);
+    //         await rt.run();
+    //     }
+    //     console.log(c.report());
+    //     assert.isTrue(c.report().length > 0);
+    // }).timeout(10000);
+
+    test('Scalar Data Collector', async () => {
         const racer = getOptimalRacer();
-        const c = new Collector(racer, normalize, cmpNormalize);
+        const c = new Collector(racer, scalarNormalize, cmpScalar);
         for (const track of SAMPLE_TRACKS) {
             const rt = new Racetrack(canvas, track);
             rt.race(c.wrappedRacer);
