@@ -124,18 +124,23 @@ class Collector<T> {
         };
     }
 
-    report(): string {
-        const entries = Array.from(this.hist.entries());
+    getReportData(): [T, Point[]][] {
+        const entries = Array.from(this.hist.entries()).map(
+            x => [JSON.parse(x[0]), x[1]] as [T, Point[]]);
         if (this.cmp) {
             const cmp = this.cmp;
             entries.sort((a, b) => {
-                const [aT, bT] = [a, b].map(x => JSON.parse(x[0]));
-                return cmp!(aT, bT);
+                return cmp!(a[0], b[0]);
             });
         }
+        return entries;
+    }
+
+    report(): string {
+        const entries = this.getReportData();
         const samples = entries.reduce((a, b) => a + b[1].length, 0);
         console.log(`entries: ${entries.length} keys - with ${samples} samples`);
-        const lines = entries.map(([key, choices]) => `${key}: ${JSON.stringify(choices)}`);
-        return lines.join('\n\n');
+        const lines = entries.map(([key, choices]) => `${JSON.stringify(key)}: ${JSON.stringify(choices)}`);
+        return lines.join('\n');
     }
 }
