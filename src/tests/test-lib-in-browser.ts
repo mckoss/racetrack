@@ -18,6 +18,7 @@ suite('Test published libs in headless browser', () => {
     setup(async () => {
         browser = await puppeteer.launch({
             // dumpio: true,
+            // Address headless chrome failure on github actions
             args: ['--no-sandbox', '--disable-setuid-sandbox']
         });
         page = await browser.newPage();
