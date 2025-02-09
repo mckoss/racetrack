@@ -16,7 +16,10 @@ suite('Test published libs in headless browser', () => {
     let page: Page;
 
     setup(async () => {
-        browser = await puppeteer.launch({ /* dumpio: true */ });
+        browser = await puppeteer.launch({
+            // dumpio: true,
+            args: ['--no-sandbox', '--disable-setuid-sandbox']
+        });
         page = await browser.newPage();
         page.setViewport({
             width: 1080,
